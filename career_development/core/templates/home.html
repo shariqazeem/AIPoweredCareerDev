@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+    {% if user.is_authenticated %}
+        <div class="shadow-lg rounded-lg p-6">
+            <h1 class="text-3xl font-bold mb-4">Welcome, {{ user.username }}!</h1>
+            <p class="text-lg">Explore your career opportunities and manage your profile.</p>
+            <div class="mt-4">
+                <a href="{% url 'profile' %}" class="btn btn-primary">Edit Profile</a>
+                <a href="{% url 'user_profile' user.username %}" class="btn btn-secondary ml-2">View Profile</a>
+            </div>
+        </div>
+    {% else %}
+        <div class=" shadow-lg rounded-lg p-6 text-center">
+            <h1 class="text-3xl font-bold mb-4">Welcome to AI-Powered Career Advice Platform</h1>
+            <p class="text-lg mb-4">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
+            <div class="mt-4">
+                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary ml-2">Log In</a>
+            </div>
+        </div>
+    {% endif %}
+{% endblock %}

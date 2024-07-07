@@ -1,0 +1,12 @@
+<!-- account/profile_complete.html -->
+{% extends 'base.html' %}
+
+{% block title %}Profile Updated{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Profile Updated</h1>
+    <p>Your profile has been successfully updated.</p>
+    <p><a class="btn btn-primary" href="{% url 'profile' %}">View Profile</a></p>
+</div>
+{% endblock %}

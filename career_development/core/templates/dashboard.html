@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <div class="col-span-1 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Profile</h2>
+        <p><strong>Username:</strong> {{ user.username }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <a href="{% url 'profile' %}" class="text-blue-600">Edit Profile</a>
+    </div>
+    <div class="col-span-2 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Career Recommendations</h2>
+        <ul>
+            {% for recommendation in recommendations %}
+                <li class="mb-2">{{ recommendation }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <div class="col-span-2 bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-bold mb-2">Job Listings</h2>
+        <ul>
+            {% for job in job_listings %}
+                <li class="mb-2">{{ job }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+{% endblock %}

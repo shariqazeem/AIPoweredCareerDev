@@ -1,0 +1,18 @@
+<!-- core/templates/resources.html -->
+{% extends 'base.html' %}
+
+{% block title %}Skill Development Resources{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">Skill Development Resources</h1>
+<ul class="list-group">
+    {% for resource in resources %}
+        <li class="list-group-item">
+            <h4>{{ resource.title }}</h4>
+            <p>{{ resource.description }}</p>
+            <a href="{{ resource.link }}" class="btn btn-primary">Access Resource</a>
+        </li>
+    {% endfor %}
+</ul>
+<p><a class="btn btn-secondary mt-3" href="{% url 'home' %}">Back to Home</a></p>
+{% endblock %}

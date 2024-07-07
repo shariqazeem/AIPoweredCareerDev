@@ -1,0 +1,14 @@
+<!-- core/templates/connections.html -->
+{% extends 'base.html' %}
+
+{% block title %}My Connections{% endblock %}
+
+{% block content %}
+<h1 class="mt-4">My Connections</h1>
+<ul class="list-group">
+    {% for connection in connections %}
+        <li class="list-group-item">{{ connection.user_to.username }}</li>
+    {% endfor %}
+</ul>
+<p><a class="btn btn-secondary mt-3" href="{% url 'home' %}">Back to Home</a></p>
+{% endblock %}

@@ -1,0 +1,20 @@
+<!-- account/profile_details.html -->
+{% extends 'base.html' %}
+
+{% block title %}Complete Your Profile - Step 1{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Complete Your Profile - Step 1</h1>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.bio.label_tag }}
+        {{ form.bio }}
+        <br>
+        {{ form.location.label_tag }}
+        {{ form.location }}
+        <br>
+        <button type="submit" class="btn btn-primary">Next</button>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,28 @@
+/* core/static/css/style.css */
+/* Custom styles for your application */
+/* Example: */
+
+.container {
+    max-width: 800px;
+    margin: auto;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.btn-secondary {
+    margin-top: 10px;
+}
+
+.list-group-item {
+    border: none;
+}
+
+/* Add more custom styles as needed */
+.error {
+        background-color: #f56565; /* red */
+    }
+.success {
+        background-color: #48bb78; /* green */
+    }

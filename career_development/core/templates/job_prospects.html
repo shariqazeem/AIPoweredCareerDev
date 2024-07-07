@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Job Prospects{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h2 class="text-center">Job Prospects</h2>
+    <ul class="list-group">
+        {% for job in job_listings %}
+        <li class="list-group-item">{{ job }}</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
