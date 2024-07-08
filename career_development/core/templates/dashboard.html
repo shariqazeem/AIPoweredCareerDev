@@ -3,17 +3,20 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
 <style>
     body {
-        background-color: #1c1c1c;
+        background-color: #121212;
         color: #ffffff;
         font-family: 'Roboto', sans-serif;
     }
 
     .card {
-        border-radius: 0.5rem;
+        border-radius: 0.75rem;
         border: none;
-        background-color: #292b2c;
+        background-color: #1f1f1f;
         transition: transform 0.3s;
     }
 
@@ -26,11 +29,11 @@
     }
 
     .card-title {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         color: #f8f9fa;
         border-bottom: 1px solid #f8f9fa;
         padding-bottom: 0.5rem;
-        margin-bottom: 1rem;
+        margin-bottom: 1.5rem;
     }
 
     .recommendation-content p,
@@ -55,22 +58,6 @@
         color: #dcdcdc;
     }
 
-    .text-center {
-        text-align: center;
-    }
-
-    .w-100 {
-        width: 100%;
-    }
-
-    .mt-3 {
-        margin-top: 1rem;
-    }
-
-    .mb-4 {
-        margin-bottom: 1.5rem;
-    }
-
     .btn-primary {
         background-color: #007bff;
         border-color: #007bff;
@@ -81,6 +68,7 @@
         background-color: #0056b3;
         border-color: #004085;
     }
+
     .spinner-border {
         display: none;
         width: 1rem;
@@ -95,11 +83,22 @@
     .loading .btn-text {
         display: none;
     }
+
+    .profile-section, .section {
+        margin-bottom: 2rem;
+    }
+
+    .section h2 {
+        font-size: 1.5rem;
+        color: #00d1b2;
+        margin-bottom: 1rem;
+    }
 </style>
+
 <div class="container mt-4">
     <div class="row">
         <!-- Profile Section -->
-        <div class="col-lg-4 mb-4">
+        <div class="col-lg-4 mb-4 profile-section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Profile</h2>
@@ -116,11 +115,11 @@
         </div>
 
         <!-- Career Recommendations Section -->
-        <div class="col-lg-8 mb-4">
+        <div class="col-lg-8 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Career Recommendations</h2>
-                    <button id="get-career-recommendations-btn" class="btn btn-primary">
+                    <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Get Recommendations</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -135,11 +134,11 @@
         </div>
 
         <!-- Job Prospects Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Job Prospects</h2>
-                    <button id="get-job-prospects-btn" class="btn btn-primary">
+                    <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Get Job Prospects</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -154,11 +153,11 @@
         </div>
 
         <!-- Assess Skills Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Assess Skills</h2>
-                    <button id="assess-skills-btn" class="btn btn-primary">
+                    <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Assess Skills</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -173,11 +172,11 @@
         </div>
 
         <!-- Resume Advice Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Resume Advice</h2>
-                    <button id="get-resume-advice-btn" class="btn btn-primary">
+                    <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Get Advice</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -192,11 +191,11 @@
         </div>
 
         <!-- Match Jobs Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Match Jobs</h2>
-                    <button id="match-jobs-btn" class="btn btn-primary">
+                    <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Match Jobs</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -211,11 +210,11 @@
         </div>
 
         <!-- Learning Resources Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Learning Resources</h2>
-                    <button id="get-learning-resources-btn" class="btn btn-primary">
+                    <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Get Resources</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -230,11 +229,11 @@
         </div>
 
         <!-- Networking Opportunities Section -->
-        <div class="col-lg-12 mb-4">
+        <div class="col-lg-12 mb-4 section">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Networking Opportunities</h2>
-                    <button id="find-networking-opportunities-btn" class="btn btn-primary">
+                    <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
                         <span class="btn-text">Find Opportunities</span>
                         <span class="spinner-border" role="status" aria-hidden="true"></span>
                     </button>
@@ -261,121 +260,36 @@
         }
     }
 
-    document.getElementById('get-career-recommendations-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'get_career_recommendations' %}")
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('career-recommendations').innerHTML = `<h3>Recommendations</h3><pre>${data.career_recommendations}</pre>`;
-            } else {
-                alert(data.message);
-            }
+    function handleButtonClick(buttonId, url, resultSelector, resultKey) {
+        const button = document.getElementById(buttonId);
+        button.addEventListener('click', function() {
+            setLoadingState(button, true);
+            fetch(url, { method: 'GET' })
+                .then(response => response.json())
+                .then(data => {
+                    setLoadingState(button, false);
+                    if (data.status === 'success') {
+                        document.querySelector(resultSelector).innerHTML = `<h3>${button.innerText}</h3><pre>${data[resultKey]}</pre>`;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    setLoadingState(button, false);
+                    alert('An error occurred. Please try again.');
+                });
         });
-    });
+    }
 
-    document.getElementById('get-job-prospects-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'get_job_prospects' %}")
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('job-prospects').innerHTML = `<h3>Job Prospects</h3><pre>${data.job_prospects}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
-    });
-
-    document.getElementById('assess-skills-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'assess_skills' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('skill-assessment').innerHTML = `<h3>Assessment Result</h3><pre>${data.skill_assessment}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
-    });
-
-    document.getElementById('get-resume-advice-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'get_resume_advice' %}")
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('resume-advice').innerHTML = `<h3>Advice</h3><pre>${data.resume_advice}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
-    });
-
-    document.getElementById('match-jobs-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'match_jobs' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('matched-jobs').innerHTML = `<h3>Matched Jobs</h3><pre>${data.matched_jobs}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
-    });
-
-    document.getElementById('get-learning-resources-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'get_learning_resources' %}")
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('learning-resources').innerHTML = `<h3>Resources</h3><pre>${data.learning_resources}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
-    });
-
-    document.getElementById('find-networking-opportunities-btn').addEventListener('click', function() {
-        const button = this;
-        setLoadingState(button, true);
-        fetch("{% url 'find_networking_opportunities' %}")
-        .then(response => response.json())
-        .then(data => {
-            setLoadingState(button, false);
-            if (data.status === 'success') {
-                document.getElementById('networking-opportunities').innerHTML = `<h3>Opportunities</h3><pre>${data.networking_opportunities}</pre>`;
-            } else {
-                alert(data.message);
-            }
-        });
+    document.addEventListener('DOMContentLoaded', function() {
+        handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations" %}', '#career-recommendations', 'career_recommendations');
+        handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects" %}', '#job-prospects', 'job_prospects');
+        handleButtonClick('assess-skills-btn', '{% url "assess_skills" %}', '#skill-assessment', 'skill_assessment');
+        handleButtonClick('get-resume-advice-btn', '{% url "get_resume_advice" %}', '#resume-advice', 'resume_advice');
+        handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');
+        handleButtonClick('get-learning-resources-btn', '{% url "get_learning_resources" %}', '#learning-resources', 'learning_resources');
+        handleButtonClick('find-networking-opportunities-btn', '{% url "find_networking_opportunities" %}', '#networking-opportunities', 'networking_opportunities');
     });
 </script>
+
 {% endblock %}
