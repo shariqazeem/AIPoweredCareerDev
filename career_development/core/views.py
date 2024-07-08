@@ -4,7 +4,7 @@ from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form
-from .models import Resource, Connection, User, Profile
+from .models import Resource, Connection, Profile
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
@@ -87,74 +87,6 @@ def logout(request):
     django_logout(request)
     return redirect('login')
 
-# @login_required
-# def dashboard(request):
-#     recommendations = get_career_recommendations(request.user)
-#     job_listings = get_job_listings(request.user)
-
-#     profile = request.user.profile
-
-#     # Assess skills
-#     skill_assessment = None
-#     if request.method == 'POST' and 'assess_skills' in request.POST:
-#         prompt = f"Assess the following skills: {profile.skills}"
-#         response = model.generate_content(prompt)
-#         if response and hasattr(response, 'text'):
-#             skill_assessment = response.text
-
-#     # Get resume advice
-#     resume_advice = None
-#     if request.method == 'GET' and 'resume_advice' in request.GET:
-#         prompt = f"Give resume advice for the following text: {profile.professional_experience}"
-#         response = model.generate_content(prompt)
-#         if response and hasattr(response, 'text'):
-#             resume_advice = response.text
-
-#     # Match jobs
-#     matched_jobs = None
-#     if request.method == 'POST' and 'match_jobs' in request.POST:
-#         user_data = {
-#             'skills': profile.skills,
-#             'location': profile.location,
-#             'career_goals': profile.career_goals
-#         }
-#         prompt = f"Match jobs for a user with the following details: {user_data}"
-#         response = model.generate_content(prompt)
-#         if response and hasattr(response, 'text'):
-#             matched_jobs = response.text
-
-#     # Get learning resources
-#     learning_resources = None
-#     if request.method == 'GET' and 'learning_resources' in request.GET:
-#         prompt = f"Provide learning resources for the following skills: {profile.skills}"
-#         response = model.generate_content(prompt)
-#         if response and hasattr(response, 'text'):
-#             learning_resources = response.text
-
-#     # Find networking opportunities
-#     networking_opportunities = None
-#     if request.method == 'GET' and 'networking_opportunities' in request.GET:
-#         prompt = f"Find networking opportunities for the following interests: {profile.career_goals}"
-#         response = model.generate_content(prompt)
-#         if response and hasattr(response, 'text'):
-#             networking_opportunities = response.text
-
-#     context = {
-#         'user': request.user,
-#         'profile': profile,
-#         'recommendations': recommendations,
-#         'job_listings': job_listings,
-#         'skill_assessment': skill_assessment,
-#         'resume_advice': resume_advice,
-#         'matched_jobs': matched_jobs,
-#         'learning_resources': learning_resources,
-#         'networking_opportunities': networking_opportunities
-#     }
-#     return render(request, 'dashboard.html', context)
-
-
-
-
 @login_required
 def complete_profile_step1(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
@@ -205,11 +137,8 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-        if profile_form.is_valid():
-            return redirect('profile_details')
-
-    recommendations = get_career_recommendations(request.user)
-    job_listings = get_job_listings(request.user)
+    recommendations = request.user.profile.career_recommendations
+    job_listings = request.user.profile.job_prospects
 
     return render(request, 'profile.html', {
         'user_form': user_form,
@@ -340,26 +269,46 @@ def job_prospects(request):
     job_listings = get_job_listings(request.user)
     return render(request, 'job_prospects.html', {'job_listings': job_listings})
 
-
 @login_required
 def dashboard(request):
-    recommendations = get_career_recommendations(request.user)
-    job_listings = get_job_listings(request.user)
-
     profile = request.user.profile
 
     context = {
         'user': request.user,
         'profile': profile,
-        'recommendations': recommendations,
-        'job_listings': job_listings,
         'skill_assessment': profile.skill_assessment,
         'resume_advice': profile.resume_advice,
         'matched_jobs': profile.matched_jobs,
         'learning_resources': profile.learning_resources,
-        'networking_opportunities': profile.networking_opportunities
+        'networking_opportunities': profile.networking_opportunities,
+        'career_recommendations': profile.career_recommendations,
+        'job_prospects': profile.job_prospects,
     }
     return render(request, 'dashboard.html', context)
+
+@login_required
+def get_career_recommendations(request):
+    profile = request.user.profile
+    response = model.generate_content(f"Generate career recommendations for a user with the following details: {profile.bio}, {profile.skills}, {profile.career_goals}")
+
+    if response and hasattr(response, 'text'):
+        profile.career_recommendations = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'career_recommendations': profile.career_recommendations})
+
+    return JsonResponse({'status': 'error', 'message': 'Failed to generate career recommendations.'}, status=400)
+
+@login_required
+def get_job_prospects(request):
+    profile = request.user.profile
+    response = model.generate_content(f"Generate job prospects for a user with the following details: {profile.skills}, {profile.location}, {profile.career_goals}")
+
+    if response and hasattr(response, 'text'):
+        profile.job_prospects = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'job_prospects': profile.job_prospects})
+
+    return JsonResponse({'status': 'error', 'message': 'Failed to generate job prospects.'}, status=400)
 
 @login_required
 def assess_skills(request):

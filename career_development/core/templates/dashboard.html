@@ -120,20 +120,34 @@
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
                     <h2 class="card-title text-center mb-4">Career Recommendations</h2>
-                    <div class="recommendation-content" style="max-height: 400px; overflow-y: auto;">
-                        {{ recommendations|safe }}
+                    <button id="get-career-recommendations-btn" class="btn btn-primary">
+                        <span class="btn-text">Get Recommendations</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="career-recommendations" class="mt-4">
+                        {% if career_recommendations %}
+                        <h3>Recommendations</h3>
+                        <pre>{{ career_recommendations|safe }}</pre>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Job Listings Section -->
+        <!-- Job Prospects Section -->
         <div class="col-lg-12 mb-4">
             <div class="card shadow-lg bg-dark text-light">
                 <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Job Listings</h2>
-                    <div class="job-listings-content" style="max-height: 400px; overflow-y: auto;">
-                        {{ job_listings|safe }}
+                    <h2 class="card-title text-center mb-4">Job Prospects</h2>
+                    <button id="get-job-prospects-btn" class="btn btn-primary">
+                        <span class="btn-text">Get Job Prospects</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="job-prospects" class="mt-4">
+                        {% if job_prospects %}
+                        <h3>Job Prospects</h3>
+                        <pre>{{ job_prospects|safe }}</pre>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -246,6 +260,36 @@
             button.disabled = false;
         }
     }
+
+    document.getElementById('get-career-recommendations-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'get_career_recommendations' %}")
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('career-recommendations').innerHTML = `<h3>Recommendations</h3><pre>${data.career_recommendations}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById('get-job-prospects-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'get_job_prospects' %}")
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('job-prospects').innerHTML = `<h3>Job Prospects</h3><pre>${data.job_prospects}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
 
     document.getElementById('assess-skills-btn').addEventListener('click', function() {
         const button = this;
