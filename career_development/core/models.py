@@ -9,6 +9,11 @@ class Profile(models.Model):
     professional_experience = models.TextField(blank=True)
     location = models.CharField(max_length=100, blank=True)
     # Add any additional fields here if needed
+    skill_assessment = models.TextField(blank=True, null=True)
+    resume_advice = models.TextField(blank=True, null=True)
+    matched_jobs = models.TextField(blank=True, null=True)
+    learning_resources = models.TextField(blank=True, null=True)
+    networking_opportunities = models.TextField(blank=True, null=True)
 
     @property
     def is_complete(self):

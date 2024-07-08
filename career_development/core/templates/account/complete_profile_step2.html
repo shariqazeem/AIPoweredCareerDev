@@ -4,13 +4,28 @@
 
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 500px;">
+    <div class="card p-4 shadow-lg bg-dark text-light" style="width: 100%; max-width: 500px;">
         <h2 class="text-center mb-4">Complete Profile - Step 2</h2>
-        <form method="post">
+        <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             {{ form.as_p }}
             <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
         </form>
     </div>
 </div>
+<script>
+    (function() {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

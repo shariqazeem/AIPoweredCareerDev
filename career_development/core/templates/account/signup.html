@@ -2,25 +2,37 @@
 {% block title %}Sign Up{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px;">
-        <h2 class="text-center mb-4">Sign Up</h2>
-        <form method="post">
+    <div class="card p-4 shadow-lg bg-dark text-light" style="width: 100%; max-width: 400px;">
+        <h2 class="text-center mb-4">Join Us</h2>
+        <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" required>
+                <div class="invalid-feedback">
+                    Please provide a username.
+                </div>
             </div>
             <div class="mb-3">
                 <label for="email" class="form-label">Email address</label>
                 <input type="email" class="form-control" id="email" name="email" required>
+                <div class="invalid-feedback">
+                    Please provide a valid email address.
+                </div>
             </div>
             <div class="mb-3">
                 <label for="password1" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password1" name="password1" required>
+                <div class="invalid-feedback">
+                    Please provide a password.
+                </div>
             </div>
             <div class="mb-3">
                 <label for="password2" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" id="password2" name="password2" required>
+                <div class="invalid-feedback">
+                    Please confirm your password.
+                </div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign Up</button>
         </form>
@@ -29,4 +41,19 @@
         </div>
     </div>
 </div>
+<script>
+    (function() {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 {% endblock %}

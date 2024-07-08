@@ -3,28 +3,335 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="col-span-1 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Profile</h2>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <a href="{% url 'profile' %}" class="text-blue-600">Edit Profile</a>
-    </div>
-    <div class="col-span-2 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Career Recommendations</h2>
-        <ul>
-            {% for recommendation in recommendations %}
-                <li class="mb-2">{{ recommendation }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="col-span-2 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Job Listings</h2>
-        <ul>
-            {% for job in job_listings %}
-                <li class="mb-2">{{ job }}</li>
-            {% endfor %}
-        </ul>
+<style>
+    body {
+        background-color: #1c1c1c;
+        color: #ffffff;
+        font-family: 'Roboto', sans-serif;
+    }
+
+    .card {
+        border-radius: 0.5rem;
+        border: none;
+        background-color: #292b2c;
+        transition: transform 0.3s;
+    }
+
+    .card:hover {
+        transform: scale(1.02);
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        color: #f8f9fa;
+        border-bottom: 1px solid #f8f9fa;
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .recommendation-content p,
+    .job-listings-content p {
+        margin-bottom: 0.5rem;
+        color: #dcdcdc;
+    }
+
+    .recommendation-content h1,
+    .job-listings-content h1,
+    .recommendation-content h2,
+    .job-listings-content h2,
+    .recommendation-content h3,
+    .job-listings-content h3 {
+        margin-top: 1rem;
+        color: #f8f9fa;
+    }
+
+    .recommendation-content li,
+    .job-listings-content li {
+        margin-bottom: 0.5rem;
+        color: #dcdcdc;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .w-100 {
+        width: 100%;
+    }
+
+    .mt-3 {
+        margin-top: 1rem;
+    }
+
+    .mb-4 {
+        margin-bottom: 1.5rem;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+    .spinner-border {
+        display: none;
+        width: 1rem;
+        height: 1rem;
+        border-width: 0.2em;
+    }
+
+    .loading .spinner-border {
+        display: inline-block;
+    }
+
+    .loading .btn-text {
+        display: none;
+    }
+</style>
+<div class="container mt-4">
+    <div class="row">
+        <!-- Profile Section -->
+        <div class="col-lg-4 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Profile</h2>
+                    <p><strong>Username:</strong> {{ user.username }}</p>
+                    <p><strong>Email:</strong> {{ user.email }}</p>
+                    <p><strong>Bio:</strong> {{ profile.bio }}</p>
+                    <p><strong>Location:</strong> {{ profile.location }}</p>
+                    <p><strong>Skills:</strong> {{ profile.skills }}</p>
+                    <p><strong>Career Goals:</strong> {{ profile.career_goals }}</p>
+                    <p><strong>Professional Experience:</strong> {{ profile.professional_experience }}</p>
+                    <a href="{% url 'profile' %}" class="btn btn-primary w-100 mt-3">Edit Profile</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Career Recommendations Section -->
+        <div class="col-lg-8 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Career Recommendations</h2>
+                    <div class="recommendation-content" style="max-height: 400px; overflow-y: auto;">
+                        {{ recommendations|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Job Listings Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Job Listings</h2>
+                    <div class="job-listings-content" style="max-height: 400px; overflow-y: auto;">
+                        {{ job_listings|safe }}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Assess Skills Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Assess Skills</h2>
+                    <button id="assess-skills-btn" class="btn btn-primary">
+                        <span class="btn-text">Assess Skills</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="skill-assessment" class="mt-4">
+                        {% if skill_assessment %}
+                        <h3>Assessment Result</h3>
+                        <pre>{{ skill_assessment|safe }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Resume Advice Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Resume Advice</h2>
+                    <button id="get-resume-advice-btn" class="btn btn-primary">
+                        <span class="btn-text">Get Advice</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="resume-advice" class="mt-4">
+                        {% if resume_advice %}
+                        <h3>Advice</h3>
+                        <pre>{{ resume_advice }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Match Jobs Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Match Jobs</h2>
+                    <button id="match-jobs-btn" class="btn btn-primary">
+                        <span class="btn-text">Match Jobs</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="matched-jobs" class="mt-4">
+                        {% if matched_jobs %}
+                        <h3>Matched Jobs</h3>
+                        <pre>{{ matched_jobs|safe }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Resources Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Learning Resources</h2>
+                    <button id="get-learning-resources-btn" class="btn btn-primary">
+                        <span class="btn-text">Get Resources</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="learning-resources" class="mt-4">
+                        {% if learning_resources %}
+                        <h3>Resources</h3>
+                        <pre>{{ learning_resources|safe }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Networking Opportunities Section -->
+        <div class="col-lg-12 mb-4">
+            <div class="card shadow-lg bg-dark text-light">
+                <div class="card-body">
+                    <h2 class="card-title text-center mb-4">Networking Opportunities</h2>
+                    <button id="find-networking-opportunities-btn" class="btn btn-primary">
+                        <span class="btn-text">Find Opportunities</span>
+                        <span class="spinner-border" role="status" aria-hidden="true"></span>
+                    </button>
+                    <div id="networking-opportunities" class="mt-4">
+                        {% if networking_opportunities %}
+                        <h3>Opportunities</h3>
+                        <pre>{{ networking_opportunities|safe }}</pre>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    function setLoadingState(button, loading) {
+        if (loading) {
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
+
+    document.getElementById('assess-skills-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'assess_skills' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('skill-assessment').innerHTML = `<h3>Assessment Result</h3><pre>${data.skill_assessment}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById('get-resume-advice-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'get_resume_advice' %}")
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('resume-advice').innerHTML = `<h3>Advice</h3><pre>${data.resume_advice}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById('match-jobs-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'match_jobs' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('matched-jobs').innerHTML = `<h3>Matched Jobs</h3><pre>${data.matched_jobs}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById('get-learning-resources-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'get_learning_resources' %}")
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('learning-resources').innerHTML = `<h3>Resources</h3><pre>${data.learning_resources}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+
+    document.getElementById('find-networking-opportunities-btn').addEventListener('click', function() {
+        const button = this;
+        setLoadingState(button, true);
+        fetch("{% url 'find_networking_opportunities' %}")
+        .then(response => response.json())
+        .then(data => {
+            setLoadingState(button, false);
+            if (data.status === 'success') {
+                document.getElementById('networking-opportunities').innerHTML = `<h3>Opportunities</h3><pre>${data.networking_opportunities}</pre>`;
+            } else {
+                alert(data.message);
+            }
+        });
+    });
+</script>
 {% endblock %}

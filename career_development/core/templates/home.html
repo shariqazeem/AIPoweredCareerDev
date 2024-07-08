@@ -2,23 +2,18 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        <div class="shadow-lg rounded-lg p-6">
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="text-center shadow-lg rounded-lg p-6 bg-dark text-light">
+        {% if user.is_authenticated %}
             <h1 class="text-3xl font-bold mb-4">Welcome, {{ user.username }}!</h1>
             <p class="text-lg">Explore your career opportunities and manage your profile.</p>
-            <div class="mt-4">
-                <a href="{% url 'profile' %}" class="btn btn-primary">Edit Profile</a>
-                <a href="{% url 'user_profile' user.username %}" class="btn btn-secondary ml-2">View Profile</a>
-            </div>
-        </div>
-    {% else %}
-        <div class=" shadow-lg rounded-lg p-6 text-center">
+            <a href="{% url 'dashboard' %}" class="btn btn-primary mt-4">Go to Dashboard</a>
+        {% else %}
             <h1 class="text-3xl font-bold mb-4">Welcome to AI-Powered Career Advice Platform</h1>
             <p class="text-lg mb-4">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
-            <div class="mt-4">
-                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
-                <a href="{% url 'login' %}" class="btn btn-secondary ml-2">Log In</a>
-            </div>
-        </div>
-    {% endif %}
+            <a href="{% url 'signup' %}" class="btn btn-primary mt-4">Sign Up</a>
+            <a href="{% url 'login' %}" class="btn btn-secondary mt-4 ml-2">Log In</a>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

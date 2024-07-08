@@ -3,7 +3,6 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.http import JsonResponse
-from .forms import UserUpdateForm, ProfileUpdateForm
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form
 from .models import Resource, Connection, User, Profile
 from django.contrib.auth.forms import UserCreationForm
@@ -21,13 +20,10 @@ from django.contrib.auth import login as auth_login
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import logout as django_logout  # Rename Django's logout function to avoid conflict
 
-# Initialize the GenAI client using the configured API key
 import google.generativeai as genai
 
-# Initialize the GenAI client using the configured API key
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
-# Create the model with specific generation configuration
 generation_config = {
     "temperature": 1,
     "top_p": 0.95,
@@ -41,40 +37,9 @@ model = genai.GenerativeModel(
     generation_config=generation_config,
 )
 
-
 def home(request):
-    # Your logic for rendering the home page
     return render(request, 'home.html')
 
-from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-
-class CustomUserCreationForm(UserCreationForm):
-    password1 = forms.CharField(
-        label='Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})
-    )
-    password2 = forms.CharField(
-        label='Confirm Password',
-        widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})
-    )
-
-    class Meta(UserCreationForm.Meta):
-        fields = UserCreationForm.Meta.fields
-        widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-input w-full'}),
-            'email': forms.EmailInput(attrs={'class': 'form-input w-full'}),
-        }
-
-class CustomAuthenticationForm(AuthenticationForm):
-    username = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-input w-full'})
-    )
-    password = forms.CharField(
-        widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})
-    )
-
-from django.contrib.auth import authenticate
 def signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -102,9 +67,6 @@ def login(request):
         form = CustomAuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
 
-
-from django.utils.encoding import force_str
-
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -121,21 +83,77 @@ def activate(request, uidb64, token):
         messages.error(request, 'The activation link is invalid.')
         return render(request, 'account/activation_invalid.html')
 
-
 def logout(request):
     django_logout(request)
-    # Redirect to a success page (login page, for example)
     return redirect('login')
 
-@login_required
-def dashboard(request):
-    recommendations = get_career_recommendations(request.user)
-    job_listings = get_job_listings(request.user)
-    return render(request, 'dashboard.html', {
-        'user': request.user,
-        'recommendations': recommendations,
-        'job_listings': job_listings
-    })
+# @login_required
+# def dashboard(request):
+#     recommendations = get_career_recommendations(request.user)
+#     job_listings = get_job_listings(request.user)
+
+#     profile = request.user.profile
+
+#     # Assess skills
+#     skill_assessment = None
+#     if request.method == 'POST' and 'assess_skills' in request.POST:
+#         prompt = f"Assess the following skills: {profile.skills}"
+#         response = model.generate_content(prompt)
+#         if response and hasattr(response, 'text'):
+#             skill_assessment = response.text
+
+#     # Get resume advice
+#     resume_advice = None
+#     if request.method == 'GET' and 'resume_advice' in request.GET:
+#         prompt = f"Give resume advice for the following text: {profile.professional_experience}"
+#         response = model.generate_content(prompt)
+#         if response and hasattr(response, 'text'):
+#             resume_advice = response.text
+
+#     # Match jobs
+#     matched_jobs = None
+#     if request.method == 'POST' and 'match_jobs' in request.POST:
+#         user_data = {
+#             'skills': profile.skills,
+#             'location': profile.location,
+#             'career_goals': profile.career_goals
+#         }
+#         prompt = f"Match jobs for a user with the following details: {user_data}"
+#         response = model.generate_content(prompt)
+#         if response and hasattr(response, 'text'):
+#             matched_jobs = response.text
+
+#     # Get learning resources
+#     learning_resources = None
+#     if request.method == 'GET' and 'learning_resources' in request.GET:
+#         prompt = f"Provide learning resources for the following skills: {profile.skills}"
+#         response = model.generate_content(prompt)
+#         if response and hasattr(response, 'text'):
+#             learning_resources = response.text
+
+#     # Find networking opportunities
+#     networking_opportunities = None
+#     if request.method == 'GET' and 'networking_opportunities' in request.GET:
+#         prompt = f"Find networking opportunities for the following interests: {profile.career_goals}"
+#         response = model.generate_content(prompt)
+#         if response and hasattr(response, 'text'):
+#             networking_opportunities = response.text
+
+#     context = {
+#         'user': request.user,
+#         'profile': profile,
+#         'recommendations': recommendations,
+#         'job_listings': job_listings,
+#         'skill_assessment': skill_assessment,
+#         'resume_advice': resume_advice,
+#         'matched_jobs': matched_jobs,
+#         'learning_resources': learning_resources,
+#         'networking_opportunities': networking_opportunities
+#     }
+#     return render(request, 'dashboard.html', context)
+
+
+
 
 @login_required
 def complete_profile_step1(request):
@@ -187,9 +205,8 @@ def profile(request):
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
 
-        # Check if profile is complete
         if profile_form.is_valid():
-            return redirect('profile_details')  # Redirect to complete profile details
+            return redirect('profile_details')
 
     recommendations = get_career_recommendations(request.user)
     job_listings = get_job_listings(request.user)
@@ -222,11 +239,6 @@ def user_profile(request, username):
     job_postings = get_job_listings(user)
     return render(request, 'user_profile.html', {'profile_user': user, 'recommendations': recommendations, 'job_postings': job_postings})
 
-# Other views remain unchanged...
-
-# Other views remain unchanged...
-
-
 def resources(request):
     resource_list = Resource.objects.all()
     return render(request, 'resources.html', {'resources': resource_list})
@@ -254,11 +266,11 @@ def get_career_recommendations(user):
     response = model.generate_content(prompt)
 
     if response and hasattr(response, 'text'):
-        return response.text.strip().split('\n')
+        recommendations = response.text.strip().split('\n')
+        recommendations_html = generate_html_from_text(recommendations)
+        return recommendations_html
     else:
-        return []
-
-from .models import Profile
+        return "<p>No recommendations available.</p>"
 
 def get_job_listings(user):
     profile = get_object_or_404(Profile, user=user)
@@ -274,9 +286,49 @@ def get_job_listings(user):
     response = model.generate_content(prompt)
 
     if response and hasattr(response, 'text'):
-        return response.text.strip().split('\n')
+        job_listings = response.text.strip().split('\n')
+        job_listings_html = generate_html_from_text(job_listings)
+        return job_listings_html
     else:
-        return []
+        return "<p>No job listings available.</p>"
+
+def generate_html_from_text(text_list):
+    html_content = ""
+    in_list = False
+
+    for line in text_list:
+        line = line.strip()
+        
+        if line.startswith('##'):
+            html_content += f"<h2>{line[2:].strip()}</h2>"
+        elif line.startswith('#'):
+            html_content += f"<h1>{line[1:].strip()}</h1>"
+        elif line.startswith('**') and line.endswith('**'):
+            html_content += f"<strong>{line[2:-2].strip()}</strong><br>"
+        elif line.startswith('**') and line.endswith(':**'):
+            html_content += f"<h3>{line[2:-3].strip()}</h3>"
+        elif line.startswith('1. ') or line.startswith('2. ') or line.startswith('3. '):
+            if in_list:
+                html_content += "</li>"
+            else:
+                in_list = True
+                html_content += "<ol><li>"
+            html_content += line.strip()[3:] + "</li><li>"
+        elif line.startswith('* '):
+            if not in_list:
+                html_content += "<ul>"
+                in_list = True
+            html_content += f"<li>{line[2:].strip()}</li>"
+        else:
+            if in_list:
+                html_content += "</ul>" if in_list else "</ol>"
+                in_list = False
+            html_content += f"<p>{line}</p>"
+
+    if in_list:
+        html_content += "</ul>" if in_list else "</ol>"
+
+    return html_content
 
 @login_required
 def career_recommendations(request):
@@ -289,75 +341,87 @@ def job_prospects(request):
     return render(request, 'job_prospects.html', {'job_listings': job_listings})
 
 
+@login_required
+def dashboard(request):
+    recommendations = get_career_recommendations(request.user)
+    job_listings = get_job_listings(request.user)
+
+    profile = request.user.profile
+
+    context = {
+        'user': request.user,
+        'profile': profile,
+        'recommendations': recommendations,
+        'job_listings': job_listings,
+        'skill_assessment': profile.skill_assessment,
+        'resume_advice': profile.resume_advice,
+        'matched_jobs': profile.matched_jobs,
+        'learning_resources': profile.learning_resources,
+        'networking_opportunities': profile.networking_opportunities
+    }
+    return render(request, 'dashboard.html', context)
+
+@login_required
 def assess_skills(request):
-    if request.method == 'POST':
-        user_skills = request.POST.get('skills', '')
-        response = model.generate_embeddings(content=user_skills)
+    profile = request.user.profile
+    response = model.generate_content(f"Assess the following skills: {profile.skills}")
 
-        if response and response.status_code == 200:
-            data = response.json()
-            return JsonResponse({'status': 'success', 'message': 'Skills assessed successfully.', 'data': data})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to assess skills.'}, status=400)
+    if response and hasattr(response, 'text'):
+        profile.skill_assessment = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'skill_assessment': profile.skill_assessment})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Failed to assess skills.'}, status=400)
 
+@login_required
 def get_resume_advice(request):
-    if request.method == 'GET':
-        user_resume_text = request.GET.get('resume_text', '')
-        response = model.generate_content(
-            prompt=f"Give resume advice for the following text: {user_resume_text}"
-        )
+    profile = request.user.profile
+    response = model.generate_content(f"Give resume advice for the following text: {profile.professional_experience}")
 
-        if response and hasattr(response, 'text'):
-            return JsonResponse({'status': 'success', 'message': 'Resume advice generated successfully.', 'data': response.text})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
+    if response and hasattr(response, 'text'):
+        profile.resume_advice = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'resume_advice': profile.resume_advice})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
 
+@login_required
 def match_jobs(request):
-    if request.method == 'POST':
-        user_data = {
-            'skills': request.POST.get('skills', ''),
-            'location': request.POST.get('location', ''),
-            'career_goals': request.POST.get('career_goals', '')
-        }
-        response = model.generate_content(
-            prompt=f"Match jobs for a user with the following details: {user_data}"
-        )
+    profile = request.user.profile
+    user_data = {
+        'skills': profile.skills,
+        'location': profile.location,
+        'career_goals': profile.career_goals
+    }
+    response = model.generate_content(f"Match jobs for a user with the following details: {user_data}")
 
-        if response and hasattr(response, 'text'):
-            return JsonResponse({'status': 'success', 'message': 'Job matching successful.', 'data': response.text})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to match jobs.'}, status=400)
+    if response and hasattr(response, 'text'):
+        profile.matched_jobs = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'matched_jobs': profile.matched_jobs})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Failed to match jobs.'}, status=400)
 
+@login_required
 def get_learning_resources(request):
-    if request.method == 'GET':
-        user_skills = request.GET.get('skills', '')
-        response = model.generate_content(
-            prompt=f"Provide learning resources for the following skills: {user_skills}"
-        )
+    profile = request.user.profile
+    response = model.generate_content(f"Provide learning resources for the following skills: {profile.skills}")
 
-        if response and hasattr(response, 'text'):
-            return JsonResponse({'status': 'success', 'message': 'Learning resources fetched successfully.', 'data': response.text})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to fetch learning resources.'}, status=400)
+    if response and hasattr(response, 'text'):
+        profile.learning_resources = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'learning_resources': profile.learning_resources})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Failed to fetch learning resources.'}, status=400)
 
+@login_required
 def find_networking_opportunities(request):
-    if request.method == 'GET':
-        user_interests = request.GET.get('interests', '')
-        response = model.generate_content(
-            prompt=f"Find networking opportunities for the following interests: {user_interests}"
-        )
+    profile = request.user.profile
+    response = model.generate_content(f"Find networking opportunities for the following interests: {profile.career_goals}")
 
-        if response and hasattr(response, 'text'):
-            return JsonResponse({'status': 'success', 'message': 'Networking opportunities fetched successfully.', 'data': response.text})
-        else:
-            return JsonResponse({'status': 'error', 'message': 'Failed to fetch networking opportunities.'}, status=400)
+    if response and hasattr(response, 'text'):
+        profile.networking_opportunities = response.text
+        profile.save()
+        return JsonResponse({'status': 'success', 'networking_opportunities': profile.networking_opportunities})
 
-    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Failed to fetch networking opportunities.'}, status=400)
