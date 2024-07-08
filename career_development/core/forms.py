@@ -30,22 +30,27 @@ class ProfileStep3Form(forms.ModelForm):
         fields = ['professional_experience']
 
 class CustomUserCreationForm(UserCreationForm):
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={'class': 'form-input w-full'})
+    )
     password1 = forms.CharField(
-        label = 'Password',
+        label='Password',
         widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})
     )
     password2 = forms.CharField(
-        label = 'Confirm Password',
+        label='Confirm Password',
         widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})
     )
 
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields
+        fields = ['username', 'email', 'password1', 'password2']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-input w-full'}),
             'email': forms.EmailInput(attrs={'class': 'form-input w-full'}),
         }
+
 
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(

@@ -45,7 +45,9 @@ def signup(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.email = form.cleaned_data['email']
+            user.save()
             messages.success(request, 'Signup successful! Please check your email to activate your account.')
             return redirect('login')
         else:
