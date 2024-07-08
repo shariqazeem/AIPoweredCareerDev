@@ -26,4 +26,6 @@ urlpatterns = [
     path('connections/', views.connections, name='connections'),
     path('career-recommendations/', views.career_recommendations, name='career_recommendations'),
     path('job-prospects/', views.job_prospects, name='job_prospects'),
+    path('dash/', views.dash, name='dash'),
+
 ]

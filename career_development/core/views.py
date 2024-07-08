@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.http import JsonResponse
-from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form
-from .forms import CustomAuthenticationForm, CustomUserCreationForm
+from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, CustomAuthenticationForm, CustomUserCreationForm
 from .models import Resource, Connection, Profile
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.sites.shortcuts import get_current_site
@@ -94,37 +93,37 @@ def logout(request):
 def complete_profile_step1(request):
     profile, created = Profile.objects.get_or_create(user=request.user)
     if request.method == 'POST':
-        form = ProfileStep1Form(request.POST, instance=profile)
+        form = ProfileQuizStep1Form(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             return redirect('complete_profile_step2')
     else:
-        form = ProfileStep1Form(instance=profile)
+        form = ProfileQuizStep1Form(instance=profile)
     return render(request, 'account/complete_profile_step1.html', {'form': form})
 
 @login_required
 def complete_profile_step2(request):
     profile = request.user.profile
     if request.method == 'POST':
-        form = ProfileStep2Form(request.POST, instance=profile)
+        form = ProfileQuizStep2Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests})
         if form.is_valid():
             form.save()
             return redirect('complete_profile_step3')
     else:
-        form = ProfileStep2Form(instance=profile)
+        form = ProfileQuizStep2Form(instance=profile, initial={'career_interests': profile.career_interests})
     return render(request, 'account/complete_profile_step2.html', {'form': form})
 
 @login_required
 def complete_profile_step3(request):
     profile = request.user.profile
     if request.method == 'POST':
-        form = ProfileStep3Form(request.POST, instance=profile)
+        form = ProfileQuizStep3Form(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile setup completed successfully.')
             return redirect('profile')
     else:
-        form = ProfileStep3Form(instance=profile)
+        form = ProfileQuizStep3Form(instance=profile)
     return render(request, 'account/complete_profile_step3.html', {'form': form})
 
 @login_required
@@ -377,3 +376,30 @@ def find_networking_opportunities(request):
         return JsonResponse({'status': 'success', 'networking_opportunities': profile.networking_opportunities})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to fetch networking opportunities.'}, status=400)
+
+
+import json
+
+@login_required
+def dash(request):
+    profile = request.user.profile
+
+    if not profile.is_complete:
+        return redirect('complete_profile_step1')
+
+    career_progress = profile.career_progress if profile.career_progress else {
+        'labels': ['January', 'February', 'March', 'April', 'May', 'June'],
+        'data': [0, 10, 5, 2, 20, 30]
+    }
+
+    skill_assessment = profile.skill_assessment if profile.skill_assessment else {
+        'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
+        'data': [0, 0, 0, 0, 0]
+    }
+
+    context = {
+        'career_progress': json.dumps(career_progress),
+        'skill_assessment': json.dumps(skill_assessment),
+    }
+
+    return render(request, 'dash.html', context)
