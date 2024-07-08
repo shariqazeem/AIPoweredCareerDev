@@ -4,8 +4,9 @@ from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form
+from .forms import CustomAuthenticationForm, CustomUserCreationForm
 from .models import Resource, Connection, Profile
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.sites.shortcuts import get_current_site
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
