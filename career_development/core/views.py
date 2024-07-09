@@ -4,13 +4,12 @@ from django.conf import settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm
 from .models import Resource, Connection, Profile
-from django.contrib.auth import login as auth_login, logout as django_logout
+from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-import google.generativeai as genai
+from django.contrib.auth import login as auth_login, logout as django_logout
 import json
+import google.generativeai as genai
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -136,24 +135,11 @@ def profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-
-            profile = request.user.profile
-
-            skill_assessment = {
-                'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
-                'data': [
-                    int(profile.html_skill_level) if profile.html_skill_level else 1,
-                    int(profile.css_skill_level) if profile.css_skill_level else 1,
-                    int(profile.js_skill_level) if profile.js_skill_level else 1,
-                    int(profile.python_skill_level) if profile.python_skill_level else 1,
-                    int(profile.django_skill_level) if profile.django_skill_level else 1,
-                ]
-            }
-
-            profile.skill_assessment = json.dumps(skill_assessment)
-            profile.save()
-
+            
+            messages.success(request, 'Your profile was successfully updated!')
             return redirect('profile')
+        else:
+            messages.error(request, 'Please correct the error below.')
     else:
         user_form = UserUpdateForm(instance=request.user)
         profile_form = ProfileUpdateForm(instance=request.user.profile)
@@ -167,7 +153,6 @@ def profile(request):
         'recommendations': recommendations,
         'job_listings': job_listings
     })
-
 @login_required
 def profile_details(request):
     if request.method == 'POST':
@@ -203,6 +188,54 @@ def connect(request, username):
 def connections(request):
     user_connections = Connection.objects.filter(user_from=request.user)
     return render(request, 'connections.html', {'connections': user_connections})
+
+def get_skill_assessment(profile):
+    skill_assessment = {
+        'labels': [],
+        'data': []
+    }
+    if profile.career_interests == 'technology':
+        skill_assessment['labels'] = ['HTML', 'CSS', 'JavaScript', 'Python', 'Django']
+        skill_assessment['data'] = [
+            profile.html_skill_level or 1,
+            profile.css_skill_level or 1,
+            profile.js_skill_level or 1,
+            profile.python_skill_level or 1,
+            profile.django_skill_level or 1,
+        ]
+    elif profile.career_interests == 'business':
+        skill_assessment['labels'] = ['Management', 'Marketing', 'Finance', 'Sales']
+        skill_assessment['data'] = [
+            profile.management_skill_level or 1,
+            profile.marketing_skill_level or 1,
+            profile.finance_skill_level or 1,
+            profile.sales_skill_level or 1,
+        ]
+    elif profile.career_interests == 'arts':
+        skill_assessment['labels'] = ['Drawing', 'Painting', 'Sculpting', 'Photography']
+        skill_assessment['data'] = [
+            profile.drawing_skill_level or 1,
+            profile.painting_skill_level or 1,
+            profile.sculpting_skill_level or 1,
+            profile.photography_skill_level or 1,
+        ]
+    elif profile.career_interests == 'music':
+        skill_assessment['labels'] = ['Singing', 'Instrumental', 'Composing', 'Conducting']
+        skill_assessment['data'] = [
+            profile.singing_skill_level or 1,
+            profile.instrumental_skill_level or 1,
+            profile.composing_skill_level or 1,
+            profile.conducting_skill_level or 1,
+        ]
+    elif profile.career_interests == 'sports':
+        skill_assessment['labels'] = ['Playing', 'Coaching', 'Refereeing', 'Physical Training']
+        skill_assessment['data'] = [
+            profile.playing_skill_level or 1,
+            profile.coaching_skill_level or 1,
+            profile.refereeing_skill_level or 1,
+            profile.physical_training_skill_level or 1,
+        ]
+    return skill_assessment
 
 def get_career_recommendations(user):
     data = {
@@ -353,8 +386,8 @@ def get_resume_advice(request):
         "education": profile.resume_education,
         "skills": profile.skills,
         "professional_experience": profile.professional_experience,
-        "relevant_projects": profile.resume_skills_experiences,
-        "certifications_awards": profile.certifications_awards
+        "relevant_projects": profile.resume_skills_experiences,  # Adjust field name if necessary
+        "certifications_awards": profile.certifications_awards  # Ensure this field exists in your Profile model
     }
 
     prompt = f"""
@@ -366,6 +399,7 @@ def get_resume_advice(request):
     Skills and Abilities: {resume_data['skills']}
     Relevant Projects, Volunteer Work, or Extracurricular Activities: {resume_data['relevant_projects']}
     Certifications or Awards: {resume_data['certifications_awards']}
+
     Professional Experience: {resume_data['professional_experience']}
     """
 
@@ -431,16 +465,7 @@ def dash(request):
         'data': [0, 10, 5, 2, 20, 30]
     }
 
-    try:
-        skill_assessment = json.loads(profile.skill_assessment) if profile.skill_assessment else {
-            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
-            'data': [1, 1, 1, 1, 1]
-        }
-    except json.JSONDecodeError:
-        skill_assessment = {
-            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
-            'data': [1, 1, 1, 1, 1]
-        }
+    skill_assessment = get_skill_assessment(profile)
 
     context = {
         'career_progress': json.dumps(career_progress),
