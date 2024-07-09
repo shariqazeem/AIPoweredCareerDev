@@ -1,18 +1,32 @@
-import json
+# forms.py
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from .models import Profile
-
+import json
 class UserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'email']
 
 class ProfileUpdateForm(forms.ModelForm):
+    skill_levels = [
+        ('1', 'Beginner'),
+        ('2', 'Intermediate'),
+        ('3', 'Advanced'),
+    ]
+
+    html_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='HTML Skill Level')
+    css_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='CSS Skill Level')
+    js_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='JavaScript Skill Level')
+    python_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Python Skill Level')
+    django_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Django Skill Level')
+
     class Meta:
         model = Profile
-        fields = ['bio', 'location', 'skills', 'career_goals', 'professional_experience']
+        fields = ['bio', 'location', 'skills', 'career_goals', 'professional_experience', 
+                  'resume_job_title', 'resume_education', 'resume_skills_experiences', 'certifications_awards',
+                  'html_skill_level', 'css_skill_level', 'js_skill_level', 'python_skill_level', 'django_skill_level']
 
 class ProfileQuizStep1Form(forms.ModelForm):
     bio = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 3}), label='Tell us about yourself')
@@ -31,9 +45,7 @@ class ProfileQuizStep1Form(forms.ModelForm):
         model = Profile
         fields = ['bio', 'location', 'career_interests']
 
-import json
-from django import forms
-from .models import Profile
+
 
 class ProfileQuizStep2Form(forms.ModelForm):
     technology_skills = [
@@ -43,12 +55,29 @@ class ProfileQuizStep2Form(forms.ModelForm):
         ('python', 'Python'),
         ('django', 'Django'),
     ]
-    # Define other skill lists similarly
     business_skills = [
         ('management', 'Management'),
         ('marketing', 'Marketing'),
         ('finance', 'Finance'),
         ('sales', 'Sales'),
+    ]
+    arts_skills = [
+        ('drawing', 'Drawing'),
+        ('painting', 'Painting'),
+        ('sculpting', 'Sculpting'),
+        ('photography', 'Photography'),
+    ]
+    music_skills = [
+        ('instrument', 'Instrument Playing'),
+        ('vocals', 'Vocals'),
+        ('composition', 'Composition'),
+        ('production', 'Music Production'),
+    ]
+    sports_skills = [
+        ('team_sports', 'Team Sports'),
+        ('individual_sports', 'Individual Sports'),
+        ('coaching', 'Coaching'),
+        ('fitness', 'Fitness'),
     ]
 
     career_interests = forms.CharField(widget=forms.HiddenInput(), required=False)
@@ -75,6 +104,8 @@ class ProfileQuizStep2Form(forms.ModelForm):
             self.fields['skills'].choices = self.music_skills
         elif career_interest == 'business':
             self.fields['skills'].choices = self.business_skills
+        elif career_interest == 'sports':
+            self.fields['skills'].choices = self.sports_skills
 
     def save(self, commit=True):
         profile = super(ProfileQuizStep2Form, self).save(commit=False)
@@ -86,6 +117,7 @@ class ProfileQuizStep2Form(forms.ModelForm):
         if commit:
             profile.save()
         return profile
+
 
 class ProfileQuizStep3Form(forms.ModelForm):
     resume_job_title = forms.CharField(
@@ -112,6 +144,54 @@ class ProfileQuizStep3Form(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['resume_job_title', 'resume_skills_experiences', 'resume_education', 'professional_experience']
+
+
+class ProfileQuizStep4Form(forms.ModelForm):
+    skill_levels = [
+        ('1', 'Beginner'),
+        ('2', 'Intermediate'),
+        ('3', 'Advanced'),
+    ]
+
+    html_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='HTML Skill Level', required=False)
+    css_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='CSS Skill Level', required=False)
+    js_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='JavaScript Skill Level', required=False)
+    python_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Python Skill Level', required=False)
+    django_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Django Skill Level', required=False)
+
+    management_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Management Skill Level', required=False)
+    marketing_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Marketing Skill Level', required=False)
+    finance_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Finance Skill Level', required=False)
+    sales_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Sales Skill Level', required=False)
+
+    class Meta:
+        model = Profile
+        fields = [
+            'html_skill_level', 'css_skill_level', 'js_skill_level', 'python_skill_level', 'django_skill_level',
+            'management_skill_level', 'marketing_skill_level', 'finance_skill_level', 'sales_skill_level'
+        ]
+
+    def save(self, commit=True):
+        profile = super(ProfileQuizStep4Form, self).save(commit=False)
+        skill_assessment = {
+            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django', 'Management', 'Marketing', 'Finance', 'Sales'],
+            'data': [
+                int(self.cleaned_data.get('html_skill_level', 0)),
+                int(self.cleaned_data.get('css_skill_level', 0)),
+                int(self.cleaned_data.get('js_skill_level', 0)),
+                int(self.cleaned_data.get('python_skill_level', 0)),
+                int(self.cleaned_data.get('django_skill_level', 0)),
+                int(self.cleaned_data.get('management_skill_level', 0)),
+                int(self.cleaned_data.get('marketing_skill_level', 0)),
+                int(self.cleaned_data.get('finance_skill_level', 0)),
+                int(self.cleaned_data.get('sales_skill_level', 0))
+            ]
+        }
+        profile.skill_assessment = json.dumps(skill_assessment)
+        if commit:
+            profile.save()
+        return profile
+
 
 class ProfileStep1Form(forms.ModelForm):
     class Meta:

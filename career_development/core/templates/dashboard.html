@@ -109,6 +109,34 @@
                     <p><strong>Skills:</strong> {{ profile.skills }}</p>
                     <p><strong>Career Goals:</strong> {{ profile.career_goals }}</p>
                     <p><strong>Professional Experience:</strong> {{ profile.professional_experience }}</p>
+                    <h5>Skill Levels:</h5>
+                    {% if profile.career_interests == 'technology' %}
+                        <p><strong>HTML:</strong> {{ profile.html_skill_level }}</p>
+                        <p><strong>CSS:</strong> {{ profile.css_skill_level }}</p>
+                        <p><strong>JavaScript:</strong> {{ profile.js_skill_level }}</p>
+                        <p><strong>Python:</strong> {{ profile.python_skill_level }}</p>
+                        <p><strong>Django:</strong> {{ profile.django_skill_level }}</p>
+                    {% elif profile.career_interests == 'business' %}
+                        <p><strong>Management:</strong> {{ profile.management_skill_level }}</p>
+                        <p><strong>Marketing:</strong> {{ profile.marketing_skill_level }}</p>
+                        <p><strong>Finance:</strong> {{ profile.finance_skill_level }}</p>
+                        <p><strong>Sales:</strong> {{ profile.sales_skill_level }}</p>
+                    {% elif profile.career_interests == 'arts' %}
+                        <p><strong>Drawing:</strong> {{ profile.drawing_skill_level }}</p>
+                        <p><strong>Painting:</strong> {{ profile.painting_skill_level }}</p>
+                        <p><strong>Sculpting:</strong> {{ profile.sculpting_skill_level }}</p>
+                        <p><strong>Photography:</strong> {{ profile.photography_skill_level }}</p>
+                    {% elif profile.career_interests == 'music' %}
+                        <p><strong>Singing:</strong> {{ profile.singing_skill_level }}</p>
+                        <p><strong>Instrumental:</strong> {{ profile.instrumental_skill_level }}</p>
+                        <p><strong>Composing:</strong> {{ profile.composing_skill_level }}</p>
+                        <p><strong>Conducting:</strong> {{ profile.conducting_skill_level }}</p>
+                    {% elif profile.career_interests == 'sports' %}
+                        <p><strong>Playing:</strong> {{ profile.playing_skill_level }}</p>
+                        <p><strong>Coaching:</strong> {{ profile.coaching_skill_level }}</p>
+                        <p><strong>Refereeing:</strong> {{ profile.refereeing_skill_level }}</p>
+                        <p><strong>Physical Training:</strong> {{ profile.physical_training_skill_level }}</p>
+                    {% endif %}
                     <a href="{% url 'profile' %}" class="btn btn-primary w-100 mt-3">Edit Profile</a>
                 </div>
             </div>

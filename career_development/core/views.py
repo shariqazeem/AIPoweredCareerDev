@@ -1,26 +1,16 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
 from django.conf import settings
 from django.http import JsonResponse
-from .forms import UserUpdateForm, ProfileUpdateForm, ProfileStep1Form, ProfileStep2Form, ProfileStep3Form, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, CustomAuthenticationForm, CustomUserCreationForm
+from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm
 from .models import Resource, Connection, Profile
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.sites.shortcuts import get_current_site
-from django.template.loader import render_to_string
-from django.utils.http import urlsafe_base64_encode
-from django.utils.encoding import force_bytes
-from django.core.mail import EmailMessage
-from django.shortcuts import render, redirect
-from django.contrib.auth.models import User
+from django.contrib.auth import login as auth_login, logout as django_logout
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
-from django.contrib.auth import views as auth_views
-from django.contrib.auth import login as auth_login
-from django.contrib.auth.forms import AuthenticationForm
-from django.contrib.auth import logout as django_logout  # Rename Django's logout function to avoid conflict
-
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
 import google.generativeai as genai
+import json
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -120,11 +110,23 @@ def complete_profile_step3(request):
         form = ProfileQuizStep3Form(request.POST, instance=profile)
         if form.is_valid():
             form.save()
-            messages.success(request, 'Profile setup completed successfully.')
-            return redirect('profile')
+            return redirect('complete_profile_step4')
     else:
         form = ProfileQuizStep3Form(instance=profile)
     return render(request, 'account/complete_profile_step3.html', {'form': form})
+
+@login_required
+def complete_profile_step4(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = ProfileQuizStep4Form(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile setup completed successfully.')
+            return redirect('dashboard')
+    else:
+        form = ProfileQuizStep4Form(instance=profile)
+    return render(request, 'account/complete_profile_step4.html', {'form': form})
 
 @login_required
 def profile(request):
@@ -134,6 +136,23 @@ def profile(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
+
+            profile = request.user.profile
+
+            skill_assessment = {
+                'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
+                'data': [
+                    int(profile.html_skill_level) if profile.html_skill_level else 1,
+                    int(profile.css_skill_level) if profile.css_skill_level else 1,
+                    int(profile.js_skill_level) if profile.js_skill_level else 1,
+                    int(profile.python_skill_level) if profile.python_skill_level else 1,
+                    int(profile.django_skill_level) if profile.django_skill_level else 1,
+                ]
+            }
+
+            profile.skill_assessment = json.dumps(skill_assessment)
+            profile.save()
+
             return redirect('profile')
     else:
         user_form = UserUpdateForm(instance=request.user)
@@ -327,7 +346,30 @@ def assess_skills(request):
 @login_required
 def get_resume_advice(request):
     profile = request.user.profile
-    response = model.generate_content(f"Give resume advice for the following text: {profile.professional_experience}")
+    user = request.user
+    resume_data = {
+        "name": user.get_full_name() or user.username,
+        "desired_job_title": profile.resume_job_title,
+        "education": profile.resume_education,
+        "skills": profile.skills,
+        "professional_experience": profile.professional_experience,
+        "relevant_projects": profile.resume_skills_experiences,
+        "certifications_awards": profile.certifications_awards
+    }
+
+    prompt = f"""
+    Give resume advice for the following profile:
+
+    Name: {resume_data['name']}
+    Desired Job Title/Field: {resume_data['desired_job_title']}
+    Education Level and Relevant Coursework: {resume_data['education']}
+    Skills and Abilities: {resume_data['skills']}
+    Relevant Projects, Volunteer Work, or Extracurricular Activities: {resume_data['relevant_projects']}
+    Certifications or Awards: {resume_data['certifications_awards']}
+    Professional Experience: {resume_data['professional_experience']}
+    """
+
+    response = model.generate_content(prompt)
 
     if response and hasattr(response, 'text'):
         profile.resume_advice = response.text
@@ -377,9 +419,6 @@ def find_networking_opportunities(request):
 
     return JsonResponse({'status': 'error', 'message': 'Failed to fetch networking opportunities.'}, status=400)
 
-
-import json
-
 @login_required
 def dash(request):
     profile = request.user.profile
@@ -392,14 +431,28 @@ def dash(request):
         'data': [0, 10, 5, 2, 20, 30]
     }
 
-    skill_assessment = profile.skill_assessment if profile.skill_assessment else {
-        'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
-        'data': [0, 0, 0, 0, 0]
-    }
+    try:
+        skill_assessment = json.loads(profile.skill_assessment) if profile.skill_assessment else {
+            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
+            'data': [1, 1, 1, 1, 1]
+        }
+    except json.JSONDecodeError:
+        skill_assessment = {
+            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django'],
+            'data': [1, 1, 1, 1, 1]
+        }
 
     context = {
         'career_progress': json.dumps(career_progress),
         'skill_assessment': json.dumps(skill_assessment),
+        'user': request.user,
+        'profile': profile,
+        'career_recommendations': profile.career_recommendations,
+        'job_prospects': profile.job_prospects,
+        'resume_advice': profile.resume_advice,
+        'matched_jobs': profile.matched_jobs,
+        'learning_resources': profile.learning_resources,
+        'networking_opportunities': profile.networking_opportunities,
     }
 
     return render(request, 'dash.html', context)

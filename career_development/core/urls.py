@@ -18,6 +18,7 @@ urlpatterns = [
     path('complete-profile-step1/', views.complete_profile_step1, name='complete_profile_step1'),
     path('complete-profile-step2/', views.complete_profile_step2, name='complete_profile_step2'),
     path('complete-profile-step3/', views.complete_profile_step3, name='complete_profile_step3'),
+    path('complete-profile-step4/', views.complete_profile_step4, name='complete_profile_step4'),
     path('profile/', views.profile, name='profile'),
     path('profile-details/', views.profile_details, name='profile_details'),
     path('user-profile/<str:username>/', views.user_profile, name='user_profile'),
