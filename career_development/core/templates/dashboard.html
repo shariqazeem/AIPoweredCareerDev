@@ -7,270 +7,216 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
 <style>
-    body {
-        background-color: #121212;
-        color: #ffffff;
-        font-family: 'Roboto', sans-serif;
+    .dashboard-container {
+        display: flex;
     }
-
-    .card {
-        border-radius: 0.75rem;
-        border: none;
-        background-color: #1f1f1f;
-        transition: transform 0.3s;
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        padding-top: 20px;
+        position: fixed;
+        background-color: inherit;
+        color: inherit;
     }
-
-    .card:hover {
-        transform: scale(1.02);
+    .sidebar-light {
+        background-color: #ffffff;
+        color: #000000;
     }
-
-    .card-body {
+    .sidebar-dark {
+        background-color: #243b55;
+        color: #e0e0e0;
+    }
+    .sidebar a {
+        color: inherit;
+        padding: 10px;
+        text-decoration: none;
+        display: block;
+    }
+    .sidebar a:hover {
+        background-color: #0056b3;
+    }
+    .content {
+        flex-grow: 1;
         padding: 2rem;
+        margin-left: 250px;
+        background-color: inherit;
+        color: inherit;
     }
-
+    .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        width: 100%;
+        max-width: 800px;
+        overflow-wrap: break-word;
+        background-color: inherit;
+        color: inherit;
+    }
+    .card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.2s;
+    }
+    .card-body {
+        padding: 1.5rem;
+    }
     .card-title {
-        font-size: 1.75rem;
-        color: #f8f9fa;
-        border-bottom: 1px solid #f8f9fa;
+        font-size: 1.5rem;
+        color: inherit;
+        border-bottom: 2px solid #007bff;
         padding-bottom: 0.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
-
-    .recommendation-content p,
-    .job-listings-content p {
-        margin-bottom: 0.5rem;
-        color: #dcdcdc;
-    }
-
-    .recommendation-content h1,
-    .job-listings-content h1,
-    .recommendation-content h2,
-    .job-listings-content h2,
-    .recommendation-content h3,
-    .job-listings-content h3 {
-        margin-top: 1rem;
-        color: #f8f9fa;
-    }
-
-    .recommendation-content li,
-    .job-listings-content li {
-        margin-bottom: 0.5rem;
-        color: #dcdcdc;
-    }
-
     .btn-primary {
         background-color: #007bff;
         border-color: #007bff;
         transition: background-color 0.3s, border-color 0.3s;
     }
-
     .btn-primary:hover {
         background-color: #0056b3;
-        border-color: #004085;
+        border-color: #0056b3;
     }
-
     .spinner-border {
         display: none;
-        width: 1rem;
-        height: 1rem;
-        border-width: 0.2em;
+        margin-left: 5px;
     }
-
     .loading .spinner-border {
         display: inline-block;
     }
-
     .loading .btn-text {
         display: none;
     }
-
-    .profile-section, .section {
-        margin-bottom: 2rem;
-    }
-
-    .section h2 {
-        font-size: 1.5rem;
-        color: #00d1b2;
-        margin-bottom: 1rem;
-    }
 </style>
 
-<div class="container mt-4">
-    <div class="row">
-        <!-- Profile Section -->
-        <div class="col-lg-4 mb-4 profile-section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Profile</h2>
-                    <p><strong>Username:</strong> {{ user.username }}</p>
-                    <p><strong>Email:</strong> {{ user.email }}</p>
-                    <p><strong>Bio:</strong> {{ profile.bio }}</p>
-                    <p><strong>Location:</strong> {{ profile.location }}</p>
-                    <p><strong>Skills:</strong> {{ profile.skills }}</p>
-                    <p><strong>Career Goals:</strong> {{ profile.career_goals }}</p>
-                    <p><strong>Professional Experience:</strong> {{ profile.professional_experience }}</p>
-                    <h5>Skill Levels:</h5>
-                    {% if profile.career_interests == 'technology' %}
-                        <p><strong>HTML:</strong> {{ profile.html_skill_level }}</p>
-                        <p><strong>CSS:</strong> {{ profile.css_skill_level }}</p>
-                        <p><strong>JavaScript:</strong> {{ profile.js_skill_level }}</p>
-                        <p><strong>Python:</strong> {{ profile.python_skill_level }}</p>
-                        <p><strong>Django:</strong> {{ profile.django_skill_level }}</p>
-                    {% elif profile.career_interests == 'business' %}
-                        <p><strong>Management:</strong> {{ profile.management_skill_level }}</p>
-                        <p><strong>Marketing:</strong> {{ profile.marketing_skill_level }}</p>
-                        <p><strong>Finance:</strong> {{ profile.finance_skill_level }}</p>
-                        <p><strong>Sales:</strong> {{ profile.sales_skill_level }}</p>
-                    {% elif profile.career_interests == 'arts' %}
-                        <p><strong>Drawing:</strong> {{ profile.drawing_skill_level }}</p>
-                        <p><strong>Painting:</strong> {{ profile.painting_skill_level }}</p>
-                        <p><strong>Sculpting:</strong> {{ profile.sculpting_skill_level }}</p>
-                        <p><strong>Photography:</strong> {{ profile.photography_skill_level }}</p>
-                    {% elif profile.career_interests == 'music' %}
-                        <p><strong>Singing:</strong> {{ profile.singing_skill_level }}</p>
-                        <p><strong>Instrumental:</strong> {{ profile.instrumental_skill_level }}</p>
-                        <p><strong>Composing:</strong> {{ profile.composing_skill_level }}</p>
-                        <p><strong>Conducting:</strong> {{ profile.conducting_skill_level }}</p>
-                    {% elif profile.career_interests == 'sports' %}
-                        <p><strong>Playing:</strong> {{ profile.playing_skill_level }}</p>
-                        <p><strong>Coaching:</strong> {{ profile.coaching_skill_level }}</p>
-                        <p><strong>Refereeing:</strong> {{ profile.refereeing_skill_level }}</p>
-                        <p><strong>Physical Training:</strong> {{ profile.physical_training_skill_level }}</p>
-                    {% endif %}
-                    <a href="{% url 'profile' %}" class="btn btn-primary w-100 mt-3">Edit Profile</a>
+<div class="dashboard-container">
+    <div class="sidebar sidebar-light">
+        <h2 class="text-center">CareerAI</h2>
+        <a href="#career-recommendations-section">Career Recommendations</a>
+        <a href="#job-prospects-section">Job Prospects</a>
+        <a href="#assess-skills-section">Assess Skills</a>
+        <a href="#resume-advice-section">Resume Advice</a>
+        <a href="#match-jobs-section">Match Jobs</a>
+        <a href="#learning-resources-section">Learning Resources</a>
+        <a href="#networking-opportunities-section">Networking Opportunities</a>
+        <a href="{% url 'logout' %}">Logout</a>
+    </div>
+    <div class="content">
+        <div class="card">
+            <div class="card-body">
+                <div class="profile-section">
+                    <img src="https://via.placeholder.com/60" alt="Profile Picture" class="rounded-circle">
+                    <div>
+                        <h2 class="m-0">{{ user.username }}</h2>
+                        <p class="m-0">{{ user.email }}</p>
+                    </div>
+                    <div class="profile-actions">
+                        <a href="{% url 'profile' %}" class="btn btn-sm btn-dark">Edit Profile</a>
+                    </div>
                 </div>
             </div>
         </div>
-
-        <!-- Career Recommendations Section -->
-        <div class="col-lg-8 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Career Recommendations</h2>
-                    <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Get Recommendations</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="career-recommendations" class="mt-4">
-                        {% if career_recommendations %}
+        <div id="career-recommendations-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Career Recommendations</h3>
+                <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Recommendations</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="career-recommendations" class="mt-4">
+                    {% if profile.career_recommendations %}
                         <h3>Recommendations</h3>
-                        <pre>{{ career_recommendations|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.career_recommendations|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Job Prospects Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Job Prospects</h2>
-                    <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Get Job Prospects</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="job-prospects" class="mt-4">
-                        {% if job_prospects %}
+        <div id="job-prospects-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Job Prospects</h3>
+                <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Job Prospects</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="job-prospects" class="mt-4">
+                    {% if profile.job_prospects %}
                         <h3>Job Prospects</h3>
-                        <pre>{{ job_prospects|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.job_prospects|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Assess Skills Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Assess Skills</h2>
-                    <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Assess Skills</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="skill-assessment" class="mt-4">
-                        {% if skill_assessment %}
+        <div id="assess-skills-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Assess Skills</h3>
+                <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Assess Skills</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="skill-assessment" class="mt-4">
+                    {% if profile.skill_assessment %}
                         <h3>Assessment Result</h3>
-                        <pre>{{ skill_assessment|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.skill_assessment|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Resume Advice Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Resume Advice</h2>
-                    <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Get Advice</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="resume-advice" class="mt-4">
-                        {% if resume_advice %}
+        <div id="resume-advice-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Resume Advice</h3>
+                <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Advice</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="resume-advice" class="mt-4">
+                    {% if profile.resume_advice %}
                         <h3>Advice</h3>
-                        <pre>{{ resume_advice }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.resume_advice|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Match Jobs Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Match Jobs</h2>
-                    <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Match Jobs</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="matched-jobs" class="mt-4">
-                        {% if matched_jobs %}
+        <div id="match-jobs-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Match Jobs</h3>
+                <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Match Jobs</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="matched-jobs" class="mt-4">
+                    {% if profile.matched_jobs %}
                         <h3>Matched Jobs</h3>
-                        <pre>{{ matched_jobs|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.matched_jobs|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Learning Resources Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Learning Resources</h2>
-                    <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Get Resources</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="learning-resources" class="mt-4">
-                        {% if learning_resources %}
+        <div id="learning-resources-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Learning Resources</h3>
+                <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Resources</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="learning-resources" class="mt-4">
+                    {% if profile.learning_resources %}
                         <h3>Resources</h3>
-                        <pre>{{ learning_resources|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.learning_resources|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
-
-        <!-- Networking Opportunities Section -->
-        <div class="col-lg-12 mb-4 section">
-            <div class="card shadow-lg bg-dark text-light">
-                <div class="card-body">
-                    <h2 class="card-title text-center mb-4">Networking Opportunities</h2>
-                    <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
-                        <span class="btn-text">Find Opportunities</span>
-                        <span class="spinner-border" role="status" aria-hidden="true"></span>
-                    </button>
-                    <div id="networking-opportunities" class="mt-4">
-                        {% if networking_opportunities %}
+        <div id="networking-opportunities-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Networking Opportunities</h3>
+                <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Find Opportunities</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="networking-opportunities" class="mt-4">
+                    {% if profile.networking_opportunities %}
                         <h3>Opportunities</h3>
-                        <pre>{{ networking_opportunities|safe }}</pre>
-                        {% endif %}
-                    </div>
+                        <pre>{{ profile.networking_opportunities|safe }}</pre>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -317,6 +263,16 @@
         handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');
         handleButtonClick('get-learning-resources-btn', '{% url "get_learning_resources" %}', '#learning-resources', 'learning_resources');
         handleButtonClick('find-networking-opportunities-btn', '{% url "find_networking_opportunities" %}', '#networking-opportunities', 'networking_opportunities');
+
+        // Smooth scroll for sidebar links
+        document.querySelectorAll('.sidebar a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
     });
 </script>
 
