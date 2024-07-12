@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3'
 
 services:
   web:
@@ -12,6 +12,6 @@ services:
       - "80:8000"
     volumes:
       - ./media:/app/media
-      
+
 volumes:
   postgres_data:
