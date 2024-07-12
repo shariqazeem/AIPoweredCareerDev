@@ -2,7 +2,7 @@
 FROM python:3.10
 
 # Set environment variables
-ENV DJANGO_SETTINGS_MODULE=core.settings
+ENV DJANGO_SETTINGS_MODULE=career_development.settings
 ENV DJANGO_DEBUG=False
 
 # Set the working directory in the container
@@ -14,10 +14,11 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-RUN pip install gunicorn
+# Collect static files
+RUN python manage.py collectstatic --noinput
 
 # Expose the port the app runs on
 EXPOSE 8000
 
 # Run the Django app
-CMD ["gunicorn", "myproject.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "career_development.wsgi:application", "--bind", "0.0.0.0:8000"]
