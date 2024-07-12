@@ -12,8 +12,6 @@ services:
       - "80:8000"
     volumes:
       - ./media:/app/media
-    depends_on:
-      - db
-
+      
 volumes:
   postgres_data:
