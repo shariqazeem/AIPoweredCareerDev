@@ -1,8 +1,12 @@
-version: '3'
+version: '3.8'
 
 services:
   web:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - GEMINI_API_KEY=${GEMINI_API_KEY}
     container_name: django_container
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -12,6 +16,5 @@ services:
       - "80:8000"
     volumes:
       - ./media:/app/media
-
 volumes:
   postgres_data:
