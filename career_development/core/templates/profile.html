@@ -4,8 +4,8 @@
 {% block content %}
 <div class="container mt-5">
     <div class="card p-4 shadow-lg">
-        <h1 class="card-title text-center mb-4">Edit Profile</h1>
-        <form method="post">
+        <h1 id="edit-profile-title" class="card-title text-center mb-4">Edit Profile</h1>
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="row mb-3">
                 <div class="col-md-6">
@@ -37,7 +37,7 @@
                 <label for="location" class="form-label">Location</label>
                 <input type="text" id="location" name="location" value="{{ user.profile.location }}" class="form-control">
             </div>
-
+            
             <!-- Skill Levels Section -->
             {% if user.profile.career_interests == 'technology' %}
                 <div class="mb-3">
@@ -213,6 +213,13 @@
                     </select>
                 </div>
             {% endif %}
+            <div class="mb-3">
+                <label for="profile_picture" class="form-label">Profile Picture</label>
+                <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mt-2" style="max-width: 200px;">
+                {% endif %}
+            </div>
 
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -220,4 +227,29 @@
         </form>
     </div>
 </div>
+
+<script>
+    function updateTitleClass() {
+        const titleElement = document.getElementById('edit-profile-title');
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode) {
+            titleElement.classList.remove('text-dark');
+            titleElement.classList.add('text-light');
+        } else {
+            titleElement.classList.remove('text-light');
+            titleElement.classList.add('text-dark');
+        }
+    }
+
+    // Run on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        updateTitleClass();
+    });
+
+    // Run when color scheme changes
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTitleClass);
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateTitleClass);
+</script>
+
 {% endblock %}

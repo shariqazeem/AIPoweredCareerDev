@@ -9,6 +9,7 @@
 <style>
     .dashboard-container {
         display: flex;
+        flex-wrap: wrap;
     }
     .sidebar {
         width: 250px;
@@ -41,6 +42,8 @@
         margin-left: 250px;
         background-color: inherit;
         color: inherit;
+        width: calc(100% - 250px);
+        transition: margin-left 0.3s ease;
     }
     .card {
         border-radius: 20px;
@@ -86,6 +89,24 @@
     .loading .btn-text {
         display: none;
     }
+    .profile-picture {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .sidebar {
+            display: none;
+        }
+        .content {
+            margin-left: 0;
+            width: 100%;
+            padding: 1rem;
+        }
+    }
 </style>
 
 <div class="dashboard-container">
@@ -104,7 +125,11 @@
         <div class="card">
             <div class="card-body">
                 <div class="profile-section">
-                    <img src="https://via.placeholder.com/60" alt="Profile Picture" class="rounded-circle">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture">
+                    {% else %}
+                        <img src="https://via.placeholder.com/80" alt="Profile Picture" class="rounded-circle profile-picture">
+                    {% endif %}
                     <div>
                         <h2 class="m-0">{{ user.username }}</h2>
                         <p class="m-0">{{ user.email }}</p>
@@ -115,6 +140,14 @@
                 </div>
             </div>
         </div>
+
+        <div id="skill-assessment-section" class="card">
+            <div class="card-body">
+                <h3 class="card-title">Skill Assessment</h3>
+                <canvas id="skillAssessmentChart" width="200" height="100"></canvas>
+            </div>
+        </div>
+
         <div id="career-recommendations-section" class="card">
             <div class="card-body">
                 <h3 class="card-title">Career Recommendations</h3>
@@ -125,7 +158,7 @@
                 <div id="career-recommendations" class="mt-4">
                     {% if profile.career_recommendations %}
                         <h3>Recommendations</h3>
-                        <pre>{{ profile.career_recommendations|safe }}</pre>
+                        <div>{{ profile.career_recommendations|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -140,7 +173,7 @@
                 <div id="job-prospects" class="mt-4">
                     {% if profile.job_prospects %}
                         <h3>Job Prospects</h3>
-                        <pre>{{ profile.job_prospects|safe }}</pre>
+                        <div>{{ profile.job_prospects|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -155,7 +188,7 @@
                 <div id="skill-assessment" class="mt-4">
                     {% if profile.skill_assessment %}
                         <h3>Assessment Result</h3>
-                        <pre>{{ profile.skill_assessment|safe }}</pre>
+                        <div>{{ profile.skill_assessment|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -170,7 +203,7 @@
                 <div id="resume-advice" class="mt-4">
                     {% if profile.resume_advice %}
                         <h3>Advice</h3>
-                        <pre>{{ profile.resume_advice|safe }}</pre>
+                        <div>{{ profile.resume_advice|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -185,7 +218,7 @@
                 <div id="matched-jobs" class="mt-4">
                     {% if profile.matched_jobs %}
                         <h3>Matched Jobs</h3>
-                        <pre>{{ profile.matched_jobs|safe }}</pre>
+                        <div>{{ profile.matched_jobs|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -200,7 +233,7 @@
                 <div id="learning-resources" class="mt-4">
                     {% if profile.learning_resources %}
                         <h3>Resources</h3>
-                        <pre>{{ profile.learning_resources|safe }}</pre>
+                        <div>{{ profile.learning_resources|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -215,7 +248,7 @@
                 <div id="networking-opportunities" class="mt-4">
                     {% if profile.networking_opportunities %}
                         <h3>Opportunities</h3>
-                        <pre>{{ profile.networking_opportunities|safe }}</pre>
+                        <div>{{ profile.networking_opportunities|safe }}</div>
                     {% endif %}
                 </div>
             </div>
@@ -223,6 +256,8 @@
     </div>
 </div>
 
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     function setLoadingState(button, loading) {
         if (loading) {
@@ -234,6 +269,14 @@
         }
     }
 
+    function formatText(text) {
+        // Remove asterisks and replace with appropriate HTML tags
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italics
+        text = text.replace(/\n/g, '<br>'); // Newline to break
+        return text;
+    }
+
     function handleButtonClick(buttonId, url, resultSelector, resultKey) {
         const button = document.getElementById(buttonId);
         button.addEventListener('click', function() {
@@ -243,7 +286,8 @@
                 .then(data => {
                     setLoadingState(button, false);
                     if (data.status === 'success') {
-                        document.querySelector(resultSelector).innerHTML = `<h3>${button.innerText}</h3><pre>${data[resultKey]}</pre>`;
+                        const formattedText = formatText(data[resultKey]);
+                        document.querySelector(resultSelector).innerHTML = `<h3>${button.innerText}</h3><div>${formattedText}</div>`;
                     } else {
                         alert(data.message);
                     }
@@ -273,7 +317,75 @@
                 });
             });
         });
+
+        // Display formatted saved content
+        const savedContent = {
+            'career_recommendations': `{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}`,
+            'job_prospects': `{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}`,
+            'skill_assessment': `{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}`,
+            'resume_advice': `{% filter escapejs %}{{ profile.resume_advice|safe }}{% endfilter %}`,
+            'matched_jobs': `{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}`,
+            'learning_resources': `{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}`,
+            'networking_opportunities': `{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}`
+        };
+
+        for (const [key, value] of Object.entries(savedContent)) {
+            if (value) {
+                const formattedText = formatText(value);
+                document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<h3>${key.replace('_', ' ')}</h3><div>${formattedText}</div>`;
+            }
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        var skillAssessmentData = {{ skill_assessment|safe }};
+        
+        console.log("Skill Assessment Data:", skillAssessmentData);  // Debug statement
+
+        if (skillAssessmentData && skillAssessmentData.labels && skillAssessmentData.data) {
+            var ctx = document.getElementById('skillAssessmentChart').getContext('2d');
+            var skillAssessmentChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: skillAssessmentData.labels,
+                    datasets: [{
+                        label: 'Skill Assessment',
+                        data: skillAssessmentData.data,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.2)',
+                            'rgba(54, 162, 235, 0.2)',
+                            'rgba(255, 206, 86, 0.2)',
+                            'rgba(75, 192, 192, 0.2)',
+                            'rgba(153, 102, 255, 0.2)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 3,
+                            ticks: {
+                                stepSize: 1,
+                                callback: function(value) {
+                                    var levels = ['Beginner', 'Intermediate', 'Advanced'];
+                                    return levels[value - 1];
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        } else {
+            console.error("Skill Assessment Data is not available or is invalid");
+        }
     });
 </script>
-
 {% endblock %}

@@ -6,15 +6,6 @@
 <div class="container mt-4">
     <h1 class="text-center mb-4">Dashboard</h1>
     <div class="row">
-        <!-- Career Progress Section -->
-        <div class="col-md-6 mb-4">
-            <div class="card shadow-lg">
-                <div class="card-body">
-                    <h5 class="card-title">Career Progress</h5>
-                    <canvas id="careerProgressChart"></canvas>
-                </div>
-            </div>
-        </div>
         <!-- Skill Assessment Section -->
         <div class="col-md-6 mb-4">
             <div class="card shadow-lg">
@@ -31,36 +22,13 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var careerProgressData = {{ career_progress|safe }};
         var skillAssessmentData = {{ skill_assessment|safe }};
         
-        console.log("Career Progress Data:", careerProgressData);  // Debug statement
         console.log("Skill Assessment Data:", skillAssessmentData);  // Debug statement
 
-        var ctx1 = document.getElementById('careerProgressChart').getContext('2d');
-        var careerProgressChart = new Chart(ctx1, {
-            type: 'line',
-            data: {
-                labels: careerProgressData.labels,
-                datasets: [{
-                    label: 'Career Progress',
-                    data: careerProgressData.data,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
         if (skillAssessmentData && skillAssessmentData.labels && skillAssessmentData.data) {
-            var ctx2 = document.getElementById('skillAssessmentChart').getContext('2d');
-            var skillAssessmentChart = new Chart(ctx2, {
+            var ctx = document.getElementById('skillAssessmentChart').getContext('2d');
+            var skillAssessmentChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: skillAssessmentData.labels,

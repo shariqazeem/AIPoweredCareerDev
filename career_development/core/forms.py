@@ -51,7 +51,7 @@ class ProfileUpdateForm(forms.ModelForm):
             'management_skill_level', 'marketing_skill_level', 'finance_skill_level', 'sales_skill_level',
             'drawing_skill_level', 'painting_skill_level', 'sculpting_skill_level', 'photography_skill_level',
             'singing_skill_level', 'instrumental_skill_level', 'composing_skill_level', 'conducting_skill_level',
-            'playing_skill_level', 'coaching_skill_level', 'refereeing_skill_level', 'physical_training_skill_level'
+            'playing_skill_level', 'coaching_skill_level', 'refereeing_skill_level', 'physical_training_skill_level','profile_picture'
         ]
 
     def save(self, commit=True):

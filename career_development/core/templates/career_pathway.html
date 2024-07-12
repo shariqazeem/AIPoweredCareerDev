@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+{% block title %}Career Pathway{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-light">Interactive Career Pathway</h2>
+    <button id="refreshPathway" class="btn btn-primary mb-4">Refresh Pathway</button>
+    <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="careerPathway" class="p-3 rounded" style="height: 800px; width: 100%; background: #171c28;"></div> <!-- Set background color here -->
+</div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+    function setLoadingState(button, loading) {
+        if (loading) {
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
+
+    function formatText(text) {
+        // Remove asterisks and replace with appropriate HTML tags
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italics
+        text = text.replace(/\n/g, '<br>'); // Newline to break
+        return text;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const careerPathwayData = {{ career_pathway|safe }};
+        drawCareerPathway(careerPathwayData);
+
+        document.getElementById('refreshPathway').addEventListener('click', function() {
+            refreshCareerPathway();
+        });
+    });
+
+    function drawCareerPathway(careerPathwayData) {
+        d3.select('#careerPathway').select('svg').remove();
+        
+        if (!careerPathwayData.nodes.length) {
+            console.log("No career pathway data available.");
+            return;
+        }
+
+        const width = 1200, height = 800;
+        const svg = d3.select('#careerPathway').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .style('background', '#171c28'); // Set background color
+
+        const simulation = d3.forceSimulation(careerPathwayData.nodes)
+            .force('link', d3.forceLink(careerPathwayData.links).id(d => d.id).distance(150))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collide', d3.forceCollide().radius(50));
+
+        const link = svg.append('g')
+            .attr('class', 'links')
+            .selectAll('line')
+            .data(careerPathwayData.links)
+            .enter().append('line')
+            .attr('stroke-width', 2)
+            .attr('stroke', '#999');
+
+        const node = svg.append('g')
+            .attr('class', 'nodes')
+            .selectAll('circle')
+            .data(careerPathwayData.nodes)
+            .enter().append('circle')
+            .attr('r', 20)
+            .attr('fill', '#007bff')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        const label = svg.append('g')
+            .attr('class', 'labels')
+            .selectAll('text')
+            .data(careerPathwayData.nodes)
+            .enter().append('text')
+            .attr('dy', -25)
+            .attr('x', 0)
+            .html(d => formatText(d.name))  // Use the formatText function to format the text
+            .style('font-size', '14px')
+            .style('fill', '#fff')  // Set text color to light
+            .style('text-anchor', 'middle')
+            .style('width', '200px');
+
+        simulation.on('tick', () => {
+            link.attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node.attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            label.attr('x', d => d.x)
+                .attr('y', d => d.y);
+        });
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    }
+
+    function refreshCareerPathway() {
+        document.getElementById('spinner').style.display = 'block';
+        fetch("{% url 'generate_career_pathway' %}")
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('spinner').style.display = 'none';
+                drawCareerPathway(data.career_pathway);
+            })
+            .catch(error => {
+                console.error('Error fetching career pathway:', error);
+                document.getElementById('spinner').style.display = 'none';
+            });
+    }
+</script>
+{% endblock %}

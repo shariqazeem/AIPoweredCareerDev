@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Learning Pathway{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="text-center mb-4 text-light">Personalized Learning Pathway</h2>
+    <button id="generateLearningPathway" class="btn btn-primary mb-4">Generate Learning Pathway</button>
+    <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
+        <span class="sr-only">Loading...</span>
+    </div>
+    <div id="learningPathway" class="bg-dark text-light p-3 rounded" style="min-height: 200px;">{{ learning_pathway|safe }}</div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const savedLearningPathway = `{{ learning_pathway|escapejs }}`;
+        if (savedLearningPathway) {
+            document.getElementById('learningPathway').innerHTML = formatText(savedLearningPathway);
+        }
+
+        document.getElementById('generateLearningPathway').addEventListener('click', function() {
+            setLoadingState(this, true);
+            fetch("{% url 'generate_learning_pathway' %}")
+                .then(response => response.json())
+                .then(data => {
+                    setLoadingState(this, false);
+                    if (data.status === 'success') {
+                        const formattedText = formatText(data.learning_pathway);
+                        document.getElementById('learningPathway').innerHTML = formattedText;
+                    } else {
+                        alert('Failed to generate learning pathway');
+                    }
+                })
+                .catch(error => {
+                    setLoadingState(this, false);
+                    alert('An error occurred. Please try again.');
+                });
+        });
+    });
+
+    function setLoadingState(button, loading) {
+        if (loading) {
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
+
+    function formatText(text) {
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        text = text.replace(/\n/g, '<br>');
+        return text;
+    }
+</script>
+{% endblock %}

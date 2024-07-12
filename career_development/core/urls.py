@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -28,5 +30,9 @@ urlpatterns = [
     path('career-recommendations/', views.career_recommendations, name='career_recommendations'),
     path('job-prospects/', views.job_prospects, name='job_prospects'),
     path('dash/', views.dash, name='dash'),
+    path('career_pathway/', views.career_pathway, name='career_pathway'),
+    path('generate_career_pathway/', views.generate_career_pathway, name='generate_career_pathway'),
+    path('learning_pathway/', views.learning_pathway, name='learning_pathway'),
+    path('generate_learning_pathway/', views.generate_learning_pathway, name='generate_learning_pathway'),
 
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

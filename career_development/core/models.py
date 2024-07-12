@@ -26,6 +26,9 @@ class Profile(models.Model):
     job_prospects = models.JSONField(blank=True, default=dict, null=True)
     career_progress = models.JSONField(blank=True, default=dict, null=True)
     certifications_awards = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)  # Ensure this line is included
+    career_pathway = models.JSONField(blank=True, default=dict, null=True)  # Add this line
+    learning_pathway = models.TextField(blank=True, default='')
 
     # Technology Skills
     html_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
@@ -63,6 +66,10 @@ class Profile(models.Model):
 
     @property
     def is_complete(self):
+        # Bypass the check for superusers
+        if self.user.is_superuser:
+            return True
+
         required_fields = ['bio', 'location', 'career_interests', 'skills', 'career_goals', 'professional_experience']
         for field in required_fields:
             if not getattr(self, field):

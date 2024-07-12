@@ -131,7 +131,7 @@ def complete_profile_step4(request):
 def profile(request):
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
@@ -153,6 +153,7 @@ def profile(request):
         'recommendations': recommendations,
         'job_listings': job_listings
     })
+
 @login_required
 def profile_details(request):
     if request.method == 'POST':
@@ -481,3 +482,102 @@ def dash(request):
     }
 
     return render(request, 'dash.html', context)
+
+
+def get_career_pathway(profile, max_steps=10):
+    data = {
+        "bio": profile.bio,
+        "skills": profile.skills,
+        "career_goals": profile.career_goals,
+        "career_interests": profile.career_interests,
+    }
+
+    prompt = f"""
+    Generate a detailed career pathway for a user with the following details:
+    Bio: {data["bio"]}
+    Skills: {data["skills"]}
+    Career Goals: {data["career_goals"]}
+    Career Interests: {data["career_interests"]}
+
+    Provide up to {max_steps} key steps clearly and concisely as separate lines.
+    """
+
+    try:
+        response = model.generate_content(prompt)
+    except Exception as e:
+        print(f"Error generating content: {e}")
+        return {"nodes": [], "links": []}
+
+    career_pathway = {
+        'nodes': [],
+        'links': []
+    }
+
+    if response and hasattr(response, 'text'):
+        pathway_steps = response.text.strip().split('\n')[:max_steps]
+        previous_node_id = 'start'
+        career_pathway['nodes'].append({'id': previous_node_id, 'name': 'Start', 'level': 1})
+
+        for idx, step in enumerate(pathway_steps):
+            level = idx + 2
+            node_id = f"step{level}"
+            career_pathway['nodes'].append({'id': node_id, 'name': step.strip(), 'level': level})
+            career_pathway['links'].append({'source': previous_node_id, 'target': node_id})
+            previous_node_id = node_id
+
+        # Save the career pathway in the profile
+        profile.career_pathway = career_pathway
+        profile.save()
+
+    return career_pathway
+
+@login_required
+def career_pathway(request):
+    profile = request.user.profile
+
+    # Check if the career pathway already exists in the profile
+    if not profile.career_pathway:
+        career_pathway_data = get_career_pathway(profile)
+    else:
+        career_pathway_data = profile.career_pathway
+
+    return render(request, 'career_pathway.html', {'career_pathway': json.dumps(career_pathway_data)})
+
+@login_required
+def generate_career_pathway(request):
+    profile = request.user.profile
+    career_pathway_data = get_career_pathway(profile)
+    return JsonResponse({'career_pathway': career_pathway_data})
+
+@login_required
+def learning_pathway(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    return render(request, 'learning_path.html', {'learning_pathway': profile.learning_pathway})
+
+@login_required
+def generate_learning_pathway(request):
+    profile = get_object_or_404(Profile, user=request.user)
+    
+    data = {
+        "bio": profile.bio,
+        "skills": profile.skills,
+        "career_goals": profile.career_goals,
+        "career_interests": profile.career_interests,
+    }
+
+    prompt = f"""
+    Based on the following details, generate a personalized learning pathway with recommended courses, certifications, and resources:
+    Bio: {data["bio"]}
+    Skills: {data["skills"]}
+    Career Goals: {data["career_goals"]}
+    Career Interests: {data["career_interests"]}
+    """
+
+    response = model.generate_content(prompt)
+
+    learning_pathway = response.text if response and hasattr(response, 'text') else "No recommendations available."
+
+    profile.learning_pathway = learning_pathway
+    profile.save()
+
+    return JsonResponse({'status': 'success', 'learning_pathway': learning_pathway})
