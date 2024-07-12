@@ -14,6 +14,10 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Set environment variable for build process
+ARG GEMINI_API_KEY
+ENV GEMINI_API_KEY=${GEMINI_API_KEY}
+
 # Collect static files
 RUN python manage.py collectstatic --noinput
 

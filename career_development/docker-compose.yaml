@@ -5,7 +5,7 @@ services:
     build: .
     container_name: django_container
     environment:
-      - GEMINI_API_KEY=AIzaSyDNzpoxi9BNT_eUnBXonZ6-JpJ6wWL7Q0Q
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DJANGO_SETTINGS_MODULE=career_development.settings
       - DJANGO_DEBUG=False
     ports:
