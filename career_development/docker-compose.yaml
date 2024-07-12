@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - GEMINI_API_KEY=AIzaSyDNzpoxi9BNT_eUnBXonZ6-JpJ6wWL7Q0Q      
+      - DJANGO_SETTINGS_MODULE=core.settings
+      - DJANGO_DEBUG=False
+    container_name: django_container
+    ports:
+      - "80:8000"
+    volumes:
+      - ./media:/app/media 
