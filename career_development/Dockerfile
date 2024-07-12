@@ -20,4 +20,4 @@ RUN pip install gunicorn
 EXPOSE 8000
 
 # Run the Django app
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "core.wsgi:application"]
+CMD ["gunicorn", "myproject.wsgi:application", "--bind", "0.0.0.0:8000"]
