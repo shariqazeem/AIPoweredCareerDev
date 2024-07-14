@@ -1,60 +1,18 @@
-<!-- core/templates/user_profile.html -->
 {% extends 'base.html' %}
 
 {% block title %}{{ profile_user.username }}'s Profile{% endblock %}
 
 {% block content %}
-<div class="container mx-auto mt-8">
-    <div class=" shadow-md rounded-lg p-6">
-        <h1 class="text-3xl font-bold mb-4">{{ profile_user.username }}'s Profile</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <ul class="divide-y divide-gray-200">
-                    <li class="py-2">
-                        <span class="font-bold">Email:</span> {{ profile_user.email }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Location:</span> {{ profile_user.profile.location }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Skills:</span> {{ profile_user.profile.skills }}
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <ul class="divide-y divide-gray-200">
-                    <li class="py-2">
-                        <span class="font-bold">Career Goals:</span> {{ profile_user.profile.career_goals }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Professional Experience:</span> {{ profile_user.profile.professional_experience }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-<!-- 
-        {% comment %} 
-        {% if recommendations %}
-        <h2 class="mt-6 text-xl font-bold">Career Recommendations</h2>
-        <ul class="mt-2 divide-y divide-gray-200">
-            {% for recommendation in recommendations %}
-            <li class="py-2">{{ recommendation }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-
-        {% if job_postings %}
-        <h2 class="mt-6 text-xl font-bold">Job Postings</h2>
-        <ul class="mt-2 divide-y divide-gray-200">
-            {% for job in job_postings %}
-            <li class="py-2">{{ job.title }} at {{ job.company }} - {{ job.location }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endcomment %} -->
-
-        <a href="{% url 'home' %}" class="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Back to Home</a>
+<div class="container mt-5">
+    <div class="card p-4 shadow-lg">
+        <h1 class="card-title text-center mb-4">{{ profile_user.username }}'s Profile</h1>
+        <p><strong>Bio:</strong> {{ profile_user.profile.bio }}</p>
+        <p><strong>Location:</strong> {{ profile_user.profile.location }}</p>
+        <p><strong>Skills:</strong> {{ profile_user.profile.skills }}</p>
+        <p><strong>Career Goals:</strong> {{ profile_user.profile.career_goals }}</p>
+        <p><strong>Professional Experience:</strong> {{ profile_user.profile.professional_experience }}</p>
+        <a href="{% url 'connect' profile_user.username %}" class="btn btn-primary">Connect</a>
+        <a href="{% url 'chat' profile_user.username %}" class="btn btn-secondary">Message</a>
     </div>
 </div>
 {% endblock %}

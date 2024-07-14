@@ -26,8 +26,8 @@ class Profile(models.Model):
     job_prospects = models.JSONField(blank=True, default=dict, null=True)
     career_progress = models.JSONField(blank=True, default=dict, null=True)
     certifications_awards = models.TextField(blank=True)
-    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)  # Ensure this line is included
-    career_pathway = models.JSONField(blank=True, default=dict, null=True)  # Add this line
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    career_pathway = models.JSONField(blank=True, default=dict, null=True)
     learning_pathway = models.TextField(blank=True, default='')
 
     # Technology Skills
@@ -91,3 +91,12 @@ class Connection(models.Model):
 
     def __str__(self):
         return f"{self.user_from} -> {self.user_to}"
+
+class Message(models.Model):
+    sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
+    receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.sender} -> {self.receiver}: {self.content}"

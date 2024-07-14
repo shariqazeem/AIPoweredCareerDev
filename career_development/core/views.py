@@ -3,13 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm
-from .models import Resource, Connection, Profile
+from .models import Resource, Connection, Profile, Message
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as django_logout
 import json
 import google.generativeai as genai
+from django.db.models import Q
+from django.views.decorators.http import require_GET
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -581,3 +583,51 @@ def generate_learning_pathway(request):
     profile.save()
 
     return JsonResponse({'status': 'success', 'learning_pathway': learning_pathway})
+
+@login_required
+@require_GET
+def search_users(request):
+    query = request.GET.get('q', '')
+    users = User.objects.none()
+    if query:
+        users = User.objects.filter(
+            Q(username__icontains=query) |
+            Q(profile__skills__icontains=query) |
+            Q(profile__career_interests__icontains=query) |
+            Q(profile__bio__icontains=query)
+        ).distinct()
+
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        suggestions = [user.username for user in users]
+        return JsonResponse({'suggestions': suggestions})
+
+    return render(request, 'search_results.html', {'users': users, 'query': query})
+
+@login_required
+def chat(request, username):
+    receiver = get_object_or_404(User, username=username)
+    messages = Message.objects.filter(
+        Q(sender=request.user, receiver=receiver) | Q(sender=receiver, receiver=request.user)
+    ).order_by('timestamp')
+
+    if request.method == 'POST':
+        content = request.POST.get('content')
+        if content:
+            Message.objects.create(sender=request.user, receiver=receiver, content=content)
+            return redirect('chat', username=username)
+
+    return render(request, 'chat.html', {'receiver': receiver, 'messages': messages})
+
+@login_required
+def messages(request):
+    user_messages = Message.objects.filter(
+        Q(sender=request.user) | Q(receiver=request.user)
+    ).distinct('receiver', 'sender').order_by('receiver', 'sender', '-timestamp')
+
+    conversations = {}
+    for message in user_messages:
+        other_user = message.receiver if message.sender == request.user else message.sender
+        if other_user not in conversations:
+            conversations[other_user] = message
+
+    return render(request, 'messages.html', {'conversations': conversations})

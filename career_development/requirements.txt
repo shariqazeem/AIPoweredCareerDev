@@ -5,3 +5,4 @@ django-environ
 google-generativeai
 django-allauth
 django_browser_reload
+Pillow

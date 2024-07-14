@@ -1,3 +1,4 @@
+<!-- Updated dashboard.html -->
 {% extends 'base.html' %}
 
 {% block title %}Dashboard{% endblock %}
@@ -9,39 +10,32 @@
 <style>
     .dashboard-container {
         display: flex;
-        flex-wrap: wrap;
     }
     .sidebar {
         width: 250px;
         height: 100vh;
         padding-top: 20px;
         position: fixed;
-        background-color: inherit;
-        color: inherit;
-    }
-    .sidebar-light {
-        background-color: #ffffff;
-        color: #000000;
-    }
-    .sidebar-dark {
-        background-color: #243b55;
-        color: #e0e0e0;
+        background-color: #2c2f33;
+        color: #ffffff;
     }
     .sidebar a {
-        color: inherit;
+        color: #ffffff;
         padding: 10px;
         text-decoration: none;
         display: block;
+        transition: background-color 0.3s, color 0.3s;
     }
     .sidebar a:hover {
-        background-color: #0056b3;
+        background-color: #ff4081;
+        color: #ffffff;
     }
     .content {
         flex-grow: 1;
         padding: 2rem;
         margin-left: 250px;
-        background-color: inherit;
-        color: inherit;
+        background-color: #171c28;
+        color: #ffffff;
         width: calc(100% - 250px);
         transition: margin-left 0.3s ease;
     }
@@ -53,8 +47,8 @@
         width: 100%;
         max-width: 800px;
         overflow-wrap: break-word;
-        background-color: inherit;
-        color: inherit;
+        background-color: #2c2f33;
+        color: #ffffff;
     }
     .card:hover {
         transform: translateY(-5px);
@@ -65,19 +59,18 @@
     }
     .card-title {
         font-size: 1.5rem;
-        color: inherit;
-        border-bottom: 2px solid #007bff;
+        border-bottom: 2px solid #ff4081;
         padding-bottom: 0.5rem;
         margin-bottom: 1rem;
     }
     .btn-primary {
-        background-color: #007bff;
-        border-color: #007bff;
+        background-color: #ff4081;
+        border-color: #ff4081;
         transition: background-color 0.3s, border-color 0.3s;
     }
     .btn-primary:hover {
-        background-color: #0056b3;
-        border-color: #0056b3;
+        background-color: #e91e63;
+        border-color: #e91e63;
     }
     .spinner-border {
         display: none;
@@ -110,21 +103,21 @@
 </style>
 
 <div class="dashboard-container">
-    <div class="sidebar sidebar-light">
-        <h2 class="text-center">CareerAI</h2>
-        <a href="#career-recommendations-section">Career Recommendations</a>
-        <a href="#job-prospects-section">Job Prospects</a>
-        <a href="#assess-skills-section">Assess Skills</a>
-        <a href="#resume-advice-section">Resume Advice</a>
-        <a href="#match-jobs-section">Match Jobs</a>
-        <a href="#learning-resources-section">Learning Resources</a>
-        <a href="#networking-opportunities-section">Networking Opportunities</a>
-        <a href="{% url 'logout' %}">Logout</a>
+    <div class="sidebar">
+        <h2 class="text-center">VisionVenture</h2>
+        <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
+        <a href="#job-prospects-section"><i class="fas fa-briefcase"></i> Job Prospects</a>
+        <a href="#assess-skills-section"><i class="fas fa-chart-bar"></i> Assess Skills</a>
+        <a href="#resume-advice-section"><i class="fas fa-file-alt"></i> Resume Advice</a>
+        <a href="#match-jobs-section"><i class="fas fa-handshake"></i> Match Jobs</a>
+        <a href="#learning-resources-section"><i class="fas fa-book"></i> Learning Resources</a>
+        <a href="#networking-opportunities-section"><i class="fas fa-users"></i> Networking Opportunities</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
     <div class="content">
         <div class="card">
             <div class="card-body">
-                <div class="profile-section">
+                <div class="profile-section d-flex align-items-center">
                     {% if user.profile.profile_picture %}
                         <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture">
                     {% else %}
@@ -135,7 +128,7 @@
                         <p class="m-0">{{ user.email }}</p>
                     </div>
                     <div class="profile-actions">
-                        <a href="{% url 'profile' %}" class="btn btn-sm btn-dark">Edit Profile</a>
+                        <a href="{% url 'profile' %}" class="btn btn-sm btn-dark ms-3">Edit Profile</a>
                     </div>
                 </div>
             </div>
@@ -157,7 +150,6 @@
                 </button>
                 <div id="career-recommendations" class="mt-4">
                     {% if profile.career_recommendations %}
-                        <h3>Recommendations</h3>
                         <div>{{ profile.career_recommendations|safe }}</div>
                     {% endif %}
                 </div>
@@ -172,7 +164,6 @@
                 </button>
                 <div id="job-prospects" class="mt-4">
                     {% if profile.job_prospects %}
-                        <h3>Job Prospects</h3>
                         <div>{{ profile.job_prospects|safe }}</div>
                     {% endif %}
                 </div>
@@ -187,7 +178,6 @@
                 </button>
                 <div id="skill-assessment" class="mt-4">
                     {% if profile.skill_assessment %}
-                        <h3>Assessment Result</h3>
                         <div>{{ profile.skill_assessment|safe }}</div>
                     {% endif %}
                 </div>
@@ -202,7 +192,6 @@
                 </button>
                 <div id="resume-advice" class="mt-4">
                     {% if profile.resume_advice %}
-                        <h3>Advice</h3>
                         <div>{{ profile.resume_advice|safe }}</div>
                     {% endif %}
                 </div>
@@ -217,7 +206,6 @@
                 </button>
                 <div id="matched-jobs" class="mt-4">
                     {% if profile.matched_jobs %}
-                        <h3>Matched Jobs</h3>
                         <div>{{ profile.matched_jobs|safe }}</div>
                     {% endif %}
                 </div>
@@ -232,7 +220,6 @@
                 </button>
                 <div id="learning-resources" class="mt-4">
                     {% if profile.learning_resources %}
-                        <h3>Resources</h3>
                         <div>{{ profile.learning_resources|safe }}</div>
                     {% endif %}
                 </div>
@@ -247,7 +234,6 @@
                 </button>
                 <div id="networking-opportunities" class="mt-4">
                     {% if profile.networking_opportunities %}
-                        <h3>Opportunities</h3>
                         <div>{{ profile.networking_opportunities|safe }}</div>
                     {% endif %}
                 </div>
@@ -336,6 +322,7 @@
             }
         }
     });
+
     document.addEventListener('DOMContentLoaded', function() {
         var skillAssessmentData = {{ skill_assessment|safe }};
         

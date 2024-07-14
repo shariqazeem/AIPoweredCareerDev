@@ -34,5 +34,9 @@ urlpatterns = [
     path('generate_career_pathway/', views.generate_career_pathway, name='generate_career_pathway'),
     path('learning_pathway/', views.learning_pathway, name='learning_pathway'),
     path('generate_learning_pathway/', views.generate_learning_pathway, name='generate_learning_pathway'),
+    path('search/', views.search_users, name='search_users'),
+    path('chat/<str:username>/', views.chat, name='chat'),
+    path('messages/', views.messages, name='messages'),
+    path('ajax_search/', views.search_users, name='ajax_search_users'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

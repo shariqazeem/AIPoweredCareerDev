@@ -24,7 +24,6 @@
     }
 
     function formatText(text) {
-        // Remove asterisks and replace with appropriate HTML tags
         text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
         text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italics
         text = text.replace(/\n/g, '<br>'); // Newline to break
