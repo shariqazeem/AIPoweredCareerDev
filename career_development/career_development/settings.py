@@ -32,15 +32,15 @@ INSTALLED_APPS = [
 
 ASGI_APPLICATION = 'career_development.asgi.application'
 
+# Redis configuration
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6380)],  # Memurai's default port is 6380
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
         },
     },
 }
-
 
 INTERNAL_IPS = [
     "127.0.0.1",

@@ -17,11 +17,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Install Daphne
 RUN pip install daphne
 
-# Install Memurai (as an example, using a Debian package)
-RUN curl -L -o memurai.deb https://downloads.memurai.com/memurai/memurai_2.0.16_amd64.deb && \
-    dpkg -i memurai.deb && \
-    rm memurai.deb
-
 # Set environment variable for build process
 ARG GEMINI_API_KEY
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
