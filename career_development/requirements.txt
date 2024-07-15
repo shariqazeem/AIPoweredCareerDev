@@ -7,4 +7,3 @@ django-allauth
 django_browser_reload
 Pillow
 channels
-daphnes
