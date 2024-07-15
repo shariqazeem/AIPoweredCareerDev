@@ -1,22 +1,27 @@
-{% extends 'base.html' %}
-
+{% extends "base.html" %}
+{% load static %}
 {% block title %}Messages{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Your Conversations</h2>
-    <div class="list-group">
+<div class="container mt-4">
+    <h1 class="mb-4">Messages</h1>
+    <ul class="list-group">
         {% for user, message in conversations.items %}
-            <a href="{% url 'chat' user.username %}" class="list-group-item list-group-item-action">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">{{ user.username }}</h5>
-                    <small>{{ message.timestamp }}</small>
+            <li class="list-group-item d-flex align-items-center">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                {% else %}
+                    <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                {% endif %}
+                <div>
+                    <a href="{% url 'chat' user.username %}" class="text-dark font-weight-bold">{{ user.username }}</a>
+                    <p class="mb-1">{{ message.content|truncatewords:10 }}</p>
+                    <small class="text-muted">{{ message.timestamp }}</small>
                 </div>
-                <p class="mb-1">{{ message.content }}</p>
-            </a>
+            </li>
         {% empty %}
-            <p>You have no conversations yet.</p>
+            <li class="list-group-item">No messages found.</li>
         {% endfor %}
-    </div>
+    </ul>
 </div>
 {% endblock %}

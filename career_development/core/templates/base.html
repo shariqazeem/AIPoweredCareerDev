@@ -1,4 +1,5 @@
 {% load static %}
+{% load notification_tags %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -49,9 +50,18 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'messages' %}">
-                                <i class="fas fa-comments"></i> Messages <span class="badge bg-danger">16</span>
+                            <a class="nav-link" href="{% url 'user_messages' %}">
+                                <i class="fas fa-comments"></i> Messages
                             </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                Notifications
+                                <span class="badge bg-danger">{{ user|unread_notifications_count }}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" id="notificationsList">
+                                <li><a class="dropdown-item" href="#">Loading notifications...</a></li>
+                            </ul>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'career_pathway' %}">
@@ -146,26 +156,27 @@
             applyMode(savedMode);
         });
 
-        $(document).ready(function(){
-            $('#searchInput').on('input', function() {
-                var query = $(this).val();
-                if (query.length > 0) {
+        $(document).ready(function() {
+            $('#searchInput').on('keyup', function() {
+                let query = $(this).val();
+                if (query.length >= 2) {
                     $.ajax({
-                        url: '{% url "search_users" %}',
+                        url: "{% url 'search_users' %}",
                         data: {
                             'q': query
                         },
-                        dataType: 'json',
                         success: function(data) {
-                            var suggestionsBox = $('#searchSuggestions');
-                            suggestionsBox.empty();
-                            if (data.suggestions.length > 0) {
-                                suggestionsBox.show();
-                                $.each(data.suggestions, function(index, suggestion) {
-                                    suggestionsBox.append('<a href="#" class="list-group-item list-group-item-action">' + suggestion + '</a>');
+                            let suggestions = data.suggestions;
+                            let suggestionsContainer = $('#searchSuggestions');
+                            suggestionsContainer.empty();
+                            if (suggestions.length > 0) {
+                                suggestions.forEach(function(suggestion) {
+                                    let suggestionItem = `<a href="${suggestion.url}">${suggestion.username}</a>`;
+                                    suggestionsContainer.append(suggestionItem);
                                 });
+                                suggestionsContainer.show();
                             } else {
-                                suggestionsBox.hide();
+                                suggestionsContainer.hide();
                             }
                         }
                     });
@@ -174,10 +185,28 @@
                 }
             });
 
-            $(document).on('click', function(e) {
-                if (!$(e.target).closest('#searchForm').length) {
+            $('body').click(function(e) {
+                if (!$(e.target).closest('.search-suggestions, #searchInput').length) {
                     $('#searchSuggestions').hide();
                 }
+            });
+
+            $('#notificationsDropdown').on('show.bs.dropdown', function () {
+                $.ajax({
+                    url: '{% url "fetch_notifications" %}',
+                    method: 'GET',
+                    success: function(data) {
+                        let notificationsList = $('#notificationsList');
+                        notificationsList.empty();
+                        if (data.notifications.length > 0) {
+                            data.notifications.forEach(function(notification) {
+                                notificationsList.append(`<li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>`);
+                            });
+                        } else {
+                            notificationsList.append('<li><a class="dropdown-item" href="#">No new notifications</a></li>');
+                        }
+                    }
+                });
             });
         });
     </script>

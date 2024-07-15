@@ -1,0 +1,12 @@
+#chat-log .bg-primary {
+    background-color: #007bff !important;
+    color: white;
+}
+
+#chat-log .bg-light {
+    background-color: #f8f9fa !important;
+}
+
+#chat-log .text-right {
+    text-align: right;
+}

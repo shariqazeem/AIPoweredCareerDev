@@ -1,14 +1,38 @@
-<!-- core/templates/connections.html -->
 {% extends 'base.html' %}
 
-{% block title %}My Connections{% endblock %}
+{% block title %}Connections{% endblock %}
 
 {% block content %}
-<h1 class="mt-4">My Connections</h1>
-<ul class="list-group">
-    {% for connection in connections %}
-        <li class="list-group-item">{{ connection.user_to.username }}</li>
-    {% endfor %}
-</ul>
-<p><a class="btn btn-secondary mt-3" href="{% url 'home' %}">Back to Home</a></p>
+<div class="container mt-5">
+    <h1 class="text-center">Connections</h1>
+    <div class="card p-4 shadow-lg">
+        <h2>Your Connections</h2>
+        <ul>
+            {% for connection in connections %}
+                <li>{{ connection.user_to.username }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Connection Requests</h2>
+        <ul>
+            {% for request in requests %}
+                <li>
+                    {{ request.from_user.username }}
+                    <a href="{% url 'accept_connection_request' request.id %}" class="btn btn-success btn-sm">Accept</a>
+                    <a href="{% url 'reject_connection_request' request.id %}" class="btn btn-danger btn-sm">Reject</a>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <h2>Sent Connection Requests</h2>
+        <ul>
+            {% for request in sent_requests %}
+                <li>
+                    {{ request.to_user.username }}
+                    <a href="{% url 'cancel_connection_request' request.id %}" class="btn btn-danger btn-sm">Cancel</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}

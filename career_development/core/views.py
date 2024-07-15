@@ -173,8 +173,8 @@ def profile_details(request):
 @login_required
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
-    recommendations = get_career_recommendations(user)
-    job_postings = get_job_listings(user)
+    recommendations = get_career_recommendations(user.profile)
+    job_postings = get_job_listings(user.profile)
     return render(request, 'user_profile.html', {'profile_user': user, 'recommendations': recommendations, 'job_postings': job_postings})
 
 def resources(request):
@@ -240,11 +240,11 @@ def get_skill_assessment(profile):
         ]
     return skill_assessment
 
-def get_career_recommendations(user):
+def get_career_recommendations(profile):
     data = {
-        "bio": user.profile.bio,
-        "skills": user.profile.skills,
-        "career_goals": user.profile.career_goals,
+        "bio": profile.bio,
+        "skills": profile.skills,
+        "career_goals": profile.career_goals,
     }
 
     prompt = f"Generate career recommendations for a user with the following details: {data}"
@@ -258,9 +258,8 @@ def get_career_recommendations(user):
     else:
         return "<p>No recommendations available.</p>"
 
-def get_job_listings(user):
-    profile = get_object_or_404(Profile, user=user)
-    
+
+def get_job_listings(profile):
     data = {
         "skills": profile.skills,
         "location": profile.location,
@@ -277,6 +276,7 @@ def get_job_listings(user):
         return job_listings_html
     else:
         return "<p>No job listings available.</p>"
+
 
 def generate_html_from_text(text_list):
     html_content = ""
@@ -598,7 +598,7 @@ def search_users(request):
         ).distinct()
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        suggestions = [user.username for user in users]
+        suggestions = [{'username': user.username, 'url': user.profile.get_absolute_url()} for user in users]
         return JsonResponse({'suggestions': suggestions})
 
     return render(request, 'search_results.html', {'users': users, 'query': query})
@@ -606,28 +606,110 @@ def search_users(request):
 @login_required
 def chat(request, username):
     receiver = get_object_or_404(User, username=username)
-    messages = Message.objects.filter(
+    chat_messages = Message.objects.filter(
         Q(sender=request.user, receiver=receiver) | Q(sender=receiver, receiver=request.user)
     ).order_by('timestamp')
 
-    if request.method == 'POST':
-        content = request.POST.get('content')
-        if content:
-            Message.objects.create(sender=request.user, receiver=receiver, content=content)
-            return redirect('chat', username=username)
-
-    return render(request, 'chat.html', {'receiver': receiver, 'messages': messages})
+    return render(request, 'chat.html', {'receiver': receiver, 'chat_messages': chat_messages})
 
 @login_required
-def messages(request):
+def user_messages(request):
     user_messages = Message.objects.filter(
         Q(sender=request.user) | Q(receiver=request.user)
-    ).distinct('receiver', 'sender').order_by('receiver', 'sender', '-timestamp')
+    ).order_by('timestamp')
 
     conversations = {}
     for message in user_messages:
         other_user = message.receiver if message.sender == request.user else message.sender
-        if other_user not in conversations:
+        if other_user not in conversations or conversations[other_user].timestamp < message.timestamp:
             conversations[other_user] = message
 
     return render(request, 'messages.html', {'conversations': conversations})
+
+from .models import Profile, Connection, ConnectionRequest, Message, Notification
+
+@login_required
+def connect(request, username):
+    user_to_connect = get_object_or_404(User, username=username)
+    if Connection.objects.filter(user_from=request.user, user_to=user_to_connect).exists():
+        messages.info(request, 'You are already connected.')
+    else:
+        connection_request = Connection.objects.create(user_from=request.user, user_to=user_to_connect)
+        notification = Notification.objects.create(
+            user=user_to_connect,
+            message=f'{request.user.username} sent you a connection request.',
+            target_url=reverse('user_profile', args=[request.user.username])
+        )
+        messages.success(request, 'Connection request sent.')
+    return redirect('user_profile', username=username)
+
+
+
+@login_required
+def connections_list(request, username):
+    user = get_object_or_404(User, username=username)
+    connections = Connection.objects.filter(user_from=user).select_related('user_to')
+    return render(request, 'connections_list.html', {'connections': connections, 'profile_user': user})
+
+@login_required
+def send_connection_request(request, username):
+    user_to_connect = get_object_or_404(User, username=username)
+    if ConnectionRequest.objects.filter(from_user=request.user, to_user=user_to_connect).exists():
+        messages.error(request, "Connection request already sent.")
+    else:
+        ConnectionRequest.objects.create(from_user=request.user, to_user=user_to_connect)
+        Notification.objects.create(user=user_to_connect, message=f'{request.user.username} sent you a connection request.')
+        messages.success(request, "Connection request sent.")
+    return redirect('user_profile', username=username)
+
+@login_required
+def accept_connection_request(request, request_id):
+    connection_request = get_object_or_404(ConnectionRequest, id=request_id, to_user=request.user)
+    connection_request.accept()
+    Notification.objects.create(user=connection_request.from_user, message=f'{request.user.username} accepted your connection request.')
+    messages.success(request, "Connection request accepted.")
+    return redirect('view_connections')
+
+@login_required
+def reject_connection_request(request, request_id):
+    connection_request = get_object_or_404(ConnectionRequest, id=request_id, to_user=request.user)
+    connection_request.reject()
+    messages.success(request, "Connection request rejected.")
+    return redirect('view_connections')
+
+@login_required
+def view_connections(request):
+    user_connections = Connection.objects.filter(user_from=request.user)
+    connection_requests = ConnectionRequest.objects.filter(to_user=request.user, accepted=False)
+    sent_requests = ConnectionRequest.objects.filter(from_user=request.user, accepted=False)
+    return render(request, 'connections.html', {
+        'connections': user_connections,
+        'requests': connection_requests,
+        'sent_requests': sent_requests
+    })
+
+@login_required
+def notifications(request):
+    notifications = request.user.notifications.order_by('-timestamp')
+    return render(request, 'notifications.html', {'notifications': notifications})
+
+
+@login_required
+def mark_notification_read(request, notification_id):
+    notification = get_object_or_404(Notification, id=notification_id)
+    notification.is_read = True
+    notification.save()
+    return redirect('notifications')
+
+@login_required
+def fetch_notifications(request):
+    notifications = request.user.notifications.filter(is_read=False).order_by('-timestamp')
+    notifications_data = [
+        {
+            'id': notification.id,
+            'message': notification.message,
+            'url': notification.get_target_url()
+        }
+        for notification in notifications
+    ]
+    return JsonResponse({'notifications': notifications_data})

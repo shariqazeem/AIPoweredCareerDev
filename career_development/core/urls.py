@@ -25,8 +25,12 @@ urlpatterns = [
     path('profile-details/', views.profile_details, name='profile_details'),
     path('user-profile/<str:username>/', views.user_profile, name='user_profile'),
     path('resources/', views.resources, name='resources'),
-    path('connect/<str:username>/', views.connect, name='connect'),
-    path('connections/', views.connections, name='connections'),
+    path('connect/<str:username>/', views.send_connection_request, name='send_connection_request'),
+    path('accept_request/<int:request_id>/', views.accept_connection_request, name='accept_connection_request'),
+    path('reject_request/<int:request_id>/', views.reject_connection_request, name='reject_connection_request'),
+    path('connections/', views.view_connections, name='view_connections'),
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/mark_read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),   
     path('career-recommendations/', views.career_recommendations, name='career_recommendations'),
     path('job-prospects/', views.job_prospects, name='job_prospects'),
     path('dash/', views.dash, name='dash'),
@@ -36,7 +40,10 @@ urlpatterns = [
     path('generate_learning_pathway/', views.generate_learning_pathway, name='generate_learning_pathway'),
     path('search/', views.search_users, name='search_users'),
     path('chat/<str:username>/', views.chat, name='chat'),
-    path('messages/', views.messages, name='messages'),
+    path('messages/', views.user_messages, name='user_messages'),
     path('ajax_search/', views.search_users, name='ajax_search_users'),
+    path('connections/<str:username>/', views.connections_list, name='connections_list'),
+    path('fetch-notifications/', views.fetch_notifications, name='fetch_notifications'),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

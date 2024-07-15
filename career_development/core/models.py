@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 # models.py
 from django.db import models
 from django.contrib.auth.models import User
+from django.urls import reverse  # Import reverse function
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -64,6 +65,9 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+    def get_absolute_url(self):
+        return reverse('user_profile', kwargs={'username': self.user.username})
+
     @property
     def is_complete(self):
         # Bypass the check for superusers
@@ -87,10 +91,25 @@ class Resource(models.Model):
 class Connection(models.Model):
     user_from = models.ForeignKey(User, related_name='connections_from', on_delete=models.CASCADE)
     user_to = models.ForeignKey(User, related_name='connections_to', on_delete=models.CASCADE)
-    created_at = models.DateTimeField(auto_now_add=True)
+    created = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return f"{self.user_from} -> {self.user_to}"
+    class Meta:
+        unique_together = ('user_from', 'user_to')
+
+class ConnectionRequest(models.Model):
+    from_user = models.ForeignKey(User, related_name='sent_requests', on_delete=models.CASCADE)
+    to_user = models.ForeignKey(User, related_name='received_requests', on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    accepted = models.BooleanField(default=False)
+
+    def accept(self):
+        self.accepted = True
+        self.save()
+        Connection.objects.get_or_create(user_from=self.from_user, user_to=self.to_user)
+        Connection.objects.get_or_create(user_from=self.to_user, user_to=self.from_user)
+
+    def reject(self):
+        self.delete()
 
 class Message(models.Model):
     sender = models.ForeignKey(User, related_name='sent_messages', on_delete=models.CASCADE)
@@ -100,3 +119,17 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content}"
+
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    target_url = models.URLField(blank=True, null=True)  # allow blank or null if URL is not always needed
+
+    def __str__(self):
+        return f"Notification for {self.user.username} - {self.message}"
+
+    def get_target_url(self):
+        return self.target_url if self.target_url else reverse('notifications')
