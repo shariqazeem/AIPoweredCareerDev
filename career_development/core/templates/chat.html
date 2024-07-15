@@ -173,10 +173,15 @@
     document.querySelector('#chat-message-submit').onclick = function(e) {
         const messageInputDom = document.querySelector('#chat-message-input');
         const message = messageInputDom.value;
-        chatSocket.send(JSON.stringify({
-            'message': message
-        }));
-        messageInputDom.value = '';
+
+        if (chatSocket.readyState === WebSocket.OPEN) {
+            chatSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        } else {
+            console.error('WebSocket is not open. Current state is:', chatSocket.readyState);
+        }
     };
 
     // Ensure the chat log is scrolled to the bottom when the page loads
