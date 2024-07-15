@@ -2,13 +2,27 @@
 {% block title %}Career Pathway{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<style>
+    .fade-in {
+  animation: fadeIn 1s ease-in-out;
+}
+
+  @keyframes fadeIn {
+      from {
+          opacity: 0;
+      }
+      to {
+          opacity: 1;
+      }
+  }
+</style>
+<div class="container mt-5 fade-in">
     <h2 class="text-center mb-4 text-light">Interactive Career Pathway</h2>
     <button id="refreshPathway" class="btn btn-primary mb-4">Refresh Pathway</button>
     <div id="spinner" class="spinner-border text-primary" role="status" style="display: none;">
         <span class="sr-only">Loading...</span>
     </div>
-    <div id="careerPathway" class="p-3 rounded" style="height: 800px; width: 100%; background: #171c28;"></div> <!-- Set background color here -->
+    <div id="careerPathway" class="p-3 rounded" style="height: 80vh; width: 100%; background: #171c28;"></div>
 </div>
 
 <script src="https://d3js.org/d3.v6.min.js"></script>
@@ -41,13 +55,15 @@
 
     function drawCareerPathway(careerPathwayData) {
         d3.select('#careerPathway').select('svg').remove();
-        
+
         if (!careerPathwayData.nodes.length) {
             console.log("No career pathway data available.");
             return;
         }
 
-        const width = 1200, height = 800;
+        const container = document.getElementById('careerPathway');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
         const svg = d3.select('#careerPathway').append('svg')
             .attr('width', width)
             .attr('height', height)

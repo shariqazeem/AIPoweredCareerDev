@@ -1,4 +1,3 @@
-<!-- Updated dashboard.html -->
 {% extends 'base.html' %}
 
 {% block title %}Dashboard{% endblock %}
@@ -100,10 +99,23 @@
             padding: 1rem;
         }
     }
+    .fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
 </style>
 
 <div class="dashboard-container">
-    <div class="sidebar">
+    <div class="sidebar fade-in">
         <h2 class="text-center">VisionVenture</h2>
         <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
         <a href="#job-prospects-section"><i class="fas fa-briefcase"></i> Job Prospects</a>
@@ -114,8 +126,8 @@
         <a href="#networking-opportunities-section"><i class="fas fa-users"></i> Networking Opportunities</a>
         <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
-    <div class="content">
-        <div class="card">
+    <div class="content fade-in">
+        <div class="card fade-in">
             <div class="card-body">
                 <div class="profile-section d-flex align-items-center">
                     {% if user.profile.profile_picture %}
@@ -134,14 +146,15 @@
             </div>
         </div>
 
-        <div id="skill-assessment-section" class="card">
+        <div id="skill-assessment-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Skill Assessment</h3>
                 <canvas id="skillAssessmentChart" width="200" height="100"></canvas>
             </div>
         </div>
 
-        <div id="career-recommendations-section" class="card">
+        <!-- Career Recommendations -->
+        <div id="career-recommendations-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Career Recommendations</h3>
                 <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
@@ -155,7 +168,7 @@
                 </div>
             </div>
         </div>
-        <div id="job-prospects-section" class="card">
+        <div id="job-prospects-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Job Prospects</h3>
                 <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
@@ -169,7 +182,7 @@
                 </div>
             </div>
         </div>
-        <div id="assess-skills-section" class="card">
+        <div id="assess-skills-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Assess Skills</h3>
                 <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
@@ -183,7 +196,7 @@
                 </div>
             </div>
         </div>
-        <div id="resume-advice-section" class="card">
+        <div id="resume-advice-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Resume Advice</h3>
                 <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
@@ -197,7 +210,7 @@
                 </div>
             </div>
         </div>
-        <div id="match-jobs-section" class="card">
+        <div id="match-jobs-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Match Jobs</h3>
                 <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
@@ -211,7 +224,7 @@
                 </div>
             </div>
         </div>
-        <div id="learning-resources-section" class="card">
+        <div id="learning-resources-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Learning Resources</h3>
                 <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
@@ -225,7 +238,7 @@
                 </div>
             </div>
         </div>
-        <div id="networking-opportunities-section" class="card">
+        <div id="networking-opportunities-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title">Networking Opportunities</h3>
                 <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
@@ -256,10 +269,9 @@
     }
 
     function formatText(text) {
-        // Remove asterisks and replace with appropriate HTML tags
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // Bold
-        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); // Italics
-        text = text.replace(/\n/g, '<br>'); // Newline to break
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
+        text = text.replace(/\n/g, '<br>'); 
         return text;
     }
 
@@ -286,8 +298,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-        handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations" %}', '#career-recommendations', 'career_recommendations');
-        handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects" %}', '#job-prospects', 'job_prospects');
+        handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations_view" %}', '#career-recommendations', 'career_recommendations');
+        handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects_view" %}', '#job-prospects', 'job_prospects');
         handleButtonClick('assess-skills-btn', '{% url "assess_skills" %}', '#skill-assessment', 'skill_assessment');
         handleButtonClick('get-resume-advice-btn', '{% url "get_resume_advice" %}', '#resume-advice', 'resume_advice');
         handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');

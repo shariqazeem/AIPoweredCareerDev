@@ -12,6 +12,16 @@ import json
 import google.generativeai as genai
 from django.db.models import Q
 from django.views.decorators.http import require_GET
+import pusher
+
+pusher_client = pusher.Pusher(
+  app_id='1834486',
+  key='35480d4f1c9dff249520',
+  secret='0ff4a3b8ea038616d7ae',
+  cluster='mt1',
+  ssl=True
+)
+
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -344,7 +354,7 @@ def dashboard(request):
     return render(request, 'dashboard.html', context)
 
 @login_required
-def get_career_recommendations(request):
+def get_career_recommendations_view(request):
     profile = request.user.profile
     response = model.generate_content(f"Generate career recommendations for a user with the following details: {profile.bio}, {profile.skills}, {profile.career_goals}")
 
@@ -356,7 +366,7 @@ def get_career_recommendations(request):
     return JsonResponse({'status': 'error', 'message': 'Failed to generate career recommendations.'}, status=400)
 
 @login_required
-def get_job_prospects(request):
+def get_job_prospects_view(request):
     profile = request.user.profile
     response = model.generate_content(f"Generate job prospects for a user with the following details: {profile.skills}, {profile.location}, {profile.career_goals}")
 
@@ -658,9 +668,10 @@ def send_connection_request(request, username):
         messages.error(request, "Connection request already sent.")
     else:
         ConnectionRequest.objects.create(from_user=request.user, to_user=user_to_connect)
-        Notification.objects.create(user=user_to_connect, message=f'{request.user.username} sent you a connection request.')
+        send_notification(user_to_connect, f'{request.user.username} sent you a connection request.')
         messages.success(request, "Connection request sent.")
     return redirect('user_profile', username=username)
+
 
 @login_required
 def accept_connection_request(request, request_id):
@@ -692,6 +703,12 @@ def view_connections(request):
 def notifications(request):
     notifications = request.user.notifications.order_by('-timestamp')
     return render(request, 'notifications.html', {'notifications': notifications})
+
+def send_notification(user, message):
+    notification = Notification.objects.create(user=user, message=message)
+    pusher_client.trigger(f'notifications-{user.id}', 'new-notification', {
+        'message': message
+    })
 
 
 @login_required
