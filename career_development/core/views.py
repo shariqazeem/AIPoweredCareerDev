@@ -15,11 +15,11 @@ from django.views.decorators.http import require_GET
 import pusher
 
 pusher_client = pusher.Pusher(
-  app_id='1834486',
-  key='35480d4f1c9dff249520',
-  secret='0ff4a3b8ea038616d7ae',
-  cluster='mt1',
-  ssl=True
+    app_id = "1834647"
+    key = "b398130b0aca7c48575e"
+    secret = "c9075fca224ef336733b"
+    cluster = "mt1"
+    ssl=True
 )
 
 
