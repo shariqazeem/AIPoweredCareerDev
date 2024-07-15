@@ -14,6 +14,9 @@ COPY . /app
 # Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Install Daphne
+RUN pip install daphne
+
 # Set environment variable for build process
 ARG GEMINI_API_KEY
 ENV GEMINI_API_KEY=${GEMINI_API_KEY}
@@ -24,5 +27,5 @@ RUN python manage.py collectstatic --noinput
 # Expose the port the app runs on
 EXPOSE 8000
 
-# Run the Django app
-CMD ["gunicorn", "career_development.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run the Daphne server
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "career_development.asgi:application"]
