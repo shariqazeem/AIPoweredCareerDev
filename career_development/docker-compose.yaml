@@ -12,9 +12,9 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DJANGO_SETTINGS_MODULE=career_development.settings
       - DJANGO_DEBUG=False
-      - REDIS_URL=redis://redis:6379/0  # Assuming Redis listens on port 6379
+      - REDIS_URL=redis://redis:6379/0
     ports:
-      - "80:8000"
+      - "80:8001"  # Map port 80 on the host to port 8001 in the container
     volumes:
       - ./media:/app/media
     depends_on:
