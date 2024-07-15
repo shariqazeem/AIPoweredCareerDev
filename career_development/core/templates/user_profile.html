@@ -1,18 +1,46 @@
 {% extends 'base.html' %}
 
 {% block title %}{{ profile_user.username }}'s Profile{% endblock %}
-
+{% load static %}
 {% block content %}
+<style>
+    .profile-picture {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+</style>
 <div class="container mt-5">
     <div class="card p-4 shadow-lg">
         <h1 class="card-title text-center mb-4">{{ profile_user.username }}'s Profile</h1>
-        <p><strong>Bio:</strong> {{ profile_user.profile.bio }}</p>
-        <p><strong>Location:</strong> {{ profile_user.profile.location }}</p>
-        <p><strong>Skills:</strong> {{ profile_user.profile.skills }}</p>
-        <p><strong>Career Goals:</strong> {{ profile_user.profile.career_goals }}</p>
-        <p><strong>Professional Experience:</strong> {{ profile_user.profile.professional_experience }}</p>
-        <a href="{% url 'send_connection_request' profile_user.username %}" class="btn btn-primary">Connect</a>
-        <a href="{% url 'chat' profile_user.username %}" class="btn btn-secondary">Message</a>
+        <div class="text-center mb-4">
+            {% if profile_user.profile.profile_picture %}
+                <img src="{{ profile_user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture" style="width: 150px; height: 150px;">
+            {% else %}
+                <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="rounded-circle" style="width: 150px; height: 150px;">
+            {% endif %}
+        </div>
+        {% if is_private and not is_connected %}
+            <p class="text-center">This profile is private. Connect to see more details.</p>
+            <div class="text-center">
+                <a href="{% url 'send_connection_request' profile_user.username %}" class="btn btn-primary">Connect</a>
+            </div>
+        {% else %}
+            <p><strong>Bio:</strong> {{ profile_user.profile.bio }}</p>
+            <p><strong>Location:</strong> {{ profile_user.profile.location }}</p>
+            <p><strong>Skills:</strong> {{ profile_user.profile.skills }}</p>
+            <p><strong>Career Goals:</strong> {{ profile_user.profile.career_goals }}</p>
+            <p><strong>Professional Experience:</strong> {{ profile_user.profile.professional_experience }}</p>
+            <div class="text-center">
+                {% if is_connected %}
+                    <a href="{% url 'remove_connection' profile_user.username %}" class="btn btn-danger">Remove Connection</a>
+                {% else %}
+                    <a href="{% url 'send_connection_request' profile_user.username %}" class="btn btn-primary">Connect</a>
+                {% endif %}
+                <a href="{% url 'chat' profile_user.username %}" class="btn btn-secondary">Message</a>
+            </div>
+        {% endif %}
     </div>
 </div>
 {% endblock %}

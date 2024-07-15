@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import JsonResponse
-from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm
+from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm, PrivacySettingsForm, DeleteAccountForm
 from .models import Resource, Connection, Profile, Message
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
@@ -183,9 +183,16 @@ def profile_details(request):
 @login_required
 def user_profile(request, username):
     user = get_object_or_404(User, username=username)
-    recommendations = get_career_recommendations(user.profile)
-    job_postings = get_job_listings(user.profile)
-    return render(request, 'user_profile.html', {'profile_user': user, 'recommendations': recommendations, 'job_postings': job_postings})
+    profile = user.profile
+    is_connected = Connection.objects.filter(user_from=request.user, user_to=user).exists()
+
+    return render(request, 'user_profile.html', {
+        'profile_user': user,
+        'is_private': profile.private,
+        'is_connected': is_connected,
+    })
+
+
 
 def resources(request):
     resource_list = Resource.objects.all()
@@ -200,7 +207,13 @@ def connect(request, username):
 @login_required
 def connections(request):
     user_connections = Connection.objects.filter(user_from=request.user)
-    return render(request, 'connections.html', {'connections': user_connections})
+    connection_requests = ConnectionRequest.objects.filter(to_user=request.user, accepted=False)
+    sent_requests = ConnectionRequest.objects.filter(from_user=request.user, accepted=False)
+    return render(request, 'connections.html', {
+        'connections': user_connections,
+        'requests': connection_requests,
+        'sent_requests': sent_requests
+    })
 
 def get_skill_assessment(profile):
     skill_assessment = {
@@ -615,12 +628,18 @@ def search_users(request):
 
 @login_required
 def chat(request, username):
-    receiver = get_object_or_404(User, username=username)
+    try:
+        receiver = User.objects.get(username=username)
+    except User.DoesNotExist:
+        messages.error(request, "The user you are trying to message does not exist.")
+        return redirect('messages')
+    
     chat_messages = Message.objects.filter(
         Q(sender=request.user, receiver=receiver) | Q(sender=receiver, receiver=request.user)
     ).order_by('timestamp')
 
     return render(request, 'chat.html', {'receiver': receiver, 'chat_messages': chat_messages})
+
 
 @login_required
 def user_messages(request):
@@ -635,6 +654,7 @@ def user_messages(request):
             conversations[other_user] = message
 
     return render(request, 'messages.html', {'conversations': conversations})
+    
 
 from .models import Profile, Connection, ConnectionRequest, Message, Notification
 
@@ -700,6 +720,25 @@ def view_connections(request):
     })
 
 @login_required
+def remove_connection(request, username):
+    user_to_disconnect = get_object_or_404(User, username=username)
+    
+    # Remove both directions of the connection
+    connection1 = Connection.objects.filter(user_from=request.user, user_to=user_to_disconnect).first()
+    connection2 = Connection.objects.filter(user_from=user_to_disconnect, user_to=request.user).first()
+    
+    if connection1:
+        connection1.delete()
+    
+    if connection2:
+        connection2.delete()
+    
+    messages.success(request, 'Connection removed.')
+    return redirect('connections')
+
+
+
+@login_required
 def notifications(request):
     notifications = request.user.notifications.order_by('-timestamp')
     return render(request, 'notifications.html', {'notifications': notifications})
@@ -730,3 +769,35 @@ def fetch_notifications(request):
         for notification in notifications
     ]
     return JsonResponse({'notifications': notifications_data})
+
+
+@login_required
+def settings(request):
+    profile = request.user.profile
+    if request.method == 'POST':
+        form = PrivacySettingsForm(request.POST, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Settings updated successfully.')
+            return redirect('settings')
+    else:
+        form = PrivacySettingsForm(instance=profile)
+    return render(request, 'settings.html', {'form': form})
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        form = DeleteAccountForm(request.POST)
+        if form.is_valid() and form.cleaned_data['confirm'] == 'DELETE':
+            user = request.user
+            user.delete()
+            messages.success(request, 'Your account has been deleted.')
+            return redirect('home')
+    else:
+        form = DeleteAccountForm()
+    return render(request, 'delete_account.html', {'form': form})
+
+@login_required
+def privacy(request):
+    return render(request, 'privacy.html')

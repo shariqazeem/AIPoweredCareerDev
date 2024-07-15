@@ -294,3 +294,14 @@ class CustomAuthenticationForm(AuthenticationForm):
     password = forms.CharField(
         widget=forms.PasswordInput(attrs={'class': 'form-input w-full'})   
     )
+
+class PrivacySettingsForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['private']
+        widgets = {
+            'private': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+class DeleteAccountForm(forms.Form):
+    confirm = forms.CharField(max_length=50, label="Type 'DELETE' to confirm")

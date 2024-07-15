@@ -25,6 +25,7 @@ urlpatterns = [
     path('profile-details/', views.profile_details, name='profile_details'),
     path('user-profile/<str:username>/', views.user_profile, name='user_profile'),
     path('resources/', views.resources, name='resources'),
+    path('connections/', views.connections, name='connections'),
     path('connect/<str:username>/', views.send_connection_request, name='send_connection_request'),
     path('accept_request/<int:request_id>/', views.accept_connection_request, name='accept_connection_request'),
     path('reject_request/<int:request_id>/', views.reject_connection_request, name='reject_connection_request'),
@@ -44,6 +45,11 @@ urlpatterns = [
     path('ajax_search/', views.search_users, name='ajax_search_users'),
     path('connections/<str:username>/', views.connections_list, name='connections_list'),
     path('fetch-notifications/', views.fetch_notifications, name='fetch_notifications'),
+    path('settings/', views.settings, name='settings'),
+    path('privacy/', views.privacy, name='privacy'),
+    path('profile/<str:username>/', views.user_profile, name='user_profile'),
+    path('profile/<str:username>/remove/', views.remove_connection, name='remove_connection'),
+    path('settings/delete_account/', views.delete_account, name='delete_account'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

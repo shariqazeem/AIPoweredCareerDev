@@ -4,30 +4,125 @@
 
 {% block content %}
 <style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 56px); /* Adjusted to exclude the height of the navbar */
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #343a40;
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+    }
+
     .profile-picture {
-        width: 80px;
-        height: 80px;
+        width: 50px;
+        height: 50px;
         object-fit: cover;
+        border-radius: 50%;
         margin-right: 20px;
     }
 
+    .card-body {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        background-color: #ffffff;
+        max-height: calc(100vh - 200px); /* Adjusted to ensure input field is always visible */
+    }
+
+    .chat-message {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        max-width: 75%;
+        word-wrap: break-word;
+        display: inline-block;
+    }
+
+    .chat-message.self {
+        align-self: flex-end;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .chat-message.other {
+        align-self: flex-start;
+        background-color: #e9ecef;
+        color: black;
+    }
+
+    .card-footer {
+        padding: 0.5rem 1rem;
+        background-color: #343a40;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .input-group {
+        flex: 1;
+        display: flex;
+    }
+
+    .input-group input {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+        outline: none;
+    }
+
+    .input-group button {
+        padding: 0.75rem 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-top-right-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+        transition: background-color 0.3s ease;
+        outline: none;
+    }
+
+    .input-group button:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+        .card-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+        }
+    }
 </style>
 <div class="container mt-4">
-    <div class="card">
-        <div class="card-header d-flex align-items-center">
+    <div class="chat-container">
+        <div class="card-header">
             {% if receiver.profile.profile_picture %}
-                <img src="{{ receiver.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle mr-3 profile-picture" style="width: 50px; height: 50px;">
+                <img src="{{ receiver.profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
             {% else %}
-                <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="rounded-circle mr-3" style="width: 50px; height: 50px;">
+                <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="profile-picture">
             {% endif %}
-            <h3 class="mb-0"><a href="{% url 'user_profile' receiver.username %}" class="text-decoration-none text-dark">{{ receiver.username }}</a></h3>
+            <h3 class="mb-0 ml-3"><a href="{% url 'user_profile' receiver.username %}" class="text-decoration-none text-light">{{ receiver.username }}</a></h3>
         </div>
-        <div class="card-body" id="chat-log" style="height: 400px; overflow-y: auto; display: flex; flex-direction: column;">
+        <div class="card-body" id="chat-log">
             {% for message in chat_messages %}
-                <div class="d-flex {% if message.sender == user %}justify-content-end{% else %}justify-content-start{% endif %} mb-2">
-                    <div class="rounded p-2 {% if message.sender == user %}bg-primary text-white{% else %}bg-light{% endif %}">
-                        {{ message.content }}
-                    </div>
+                <div class="chat-message {% if message.sender == user %}self{% else %}other{% endif %}">
+                    {{ message.content }}
                 </div>
             {% endfor %}
         </div>
@@ -56,14 +151,13 @@
         console.log('Message received:', data);
         const chatLog = document.querySelector('#chat-log');
         const newMessage = document.createElement('div');
-        newMessage.classList.add('d-flex', 'mb-2');
+        newMessage.classList.add('chat-message', 'p-2', 'rounded', 'mb-2');
         if (data.sender === '{{ user.username }}') {
-            newMessage.classList.add('justify-content-end');
-            newMessage.innerHTML = `<div class="rounded p-2 bg-primary text-white">${data.message}</div>`;
+            newMessage.classList.add('self');
         } else {
-            newMessage.classList.add('justify-content-start');
-            newMessage.innerHTML = `<div class="rounded p-2 bg-light">${data.message}</div>`;
+            newMessage.classList.add('other');
         }
+        newMessage.textContent = data.message;
         chatLog.appendChild(newMessage);
         chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll to the bottom
     };

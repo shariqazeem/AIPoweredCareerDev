@@ -30,6 +30,7 @@ class Profile(models.Model):
     profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
     career_pathway = models.JSONField(blank=True, default=dict, null=True)
     learning_pathway = models.TextField(blank=True, default='')
+    private = models.BooleanField(default=False)  # New field to make profile private
 
     # Technology Skills
     html_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
@@ -116,9 +117,11 @@ class Message(models.Model):
     receiver = models.ForeignKey(User, related_name='received_messages', on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)  # Add this line
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}: {self.content}"
+
 
 
 class Notification(models.Model):
