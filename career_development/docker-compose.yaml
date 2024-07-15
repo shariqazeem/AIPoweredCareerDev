@@ -14,7 +14,8 @@ services:
       - DJANGO_DEBUG=False
       - REDIS_URL=redis://redis:6379/0
     ports:
-      - "80:8001"  # Map port 80 on the host to port 8001 in the container
+      - "80:8000"
+      - "8001:8001"  # Expose WebSocket port
     volumes:
       - ./media:/app/media
     depends_on:
