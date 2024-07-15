@@ -12,9 +12,22 @@ services:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - DJANGO_SETTINGS_MODULE=career_development.settings
       - DJANGO_DEBUG=False
+      - REDIS_URL=redis://memurai:6380/0  # Assuming Memurai listens on port 6379
     ports:
       - "80:8000"
     volumes:
       - ./media:/app/media
+    depends_on:
+      - memurai
+
+  memurai:
+    image: memurai/memurai:latest
+    container_name: memurai_container
+    ports:
+      - "6380:6380"
+    volumes:
+      - memurai_data:/data
+
 volumes:
   postgres_data:
+  memurai_data:
