@@ -14,10 +14,11 @@ services:
       - DJANGO_DEBUG=False
       - REDIS_URL=redis://redis:6379/0
     expose:
+      - "8000"  # Expose the web app port internally
       - "8001"  # Expose WebSocket port internally
     volumes:
       - ./media:/app/media
-      - ./career_development/staticfiles:/app/staticfiles  # Correct static files mapping
+      - ./career_development/staticfiles:/app/staticfiles
     depends_on:
       - redis
 
@@ -37,7 +38,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./media:/app/media
-      - ./career_development/staticfiles:/app/staticfiles  # Correct static files mapping
+      - ./career_development/staticfiles:/app/staticfiles
     depends_on:
       - web
 
