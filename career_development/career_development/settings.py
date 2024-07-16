@@ -30,14 +30,16 @@ INSTALLED_APPS = [
     'channels',
 ]
 
-ASGI_APPLICATION = 'career_development.asgi.application'
+# Ensure Redis URL is fetched from environment variables
+REDIS_URL = os.environ.get('REDIS_URL', 'redis://localhost:6379/0')
 
-# Redis configuration
+# Channels configuration
+ASGI_APPLICATION = 'career_development.asgi.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+            "hosts": [REDIS_URL],
         },
     },
 }

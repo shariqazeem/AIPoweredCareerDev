@@ -6,20 +6,23 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        - GEMINI_API_KEY=${GEMINI_API_KEY}
+        GEMINI_API_KEY: ${GEMINI_API_KEY}
     container_name: django_container
     environment:
-      - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - DJANGO_SETTINGS_MODULE=career_development.settings
-      - DJANGO_DEBUG=False
-      - REDIS_URL=redis://redis:6379/0
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      DJANGO_SETTINGS_MODULE: career_development.settings
+      DJANGO_DEBUG: 'False'
+      REDIS_URL: redis://redis:6379/0
     ports:
       - "80:8000"
-      - "8001:8001"  # Expose WebSocket port
+      - "8001:8001"
     volumes:
       - ./media:/app/media
     depends_on:
       - redis
+    command: >
+      sh -c "python manage.py migrate &&
+             daphne -b 0.0.0.0 -p 8001 career_development.asgi:application"
 
   redis:
     image: redis:latest
@@ -30,5 +33,4 @@ services:
       - redis_data:/data
 
 volumes:
-  postgres_data:
   redis_data:
