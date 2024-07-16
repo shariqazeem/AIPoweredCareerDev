@@ -130,14 +130,15 @@ def complete_profile_step3(request):
 def complete_profile_step4(request):
     profile = request.user.profile
     if request.method == 'POST':
-        form = ProfileQuizStep4Form(request.POST, instance=profile)
+        form = ProfileQuizStep4Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests})
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile setup completed successfully.')
             return redirect('dashboard')
     else:
-        form = ProfileQuizStep4Form(instance=profile)
+        form = ProfileQuizStep4Form(instance=profile, initial={'career_interests': profile.career_interests})
     return render(request, 'account/complete_profile_step4.html', {'form': form})
+
 
 @login_required
 def profile(request):
@@ -191,7 +192,6 @@ def user_profile(request, username):
         'is_private': profile.private,
         'is_connected': is_connected,
     })
-
 
 
 def resources(request):
@@ -261,6 +261,14 @@ def get_skill_assessment(profile):
             profile.refereeing_skill_level or 1,
             profile.physical_training_skill_level or 1,
         ]
+    elif profile.career_interests == 'fashion':
+        skill_assessment['labels'] = ['Fashion Designing', 'Fashion Styling', 'Fashion Illustration', 'Fashion Merchandising']
+        skill_assessment['data'] = [
+            profile.fashion_designing_skill_level or 1,
+            profile.fashion_styling_skill_level or 1,
+            profile.fashion_illustration_skill_level or 1,
+            profile.fashion_merchandising_skill_level or 1,
+        ]
     return skill_assessment
 
 def get_career_recommendations(profile):
@@ -280,7 +288,6 @@ def get_career_recommendations(profile):
         return recommendations_html
     else:
         return "<p>No recommendations available.</p>"
-
 
 def get_job_listings(profile):
     data = {
@@ -438,6 +445,7 @@ def get_resume_advice(request):
 
     return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
 
+
 @login_required
 def match_jobs(request):
     profile = request.user.profile
@@ -550,7 +558,6 @@ def get_career_pathway(profile, max_steps=10):
             career_pathway['links'].append({'source': previous_node_id, 'target': node_id})
             previous_node_id = node_id
 
-        # Save the career pathway in the profile
         profile.career_pathway = career_pathway
         profile.save()
 

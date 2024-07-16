@@ -26,6 +26,13 @@
                 <div class="invalid-feedback">
                     Please provide a password.
                 </div>
+                <ul id="password-requirements" class="list-unstyled mt-2">
+                    <li id="length" class="invalid">At least 8 characters</li>
+                    <li id="uppercase" class="invalid">At least one uppercase letter</li>
+                    <li id="lowercase" class="invalid">At least one lowercase letter</li>
+                    <li id="number" class="invalid">At least one number</li>
+                    <li id="special" class="invalid">At least one special character</li>
+                </ul>
             </div>
             <div class="mb-3">
                 <label for="password2" class="form-label">Confirm Password</label>
@@ -55,5 +62,38 @@
             }, false)
         })
     })()
+
+    const passwordInput = document.getElementById('password1');
+    const lengthRequirement = document.getElementById('length');
+    const uppercaseRequirement = document.getElementById('uppercase');
+    const lowercaseRequirement = document.getElementById('lowercase');
+    const numberRequirement = document.getElementById('number');
+    const specialRequirement = document.getElementById('special');
+
+    passwordInput.addEventListener('input', function() {
+        const value = passwordInput.value;
+        lengthRequirement.classList.toggle('valid', value.length >= 8);
+        lengthRequirement.classList.toggle('invalid', value.length < 8);
+
+        uppercaseRequirement.classList.toggle('valid', /[A-Z]/.test(value));
+        uppercaseRequirement.classList.toggle('invalid', !/[A-Z]/.test(value));
+
+        lowercaseRequirement.classList.toggle('valid', /[a-z]/.test(value));
+        lowercaseRequirement.classList.toggle('invalid', !/[a-z]/.test(value));
+
+        numberRequirement.classList.toggle('valid', /[0-9]/.test(value));
+        numberRequirement.classList.toggle('invalid', !/[0-9]/.test(value));
+
+        specialRequirement.classList.toggle('valid', /[^A-Za-z0-9]/.test(value));
+        specialRequirement.classList.toggle('invalid', !/[^A-Za-z0-9]/.test(value));
+    });
 </script>
+<style>
+    .valid {
+        color: green;
+    }
+    .invalid {
+        color: red;
+    }
+</style>
 {% endblock %}

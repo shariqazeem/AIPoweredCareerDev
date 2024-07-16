@@ -95,14 +95,13 @@ class ProfileQuizStep1Form(forms.ModelForm):
         ('business', 'Business'),
         ('music', 'Music'),
         ('sports', 'Sports'),
+        ('fashion', 'Fashion Designing'),
         # Add more career fields as needed
     ], widget=forms.Select(attrs={'class': 'form-control'}), label='Select your career interest')
 
     class Meta:
         model = Profile
         fields = ['bio', 'location', 'career_interests']
-
-
 
 class ProfileQuizStep2Form(forms.ModelForm):
     technology_skills = [
@@ -136,6 +135,12 @@ class ProfileQuizStep2Form(forms.ModelForm):
         ('coaching', 'Coaching'),
         ('fitness', 'Fitness'),
     ]
+    fashion_skills = [
+        ('designing', 'Fashion Designing'),
+        ('styling', 'Fashion Styling'),
+        ('illustration', 'Fashion Illustration'),
+        ('merchandising', 'Fashion Merchandising'),
+    ]
 
     career_interests = forms.CharField(widget=forms.HiddenInput(), required=False)
     skills = forms.MultipleChoiceField(
@@ -163,6 +168,8 @@ class ProfileQuizStep2Form(forms.ModelForm):
             self.fields['skills'].choices = self.business_skills
         elif career_interest == 'sports':
             self.fields['skills'].choices = self.sports_skills
+        elif career_interest == 'fashion':
+            self.fields['skills'].choices = self.fashion_skills
 
     def save(self, commit=True):
         profile = super(ProfileQuizStep2Form, self).save(commit=False)
@@ -175,11 +182,10 @@ class ProfileQuizStep2Form(forms.ModelForm):
             profile.save()
         return profile
 
-
 class ProfileQuizStep3Form(forms.ModelForm):
     resume_job_title = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control'}),
-        label='Job Title You Are Applying For',
+        label='Job Title You Are Applying For (if any)',
         required=False
     )
     resume_skills_experiences = forms.CharField(
@@ -202,7 +208,6 @@ class ProfileQuizStep3Form(forms.ModelForm):
         model = Profile
         fields = ['resume_job_title', 'resume_skills_experiences', 'resume_education', 'professional_experience']
 
-
 class ProfileQuizStep4Form(forms.ModelForm):
     skill_levels = [
         ('1', 'Beginner'),
@@ -210,60 +215,78 @@ class ProfileQuizStep4Form(forms.ModelForm):
         ('3', 'Advanced'),
     ]
 
-    html_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='HTML Skill Level', required=False)
-    css_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='CSS Skill Level', required=False)
-    js_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='JavaScript Skill Level', required=False)
-    python_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Python Skill Level', required=False)
-    django_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Django Skill Level', required=False)
+    career_interests = forms.CharField(widget=forms.HiddenInput(), required=False)
 
-    management_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Management Skill Level', required=False)
-    marketing_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Marketing Skill Level', required=False)
-    finance_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Finance Skill Level', required=False)
-    sales_skill_level = forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Sales Skill Level', required=False)
+    # Define all possible fields
+    all_fields = {
+        'html_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='HTML Skill Level', required=False),
+        'css_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='CSS Skill Level', required=False),
+        'js_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='JavaScript Skill Level', required=False),
+        'python_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Python Skill Level', required=False),
+        'django_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Django Skill Level', required=False),
+        'management_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Management Skill Level', required=False),
+        'marketing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Marketing Skill Level', required=False),
+        'finance_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Finance Skill Level', required=False),
+        'sales_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Sales Skill Level', required=False),
+        'drawing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Drawing Skill Level', required=False),
+        'painting_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Painting Skill Level', required=False),
+        'sculpting_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Sculpting Skill Level', required=False),
+        'photography_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Photography Skill Level', required=False),
+        'singing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Singing Skill Level', required=False),
+        'instrumental_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Instrumental Skill Level', required=False),
+        'composing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Composing Skill Level', required=False),
+        'conducting_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Conducting Skill Level', required=False),
+        'playing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Playing Skill Level', required=False),
+        'coaching_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Coaching Skill Level', required=False),
+        'refereeing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Refereeing Skill Level', required=False),
+        'physical_training_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Physical Training Skill Level', required=False),
+        'fashion_designing_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Fashion Designing Skill Level', required=False),
+        'fashion_styling_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Fashion Styling Skill Level', required=False),
+        'fashion_illustration_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Fashion Illustration Skill Level', required=False),
+        'fashion_merchandising_skill_level': forms.ChoiceField(choices=skill_levels, widget=forms.Select(attrs={'class': 'form-control'}), label='Fashion Merchandising Skill Level', required=False),
+    }
 
     class Meta:
         model = Profile
-        fields = [
-            'html_skill_level', 'css_skill_level', 'js_skill_level', 'python_skill_level', 'django_skill_level',
-            'management_skill_level', 'marketing_skill_level', 'finance_skill_level', 'sales_skill_level'
-        ]
+        fields = []
+
+    def __init__(self, *args, **kwargs):
+        super(ProfileQuizStep4Form, self).__init__(*args, **kwargs)
+        career_interest = self.initial.get('career_interests', 'technology')
+
+        # Only add relevant fields based on career interest
+        if career_interest == 'technology':
+            fields_to_include = ['html_skill_level', 'css_skill_level', 'js_skill_level', 'python_skill_level', 'django_skill_level']
+        elif career_interest == 'business':
+            fields_to_include = ['management_skill_level', 'marketing_skill_level', 'finance_skill_level', 'sales_skill_level']
+        elif career_interest == 'arts':
+            fields_to_include = ['drawing_skill_level', 'painting_skill_level', 'sculpting_skill_level', 'photography_skill_level']
+        elif career_interest == 'music':
+            fields_to_include = ['singing_skill_level', 'instrumental_skill_level', 'composing_skill_level', 'conducting_skill_level']
+        elif career_interest == 'sports':
+            fields_to_include = ['playing_skill_level', 'coaching_skill_level', 'refereeing_skill_level', 'physical_training_skill_level']
+        elif career_interest == 'fashion':
+            fields_to_include = ['fashion_designing_skill_level', 'fashion_styling_skill_level', 'fashion_illustration_skill_level', 'fashion_merchandising_skill_level']
+
+        for field in fields_to_include:
+            self.fields[field] = self.all_fields[field]
 
     def save(self, commit=True):
         profile = super(ProfileQuizStep4Form, self).save(commit=False)
         skill_assessment = {
-            'labels': ['HTML', 'CSS', 'JavaScript', 'Python', 'Django', 'Management', 'Marketing', 'Finance', 'Sales'],
-            'data': [
-                int(self.cleaned_data.get('html_skill_level', 0)),
-                int(self.cleaned_data.get('css_skill_level', 0)),
-                int(self.cleaned_data.get('js_skill_level', 0)),
-                int(self.cleaned_data.get('python_skill_level', 0)),
-                int(self.cleaned_data.get('django_skill_level', 0)),
-                int(self.cleaned_data.get('management_skill_level', 0)),
-                int(self.cleaned_data.get('marketing_skill_level', 0)),
-                int(self.cleaned_data.get('finance_skill_level', 0)),
-                int(self.cleaned_data.get('sales_skill_level', 0))
-            ]
+            'labels': [],
+            'data': []
         }
+        for field in self.fields:
+            if field in self.all_fields:  # Ensure the field is a skill level field
+                skill_assessment['labels'].append(self.fields[field].label)
+                skill_assessment['data'].append(int(self.cleaned_data.get(field, 0)))
         profile.skill_assessment = json.dumps(skill_assessment)
         if commit:
             profile.save()
         return profile
 
 
-class ProfileStep1Form(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['bio', 'location']
-
-class ProfileStep2Form(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['skills', 'career_goals']
-
-class ProfileStep3Form(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ['professional_experience']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(
