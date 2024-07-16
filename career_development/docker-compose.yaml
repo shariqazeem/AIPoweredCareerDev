@@ -15,7 +15,7 @@ services:
       - REDIS_URL=redis://redis:6379/0
     ports:
       - "80:8000"
-      - "8001:8001"
+      - "8001:8001"  # Expose WebSocket port
     volumes:
       - ./media:/app/media
     depends_on:
