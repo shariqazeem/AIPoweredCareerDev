@@ -21,7 +21,7 @@ ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 # Collect static files
 RUN python manage.py collectstatic --noinput
 
-# Expose the port the app runs on
+# Expose the ports the app runs on
 EXPOSE 8000 8001
 
 # Run the Daphne server
