@@ -17,7 +17,7 @@ services:
       - "8001"  # Expose WebSocket port internally
     volumes:
       - ./media:/app/media
-      - ./staticfiles:/app/staticfiles
+      - ./career_development/staticfiles:/app/staticfiles  # Correct static files mapping
     depends_on:
       - redis
 
@@ -37,7 +37,7 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./media:/app/media
-      - ./staticfiles:/app/staticfiles
+      - ./career_development/staticfiles:/app/staticfiles  # Correct static files mapping
     depends_on:
       - web
 
