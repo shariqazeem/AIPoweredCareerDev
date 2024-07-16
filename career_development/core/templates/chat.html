@@ -139,8 +139,9 @@
 <script>
     const username = "{{ receiver.username }}";  // Embed the receiver's username in the JavaScript code
     const chatSocket = new WebSocket(
-        'ws://' + window.location.hostname + ':8001/ws/chat/' + username + '/'
+    'ws://' + window.location.host + '/ws/chat/admin/'
     );
+
 
     chatSocket.onopen = function(e) {
         console.log('WebSocket connection established');
