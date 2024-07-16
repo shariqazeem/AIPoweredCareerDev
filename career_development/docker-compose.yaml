@@ -14,8 +14,8 @@ services:
       - DJANGO_DEBUG=False
       - REDIS_URL=redis://redis:6379/0
     expose:
-      - "8000"  # Expose the web app port internally
-      - "8001"  # Expose WebSocket port internally
+      - "8000"
+      - "8001"
     volumes:
       - ./media:/app/media
       - ./career_development/staticfiles:/app/staticfiles
