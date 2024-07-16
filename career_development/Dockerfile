@@ -22,8 +22,7 @@ ENV GEMINI_API_KEY=${GEMINI_API_KEY}
 RUN python manage.py collectstatic --noinput
 
 # Expose the ports the app runs on
-EXPOSE 8000
-EXPOSE 8001
+EXPOSE 8000 8001
 
 # Run the Daphne server
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "career_development.asgi:application"]
+CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "career_development.asgi:application"]
