@@ -138,57 +138,58 @@
 </div>
 <script>
     const username = "{{ receiver.username }}";  // Embed the receiver's username in the JavaScript code
-    const chatSocket = new WebSocket(
-        'ws://' + window.location.hostname + ':8001/ws/chat/' + username + '/'
-    );
+const chatSocket = new WebSocket(
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/chat/' + username + '/'
+);
 
-    chatSocket.onopen = function(e) {
-        console.log('WebSocket connection established');
-    };
+chatSocket.onopen = function(e) {
+    console.log('WebSocket connection established');
+};
 
-    chatSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        console.log('Message received:', data);
-        const chatLog = document.querySelector('#chat-log');
-        const newMessage = document.createElement('div');
-        newMessage.classList.add('chat-message', 'p-2', 'rounded', 'mb-2');
-        if (data.sender === '{{ user.username }}') {
-            newMessage.classList.add('self');
-        } else {
-            newMessage.classList.add('other');
-        }
-        newMessage.textContent = data.message;
-        chatLog.appendChild(newMessage);
-        chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll to the bottom
-    };
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log('Message received:', data);
+    const chatLog = document.querySelector('#chat-log');
+    const newMessage = document.createElement('div');
+    newMessage.classList.add('chat-message', 'p-2', 'rounded', 'mb-2');
+    if (data.sender === '{{ user.username }}') {
+        newMessage.classList.add('self');
+    } else {
+        newMessage.classList.add('other');
+    }
+    newMessage.textContent = data.message;
+    chatLog.appendChild(newMessage);
+    chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll to the bottom
+};
 
-    chatSocket.onerror = function(e) {
-        console.error('WebSocket Error:', e);
-    };
+chatSocket.onerror = function(e) {
+    console.error('WebSocket Error:', e);
+};
 
-    chatSocket.onclose = function(e) {
-        console.log('Chat socket closed unexpectedly', e);
-    };
+chatSocket.onclose = function(e) {
+    console.log('Chat socket closed unexpectedly', e);
+};
 
-    document.querySelector('#chat-message-submit').onclick = function(e) {
-        const messageInputDom = document.querySelector('#chat-message-input');
-        const message = messageInputDom.value;
+document.querySelector('#chat-message-submit').onclick = function(e) {
+    const messageInputDom = document.querySelector('#chat-message-input');
+    const message = messageInputDom.value;
 
-        if (chatSocket.readyState === WebSocket.OPEN) {
-            chatSocket.send(JSON.stringify({
-                'message': message
-            }));
-            messageInputDom.value = '';
-        } else {
-            console.error('WebSocket is not open. Current state is:', chatSocket.readyState);
-        }
-    };
+    if (chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+    } else {
+        console.error('WebSocket is not open. Current state is:', chatSocket.readyState);
+    }
+};
 
-    // Ensure the chat log is scrolled to the bottom when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-        const chatLog = document.querySelector('#chat-log');
-        chatLog.scrollTop = chatLog.scrollHeight;
-    });
+// Ensure the chat log is scrolled to the bottom when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const chatLog = document.querySelector('#chat-log');
+    chatLog.scrollTop = chatLog.scrollHeight;
+});
+
 </script>
 
 {% endblock %}

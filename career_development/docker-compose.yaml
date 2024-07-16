@@ -15,7 +15,7 @@ services:
       REDIS_URL: redis://redis:6379/0
     volumes:
       - ./media:/app/media
-      - ./core/static:/app/static  # Ensure static files are mounted
+      - ./core/static:/app/static
     depends_on:
       - redis
 
@@ -28,7 +28,7 @@ services:
       - redis_data:/data
 
   nginx:
-    image: nginx:1.21.6  # Specify a version that supports WebSockets
+    image: nginx:1.21.6
     container_name: nginx_container
     ports:
       - "80:80"
