@@ -10,3 +10,4 @@ channels
 channels-redis
 pusher
 daphne==4.0.0  
+jwt

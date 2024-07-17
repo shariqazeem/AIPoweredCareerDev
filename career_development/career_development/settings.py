@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
     'django_browser_reload',
     'core',
     'channels',
@@ -63,18 +64,39 @@ MIDDLEWARE = [
 ]
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'shariqshaukat786@gmail.com'
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 
-AUTHENTICATION_BACKENDS = [
+AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
-]
+)
+
 
 SITE_ID = 1
 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+    }
+}
+
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
 LOGIN_REDIRECT_URL = '/'
+SOCIALACCOUNT_ADAPTER = 'core.adapters.MySocialAccountAdapter'
+
+
 
 ROOT_URLCONF = 'career_development.urls'
 

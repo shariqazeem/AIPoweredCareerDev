@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 {% block title %}Sign Up{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
@@ -46,6 +47,11 @@
         <div class="text-center mt-3">
             <a href="{% url 'login' %}" class="text-light">Already have an account? Log in</a>
         </div>
+        <div class="text-center mt-3">
+            <form method="post" action="{% provider_login_url "google" method="post" %}">
+                {% csrf_token %}
+                <button type="submit" id="buttonDiv">Sign Up with Google</button>
+            </form>        </div>
     </div>
 </div>
 <script>
@@ -88,6 +94,23 @@
         specialRequirement.classList.toggle('invalid', !/[^A-Za-z0-9]/.test(value));
     });
 </script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+    <script>
+      function handleCredentialResponse(response) {
+        console.log("Encoded JWT ID token: " + response.credential);
+      }
+      window.onload = function () {
+        google.accounts.id.initialize({
+          client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+          callback: handleCredentialResponse
+        });
+        google.accounts.id.renderButton(
+          document.getElementById("buttonDiv"),
+          { theme: "outline", size: "large" }  // customization attributes
+        );
+        google.accounts.id.prompt(); // also display the One Tap dialog
+      }
+    </script>
 <style>
     .valid {
         color: green;

@@ -8,6 +8,9 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as django_logout
+from allauth.socialaccount.models import SocialAccount, SocialLogin
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.helpers import complete_social_login
 import json
 import google.generativeai as genai
 from django.db.models import Q
