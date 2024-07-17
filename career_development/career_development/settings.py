@@ -1,21 +1,18 @@
 import os
 from pathlib import Path
-import google.generativeai as genai
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'your_secret_key'
 DEBUG = True
-ALLOWED_HOSTS = ['*']
 
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
+ALLOWED_HOSTS = ['virtualventure.shariqshaukat.online']
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
 
+import google.generativeai as genai
 genai.configure(api_key=GEMINI_API_KEY)
 
 INSTALLED_APPS = [
@@ -80,7 +77,6 @@ AUTHENTICATION_BACKENDS = (
     'allauth.account.auth_backends.AuthenticationBackend',
 )
 
-
 SITE_ID = 1
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -99,8 +95,6 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_ADAPTER = 'core.adapters.MySocialAccountAdapter'
-
-
 
 ROOT_URLCONF = 'career_development.urls'
 
@@ -160,5 +154,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# New settings for HTTPS and secure cookies
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
