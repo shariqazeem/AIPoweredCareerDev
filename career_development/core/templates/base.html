@@ -43,6 +43,13 @@
         .toast-body {
             color: #212529;
         }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
     </style>
 </head>
 <body>
@@ -146,7 +153,9 @@
                 {% endfor %}
             </div>
         {% endif %}
+        
         {% block content %}
+       
         {% endblock %}
     </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

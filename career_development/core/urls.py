@@ -51,6 +51,7 @@ urlpatterns = [
     path('profile/<str:username>/', views.user_profile, name='user_profile'),
     path('profile/<str:username>/remove/', views.remove_connection, name='remove_connection'),
     path('settings/delete_account/', views.delete_account, name='delete_account'),
-
+    path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
+    path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
