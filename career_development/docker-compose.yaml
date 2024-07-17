@@ -32,10 +32,13 @@ services:
     container_name: nginx_container
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
       - ./core/static:/app/static
       - ./media:/app/media
+      - /etc/letsencrypt/live/virtualventure.shariqshaukat.online:/etc/letsencrypt/live/virtualventure.shariqshaukat.online
+      - /etc/letsencrypt/archive/virtualventure.shariqshaukat.online:/etc/letsencrypt/archive/virtualventure.shariqshaukat.online
     depends_on:
       - web
 
