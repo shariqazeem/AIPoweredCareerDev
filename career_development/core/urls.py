@@ -2,6 +2,7 @@ from django.urls import path, include
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -53,5 +54,7 @@ urlpatterns = [
     path('settings/delete_account/', views.delete_account, name='delete_account'),
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
+    path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="text/xml")),
+
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
