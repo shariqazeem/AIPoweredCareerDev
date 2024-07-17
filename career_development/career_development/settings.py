@@ -8,6 +8,10 @@ SECRET_KEY = 'your_secret_key'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
+
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY environment variable not set")
