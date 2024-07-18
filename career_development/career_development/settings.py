@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'your_secret_key'
 DEBUG = True
 
-ALLOWED_HOSTS = ['virtualventure.shariqshaukat.online']
+ALLOWED_HOSTS = ['*','visionventure.shariqshaukat.online']
 
 GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
 if not GEMINI_API_KEY:
