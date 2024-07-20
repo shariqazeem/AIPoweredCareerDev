@@ -75,7 +75,7 @@ class Profile(models.Model):
         if self.user.is_superuser:
             return True
 
-        required_fields = ['bio', 'location', 'career_interests', 'skills', 'career_goals', 'professional_experience']
+        required_fields = ['bio', 'location', 'career_goals']
         for field in required_fields:
             if not getattr(self, field):
                 return False
