@@ -15,26 +15,26 @@
         height: 100vh;
         padding-top: 20px;
         position: fixed;
-        background-color: #2c2f33;
-        color: #ffffff;
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
     }
     .sidebar a {
-        color: #ffffff;
+        color: var(--sidebar-text);
         padding: 10px;
         text-decoration: none;
         display: block;
         transition: background-color 0.3s, color 0.3s;
     }
     .sidebar a:hover {
-        background-color: #ff4081;
-        color: #ffffff;
+        background-color: var(--sidebar-hover-bg);
+        color: var(--sidebar-hover-text);
     }
     .content {
         flex-grow: 1;
         padding: 2rem;
         margin-left: 250px;
-        background-color: #171c28;
-        color: #ffffff;
+        background-color: var(--content-bg);
+        color: var(--content-text);
         width: calc(100% - 250px);
         transition: margin-left 0.3s ease;
     }
@@ -43,11 +43,9 @@
         border: none;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
-        width: 100%;
-        max-width: 800px;
         overflow-wrap: break-word;
-        background-color: #2c2f33;
-        color: #ffffff;
+        background-color: var(--card-bg);
+        color: var(--card-text);
         perspective: 1000px;
     }
     .card-body {
@@ -56,22 +54,33 @@
         transform-style: preserve-3d;
     }
     .card.loading .card-body {
-        transform: rotateY(180deg);
+        animation: flip 1.5s infinite;
+    }
+    @keyframes flip {
+        0% {
+            transform: rotateY(0deg);
+        }
+        50% {
+            transform: rotateY(180deg);
+        }
+        100% {
+            transform: rotateY(360deg);
+        }
     }
     .card-title {
         font-size: 1.5rem;
-        border-bottom: 2px solid #ff4081;
+        border-bottom: 2px solid var(--accent-color);
         padding-bottom: 0.5rem;
         margin-bottom: 1rem;
     }
     .btn-primary {
-        background-color: #ff4081;
-        border-color: #ff4081;
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
         transition: background-color 0.3s, border-color 0.3s;
     }
     .btn-primary:hover {
-        background-color: #e91e63;
-        border-color: #e91e63;
+        background-color: var(--accent-hover-color);
+        border-color: var(--accent-hover-color);
     }
     .spinner-border {
         display: none;
@@ -111,11 +120,56 @@
             padding: 1rem;
         }
     }
+    /* Light mode styles */
+    body.light-mode {
+        --sidebar-bg: #f8f9fa;
+        --sidebar-text: #212529;
+        --sidebar-hover-bg: #e9ecef;
+        --sidebar-hover-text: #212529;
+        --content-bg: #ffffff;
+        --content-text: #212529;
+        --card-bg: #ffffff;
+        --card-text: #212529;
+        --accent-color: #ff4081;
+        --accent-hover-color: #e91e63;
+    }
+    /* Dark mode styles */
+    body.dark-mode {
+        --sidebar-bg: #2c2f33;
+        --sidebar-text: #ffffff;
+        --sidebar-hover-bg: #ff4081;
+        --sidebar-hover-text: #ffffff;
+        --content-bg: #171c28;
+        --content-text: #ffffff;
+        --card-bg: #2c2f33;
+        --card-text: #ffffff;
+        --accent-color: #ff4081;
+        --accent-hover-color: #e91e63;
+    }
+    /* Enhanced Text Styles */
+    .enhanced-text {
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+    .enhanced-text strong {
+        color: var(--accent-color);
+    }
+    .enhanced-text em {
+        color: var(--accent-hover-color);
+        font-style: italic;
+    }
+    .enhanced-text ul, .enhanced-text ol {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+    .enhanced-text ul li, .enhanced-text ol li {
+        margin-bottom: 0.5rem;
+    }
 </style>
 
 <div class="dashboard-container">
     <div class="sidebar fade-in">
-        <h2 class="text-center">VisionVenture</h2>
+        <h2 class="text-center mode-dependent-text">VisionVenture</h2>
         <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
         <a href="#job-prospects-section"><i class="fas fa-briefcase"></i> Job Prospects</a>
         <a href="#assess-skills-section"><i class="fas fa-chart-bar"></i> Assess Skills</a>
@@ -147,7 +201,7 @@
 
         <div id="skill-assessment-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Skill Assessment</h3>
+                <h3 class="card-title mode-dependent-text">Skill Assessment</h3>
                 <canvas id="skillAssessmentChart" width="200" height="100"></canvas>
             </div>
         </div>
@@ -155,72 +209,72 @@
         <!-- Career Recommendations -->
         <div id="career-recommendations-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Career Recommendations</h3>
+                <h3 class="card-title mode-dependent-text">Career Recommendations</h3>
                 <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Get Recommendations</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="career-recommendations" class="mt-4"></div>
+                <div id="career-recommendations" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="job-prospects-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Job Prospects</h3>
+                <h3 class="card-title mode-dependent-text">Job Prospects</h3>
                 <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Get Job Prospects</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="job-prospects" class="mt-4"></div>
+                <div id="job-prospects" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="assess-skills-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Assess Skills</h3>
+                <h3 class="card-title mode-dependent-text">Assess Skills</h3>
                 <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Assess Skills</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="skill-assessment" class="mt-4"></div>
+                <div id="skill-assessment" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="resume-advice-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Resume Advice</h3>
+                <h3 class="card-title mode-dependent-text">Resume Advice</h3>
                 <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Get Advice</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="resume-advice" class="mt-4"></div>
+                <div id="resume-advice" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="match-jobs-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Match Jobs</h3>
+                <h3 class="card-title mode-dependent-text">Match Jobs</h3>
                 <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Match Jobs</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="matched-jobs" class="mt-4"></div>
+                <div id="matched-jobs" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="learning-resources-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Learning Resources</h3>
+                <h3 class="card-title mode-dependent-text">Learning Resources</h3>
                 <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Get Resources</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="learning-resources" class="mt-4"></div>
+                <div id="learning-resources" class="enhanced-text mt-4"></div>
             </div>
         </div>
         <div id="networking-opportunities-section" class="card fade-in">
             <div class="card-body">
-                <h3 class="card-title">Networking Opportunities</h3>
+                <h3 class="card-title mode-dependent-text">Networking Opportunities</h3>
                 <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
                     <span class="btn-text">Find Opportunities</span>
                     <span class="spinner-border" role="status" aria-hidden="true"></span>
                 </button>
-                <div id="networking-opportunities" class="mt-4"></div>
+                <div id="networking-opportunities" class="enhanced-text mt-4"></div>
             </div>
         </div>
     </div>
@@ -246,6 +300,8 @@
         text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
         text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
         text = text.replace(/\n/g, '<br>'); 
+        text = text.replace(/- \[ \] (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
+        text = text.replace(/\d+\. (.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
         return text;
     }
 
@@ -259,7 +315,7 @@
                     setLoadingState(button, false);
                     if (data.status === 'success') {
                         const formattedText = formatText(data[resultKey]);
-                        document.querySelector(resultSelector).innerHTML = `<h3>${button.innerText}</h3><div>${formattedText}</div>`;
+                        document.querySelector(resultSelector).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
                     } else {
                         alert(data.message);
                     }
@@ -292,19 +348,19 @@
 
         // Display formatted saved content
         const savedContent = {
-            'career_recommendations': `{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}`,
-            'job_prospects': `{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}`,
-            'skill_assessment': `{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}`,
-            'resume_advice': `{% filter escapejs %}{{ profile.resume_advice|safe }}{% endfilter %}`,
-            'matched_jobs': `{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}`,
-            'learning_resources': `{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}`,
-            'networking_opportunities': `{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}`
+            'career_recommendations': `{% if profile.career_recommendations %}{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}{% endif %}`,
+            'job_prospects': `{% if profile.job_prospects %}{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}{% endif %}`,
+            'skill_assessment': `{% if profile.skill_assessment %}{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}{% endif %}`,
+            'resume_advice': `{% if profile.resume_advice %}{% filter escapejs %}{{ profile.resume_advice|safe }}{% endfilter %}{% endif %}`,
+            'matched_jobs': `{% if profile.matched_jobs %}{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}{% endif %}`,
+            'learning_resources': `{% if profile.learning_resources %}{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}{% endif %}`,
+            'networking_opportunities': `{% if profile.networking_opportunities %}{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}{% endif %}`
         };
 
         for (const [key, value] of Object.entries(savedContent)) {
-            if (value) {
+            if (value && value !== '{}') {
                 const formattedText = formatText(value);
-                document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<h3>${key.replace('_', ' ')}</h3><div>${formattedText}</div>`;
+                document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
             }
         }
     });

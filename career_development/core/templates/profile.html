@@ -2,10 +2,13 @@
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
 <style>
-      .fade-in {
-    animation: fadeIn 1s ease-in-out;
-}
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
 
     @keyframes fadeIn {
         from {
@@ -15,7 +18,41 @@
             opacity: 1;
         }
     }
+
+    .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-wrap: break-word;
+        background-color: var(--card-bg, #2c2f33);
+        color: var(--card-text, #ffffff);
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.light-mode .card {
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    body.light-mode .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    body.light-mode .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    body.light-mode .text-light {
+        color: #000000 !important;
+    }
+
+    body.light-mode .bg-dark {
+        background-color: #ffffff !important;
+    }
 </style>
+
 <div class="container mt-5 fade-in">
     <div class="card p-4 shadow-lg">
         <h1 id="edit-profile-title" class="card-title text-center mb-4">Edit Profile</h1>
@@ -245,7 +282,7 @@
 <script>
     function updateTitleClass() {
         const titleElement = document.getElementById('edit-profile-title');
-        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const isDarkMode = document.body.classList.contains('dark-mode');
 
         if (isDarkMode) {
             titleElement.classList.remove('text-dark');
@@ -256,12 +293,10 @@
         }
     }
 
-    // Run on page load
     document.addEventListener('DOMContentLoaded', function () {
         updateTitleClass();
     });
 
-    // Run when color scheme changes
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTitleClass);
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateTitleClass);
 </script>
