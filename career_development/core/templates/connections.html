@@ -45,7 +45,10 @@
                         <h5 class="mb-1">{{ request.to_user.username }}</h5>
                     </div>
                     <div>
-                        <a href="#" class="btn btn-danger btn-sm">Cancel</a>
+                        <form method="POST" action="{% url 'cancel_connection_request' request.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
                     </div>
                 </div>
             {% endfor %}

@@ -55,6 +55,8 @@ urlpatterns = [
     path('privacy-policy/', views.privacy_policy, name='privacy_policy'),
     path('terms-of-service/', views.terms_of_service, name='terms_of_service'),
     path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="text/xml")),
+    path('change_profile_picture/', views.change_profile_picture, name='change_profile_picture'),
+    path('cancel-connection-request/<int:request_id>/', views.cancel_connection_request, name='cancel_connection_request'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

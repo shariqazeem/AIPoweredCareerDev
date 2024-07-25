@@ -92,11 +92,40 @@
     .loading .btn-text {
         display: none;
     }
-    .profile-picture {
+    .profile-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+    .profile-picture-wrapper {
+        position: relative;
+        display: inline-block;
         width: 80px;
         height: 80px;
+        margin-bottom: 10px;
+    }
+    .profile-picture {
+        width: 100%;
+        height: 100%;
         object-fit: cover;
-        margin-right: 20px;
+        border-radius: 50%;
+    }
+    .profile-picture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .profile-picture-wrapper:hover .profile-picture-overlay {
+        opacity: 1;
     }
     .fade-in {
         animation: fadeIn 1s ease-in-out;
@@ -123,10 +152,9 @@
             flex-direction: column;
             align-items: center;
         }
-        .profile-picture {
+        .profile-picture-wrapper {
             width: 60px;
             height: 60px;
-            margin-bottom: 10px;
         }
         .profile-actions {
             margin-top: 10px;
@@ -197,17 +225,23 @@
     <div class="content fade-in">
         <div class="card fade-in">
             <div class="card-body">
-                <div class="profile-section d-flex align-items-center flex-wrap">
-                    {% if user.profile.profile_picture %}
-                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture">
-                    {% else %}
-                        <img src="https://via.placeholder.com/80" alt="Profile Picture" class="rounded-circle profile-picture">
-                    {% endif %}
-                    <div class="d-flex flex-column">
+                <div class="profile-section d-flex align-items-center flex-wrap justify-content-center">
+                    <div class="profile-picture-wrapper">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
+                        {% else %}
+                            <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Profile Picture" class="profile-picture">
+                        {% endif %}
+                        <div class="profile-picture-overlay">
+                            <i class="fas fa-camera"></i> Change
+                        </div>
+                        <input type="file" id="profilePictureInput" class="d-none">
+                    </div>
+                    <div class="d-flex flex-column align-items-center">
                         <h2 class="m-0">{{ user.username }}</h2>
                         <p class="m-0">{{ user.email }}</p>
                     </div>
-                    <div class="profile-actions ms-auto">
+                    <div class="profile-actions mt-2">
                         <a href="{% url 'profile' %}" class="btn btn-sm btn-dark m-auto">Edit Profile</a>
                     </div>
                 </div>
@@ -430,6 +464,42 @@
         } else {
             console.error("Skill Assessment Data is not available or is invalid");
         }
+
+        // Change profile picture on file input change
+        const profilePictureInput = document.getElementById('profilePictureInput');
+        const profilePictureWrapper = document.querySelector('.profile-picture-wrapper');
+
+        profilePictureWrapper.addEventListener('click', () => {
+            profilePictureInput.click();
+        });
+
+        profilePictureInput.addEventListener('change', function () {
+            const file = this.files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append('profile_picture', file);
+
+                fetch('{% url "change_profile_picture" %}', {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        location.reload();
+                    } else {
+                        alert('Failed to change profile picture.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred. Please try again.');
+                });
+            }
+        });
     });
 </script>
 {% endblock %}

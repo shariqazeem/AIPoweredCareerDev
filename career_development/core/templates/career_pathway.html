@@ -177,10 +177,10 @@
             .style('background', 'var(--card-bg, #2c2f33)');
 
         const simulation = d3.forceSimulation(careerPathwayData.nodes)
-            .force('link', d3.forceLink(careerPathwayData.links).id(d => d.id).distance(150))
+            .force('link', d3.forceLink(careerPathwayData.links).id(d => d.id).distance(100))
             .force('charge', d3.forceManyBody().strength(-300))
             .force('center', d3.forceCenter(width / 2, height / 2))
-            .force('collide', d3.forceCollide().radius(50));
+            .force('collide', d3.forceCollide().radius(40));
 
         const link = svg.append('g')
             .attr('class', 'links')
@@ -195,7 +195,7 @@
             .selectAll('circle')
             .data(careerPathwayData.nodes)
             .enter().append('circle')
-            .attr('r', 20)
+            .attr('r', 15)
             .attr('fill', '#007bff')
             .call(d3.drag()
                 .on('start', dragstarted)
@@ -207,12 +207,12 @@
             .selectAll('text')
             .data(careerPathwayData.nodes)
             .enter().append('text')
-            .attr('dy', -25)
-            .attr('x', 0)
-            .html(d => formatText(d.name))
-            .style('font-size', '14px')
+            .attr('dy', 3)
+            .attr('x', 20)
+            .text(d => d.name)
+            .style('font-size', '12px')
             .style('fill', '#fff')
-            .style('text-anchor', 'middle')
+            .style('text-anchor', 'start')
             .style('width', '200px');
 
         simulation.on('tick', () => {
@@ -224,7 +224,7 @@
             node.attr('cx', d => d.x)
                 .attr('cy', d => d.y);
 
-            label.attr('x', d => d.x)
+            label.attr('x', d => d.x + 10)
                 .attr('y', d => d.y);
         });
 
@@ -247,24 +247,17 @@
     }
 
     function refreshCareerPathway() {
-        document.getElementById('spinner').style.display = 'block';
+        setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), true);
         fetch("{% url 'generate_career_pathway' %}")
             .then(response => response.json())
             .then(data => {
-                document.getElementById('spinner').style.display = 'none';
+                setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), false);
                 drawCareerPathway(data.career_pathway);
             })
             .catch(error => {
                 console.error('Error fetching career pathway:', error);
-                document.getElementById('spinner').style.display = 'none';
+                setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), false);
             });
-    }
-
-    function formatText(text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-        text = text.replace(/\n/g, '<br>');
-        return text;
     }
 </script>
 {% endblock %}

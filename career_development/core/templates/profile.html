@@ -51,6 +51,14 @@
     body.light-mode .bg-dark {
         background-color: #ffffff !important;
     }
+
+    .text-light-mode {
+        color: #000000 !important;
+    }
+
+    .text-dark-mode {
+        color: #ffffff !important;
+    }
 </style>
 
 <div class="container mt-5 fade-in">
@@ -288,14 +296,14 @@
 <script>
     function updateTitleClass() {
         const titleElement = document.getElementById('edit-profile-title');
-        const isDarkMode = document.body.classList.contains('dark-mode');
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
         if (isDarkMode) {
-            titleElement.classList.remove('text-dark');
-            titleElement.classList.add('text-light');
+            titleElement.classList.remove('text-light-mode');
+            titleElement.classList.add('text-dark-mode');
         } else {
-            titleElement.classList.remove('text-light');
-            titleElement.classList.add('text-dark');
+            titleElement.classList.remove('text-dark-mode');
+            titleElement.classList.add('text-light-mode');
         }
     }
 
@@ -306,5 +314,6 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTitleClass);
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateTitleClass);
 </script>
+
 
 {% endblock %}

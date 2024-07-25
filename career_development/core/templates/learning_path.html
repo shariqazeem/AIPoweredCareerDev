@@ -103,6 +103,25 @@
     body.light-mode .bg-dark {
         background-color: #ffffff !important;
     }
+
+    .enhanced-text {
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+    .enhanced-text strong {
+        color: var(--accent-color, #ff4081);
+    }
+    .enhanced-text em {
+        color: var(--accent-hover-color, #e91e63);
+        font-style: italic;
+    }
+    .enhanced-text ul, .enhanced-text ol {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+    .enhanced-text ul li, .enhanced-text ol li {
+        margin-bottom: 0.5rem;
+    }
 </style>
 
 <div class="container mt-5 fade-in">
@@ -116,7 +135,7 @@
             <div class="spinner-border text-light" role="status">
                 <span class="sr-only">Loading...</span>
             </div>
-            <div id="learningPathway" class="bg-dark text-light p-3 rounded" style="min-height: 200px;"></div>
+            <div id="learningPathway" class="enhanced-text bg-dark text-light p-3 rounded" style="min-height: 200px;"></div>
         </div>
     </div>
 </div>
@@ -166,6 +185,8 @@
         text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
         text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
         text = text.replace(/\n/g, '<br>');
+        text = text.replace(/- \[ \] (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
+        text = text.replace(/\d+\. (.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
         return text;
     }
 </script>

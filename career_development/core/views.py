@@ -188,6 +188,15 @@ def edit_profile(request):
     return render(request, 'edit_profile.html', {'form': form})
 
 @login_required
+def change_profile_picture(request):
+    profile = request.user.profile
+    if 'profile_picture' in request.FILES:
+        profile.profile_picture = request.FILES['profile_picture']
+        profile.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error', 'message': 'No file uploaded'}, status=400)
+
+@login_required
 def profile_details(request):
     if request.method == 'POST':
         profile_form = ProfileUpdateForm(request.POST, instance=request.user.profile)
@@ -763,7 +772,12 @@ def remove_connection(request, username):
     messages.success(request, 'Connection removed.')
     return redirect('connections')
 
-
+@login_required
+def cancel_connection_request(request, request_id):
+    connection_request = get_object_or_404(ConnectionRequest, id=request_id, from_user=request.user)
+    connection_request.delete()
+    messages.success(request, 'Connection request cancelled.')
+    return redirect('view_connections')
 
 @login_required
 def notifications(request):
