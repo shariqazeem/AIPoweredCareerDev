@@ -114,7 +114,10 @@ def complete_profile_step2(request):
             form.save()
             return redirect('complete_profile_step3')
     else:
-        form = ProfileQuizStep2Form(instance=profile, initial={'career_interests': profile.career_interests})
+        initial_data = {'career_interests': profile.career_interests}
+        if profile.skills:
+            initial_data['skills'] = profile.skills.split(',')
+        form = ProfileQuizStep2Form(instance=profile, initial=initial_data)
     return render(request, 'account/complete_profile_step2.html', {'form': form})
 
 @login_required
@@ -127,19 +130,22 @@ def complete_profile_step3(request):
             return redirect('complete_profile_step4')
     else:
         form = ProfileQuizStep3Form(instance=profile)
+    
     return render(request, 'account/complete_profile_step3.html', {'form': form})
+
 
 @login_required
 def complete_profile_step4(request):
     profile = request.user.profile
+    selected_skills = profile.skills.split(',') if profile.skills else []
     if request.method == 'POST':
-        form = ProfileQuizStep4Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests})
+        form = ProfileQuizStep4Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': ','.join(selected_skills)})
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile setup completed successfully.')
             return redirect('dashboard')
     else:
-        form = ProfileQuizStep4Form(instance=profile, initial={'career_interests': profile.career_interests})
+        form = ProfileQuizStep4Form(instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': ','.join(selected_skills)})
     return render(request, 'account/complete_profile_step4.html', {'form': form})
 
 
@@ -169,6 +175,17 @@ def profile(request):
         'recommendations': recommendations,
         'job_listings': job_listings
     })
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        if form.is_valid():
+            form.save()
+            return redirect('profile')
+    else:
+        form = ProfileUpdateForm(instance=request.user.profile)
+    return render(request, 'edit_profile.html', {'form': form})
 
 @login_required
 def profile_details(request):

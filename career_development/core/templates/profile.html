@@ -269,6 +269,12 @@
                 <input type="file" id="profile_picture" name="profile_picture" class="form-control">
                 {% if user.profile.profile_picture %}
                     <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mt-2" style="max-width: 200px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="true" id="remove_profile_picture" name="remove_profile_picture">
+                        <label class="form-check-label" for="remove_profile_picture">
+                            Remove profile picture
+                        </label>
+                    </div>
                 {% endif %}
             </div>
 

@@ -1,10 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-# models.py
-from django.db import models
-from django.contrib.auth.models import User
-from django.urls import reverse  # Import reverse function
+from django.urls import reverse
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -38,30 +34,63 @@ class Profile(models.Model):
     js_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     python_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     django_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    nodejs_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    php_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    java_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    csharp_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    cpp_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    sql_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    react_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    angular_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
 
     # Business Skills
     management_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     marketing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     finance_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     sales_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    accounting_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    hr_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    operations_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    strategic_planning_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
 
     # Arts Skills
     drawing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     painting_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     sculpting_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     photography_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    graphic_design_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    illustration_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    animation_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    printmaking_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
 
     # Music Skills
     singing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     instrumental_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     composing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     conducting_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    music_production_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    music_theory_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    djing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    sound_engineering_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
 
     # Sports Skills
     playing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     coaching_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     refereeing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
     physical_training_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    nutrition_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    physiotherapy_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    sports_management_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+
+    # Fashion Skills
+    fashion_designing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    fashion_styling_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    fashion_illustration_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    fashion_merchandising_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    textile_design_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    pattern_making_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    sewing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
+    fashion_marketing_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])
 
     def __str__(self):
         return self.user.username

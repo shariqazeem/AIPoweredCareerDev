@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Complete Profile Step 3{% endblock %}
+{% block title %}Complete Profile - Step 3{% endblock %}
 {% block content %}
 <div class="progress mt-3">
     <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
@@ -11,15 +11,27 @@
             {% csrf_token %}
             <div class="form-group">
                 {{ form.resume_job_title.label_tag }} {{ form.resume_job_title }}
+                {% if form.resume_job_title.errors %}
+                    <div class="invalid-feedback">{{ form.resume_job_title.errors }}</div>
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.resume_skills_experiences.label_tag }} {{ form.resume_skills_experiences }}
+                {% if form.resume_skills_experiences.errors %}
+                    <div class="invalid-feedback">{{ form.resume_skills_experiences.errors }}</div>
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.resume_education.label_tag }} {{ form.resume_education }}
+                {% if form.resume_education.errors %}
+                    <div class="invalid-feedback">{{ form.resume_education.errors }}</div>
+                {% endif %}
             </div>
             <div class="form-group">
                 {{ form.professional_experience.label_tag }} {{ form.professional_experience }}
+                {% if form.professional_experience.errors %}
+                    <div class="invalid-feedback">{{ form.professional_experience.errors }}</div>
+                {% endif %}
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
         </form>
