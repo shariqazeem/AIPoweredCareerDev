@@ -330,6 +330,13 @@
             useModalOverlay: true,
         });
 
+        function openNavbar() {
+            const navbarCollapse = document.getElementById('navbarNav');
+            if (window.getComputedStyle(navbarCollapse).display === 'none') {
+                document.querySelector('.navbar-toggler').click();
+            }
+        }
+
         tour.addStep({
             id: 'career-pathway',
             text: 'Discover your personalized career pathway here!',
@@ -342,7 +349,14 @@
                     text: 'Next',
                     action: tour.next
                 }
-            ]
+            ],
+            when: {
+                show: function() {
+                    if (window.innerWidth < 768) {
+                        openNavbar();
+                    }
+                }
+            }
         });
 
         tour.addStep({
@@ -357,7 +371,14 @@
                     text: 'Next',
                     action: tour.next
                 }
-            ]
+            ],
+            when: {
+                show: function() {
+                    if (window.innerWidth < 768) {
+                        openNavbar();
+                    }
+                }
+            }
         });
 
         tour.addStep({
