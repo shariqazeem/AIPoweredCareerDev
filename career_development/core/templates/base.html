@@ -21,7 +21,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
-
     <style>
         .search-suggestions {
             position: absolute;
@@ -226,96 +225,145 @@
         document.addEventListener('DOMContentLoaded', function() {
             let savedMode = localStorage.getItem('mode') || 'dark';
             applyMode(savedMode);
-        });
 
-        $(document).ready(function() {
-            $('#searchInput').on('keyup', function() {
-                let query = $(this).val();
-                if (query.length >= 2) {
+            $(document).ready(function() {
+                $('#searchInput').on('keyup', function() {
+                    let query = $(this).val();
+                    if (query.length >= 2) {
+                        $.ajax({
+                            url: "{% url 'search_users' %}",
+                            data: {
+                                'q': query
+                            },
+                            success: function(data) {
+                                let suggestions = data.suggestions;
+                                let suggestionsContainer = $('#searchSuggestions');
+                                suggestionsContainer.empty();
+                                if (suggestions.length > 0) {
+                                    suggestions.forEach(function(suggestion) {
+                                        let suggestionItem = `<a href="${suggestion.url}">${suggestion.username}</a>`;
+                                        suggestionsContainer.append(suggestionItem);
+                                    });
+                                    suggestionsContainer.show();
+                                } else {
+                                    suggestionsContainer.hide();
+                                }
+                            }
+                        });
+                    } else {
+                        $('#searchSuggestions').hide();
+                    }
+                });
+
+                $('body').click(function(e) {
+                    if (!$(e.target).closest('.search-suggestions, #searchInput').length) {
+                        $('#searchSuggestions').hide();
+                    }
+                });
+
+                $('#notificationsDropdown').on('show.bs.dropdown', function () {
                     $.ajax({
-                        url: "{% url 'search_users' %}",
-                        data: {
-                            'q': query
-                        },
+                        url: '{% url "fetch_notifications" %}',
+                        method: 'GET',
                         success: function(data) {
-                            let suggestions = data.suggestions;
-                            let suggestionsContainer = $('#searchSuggestions');
-                            suggestionsContainer.empty();
-                            if (suggestions.length > 0) {
-                                suggestions.forEach(function(suggestion) {
-                                    let suggestionItem = `<a href="${suggestion.url}">${suggestion.username}</a>`;
-                                    suggestionsContainer.append(suggestionItem);
+                            let notificationsList = $('#notificationsList');
+                            notificationsList.empty();
+                            if (data.notifications.length > 0) {
+                                data.notifications.forEach(function(notification) {
+                                    notificationsList.append(`<li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>`);
                                 });
-                                suggestionsContainer.show();
                             } else {
-                                suggestionsContainer.hide();
+                                notificationsList.append('<li><a class="dropdown-item" href="#">No new notifications</a></li>');
                             }
                         }
                     });
-                } else {
-                    $('#searchSuggestions').hide();
-                }
-            });
-
-            $('body').click(function(e) {
-                if (!$(e.target).closest('.search-suggestions, #searchInput').length) {
-                    $('#searchSuggestions').hide();
-                }
-            });
-
-            $('#notificationsDropdown').on('show.bs.dropdown', function () {
-                $.ajax({
-                    url: '{% url "fetch_notifications" %}',
-                    method: 'GET',
-                    success: function(data) {
-                        let notificationsList = $('#notificationsList');
-                        notificationsList.empty();
-                        if (data.notifications.length > 0) {
-                            data.notifications.forEach(function(notification) {
-                                notificationsList.append(`<li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>`);
-                            });
-                        } else {
-                            notificationsList.append('<li><a class="dropdown-item" href="#">No new notifications</a></li>');
-                        }
-                    }
                 });
+
             });
-        });
 
-        const pusher = new Pusher('35480d4f1c9dff249520', {
-            cluster: 'mt1'
-        });
+            const pusher = new Pusher('35480d4f1c9dff249520', {
+                cluster: 'mt1'
+            });
 
-        const channel = pusher.subscribe('notifications-{{ request.user.id }}');
-        channel.bind('new-notification', function(data) {
-            var notificationsList = document.getElementById('notificationsList');
-            var newNotification = document.createElement('li');
-            newNotification.innerHTML = `<a class="dropdown-item" href="#">${data.message}</a>`;
-            notificationsList.insertBefore(newNotification, notificationsList.firstChild);
+            const channel = pusher.subscribe('notifications-{{ request.user.id }}');
+            channel.bind('new-notification', function(data) {
+                var notificationsList = document.getElementById('notificationsList');
+                var newNotification = document.createElement('li');
+                newNotification.innerHTML = `<a class="dropdown-item" href="#">${data.message}</a>`;
+                notificationsList.insertBefore(newNotification, notificationsList.firstChild);
 
-            var toastContainer = document.getElementById('toastContainer');
-            var toastHTML = `
-                <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                        <strong class="me-auto">Notification</strong>
-                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                var toastContainer = document.getElementById('toastContainer');
+                var toastHTML = `
+                    <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
+                        <div class="toast-header">
+                            <strong class="me-auto">Notification</strong>
+                            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                        </div>
+                        <div class="toast-body">
+                            ${data.message}
+                        </div>
                     </div>
-                    <div class="toast-body">
-                        ${data.message}
-                    </div>
-                </div>
-            `;
-            toastContainer.insertAdjacentHTML('beforeend', toastHTML);
-            var toastElement = toastContainer.lastElementChild;
-            var toast = new bootstrap.Toast(toastElement);
-            toast.show();
-        });
+                `;
+                toastContainer.insertAdjacentHTML('beforeend', toastHTML);
+                var toastElement = toastContainer.lastElementChild;
+                var toast = new bootstrap.Toast(toastElement);
+                toast.show();
+            });
 
-        document.addEventListener('DOMContentLoaded', function() {
-            let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            })
+            document.addEventListener('DOMContentLoaded', function() {
+                let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+                let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                    return new bootstrap.Tooltip(tooltipTriggerEl)
+                })
+            });
+
+            // Shepherd.js Guided Tour
+            const tour = new Shepherd.Tour({
+                defaultStepOptions: {
+                    cancelIcon: {
+                        enabled: true
+                    },
+                    classes: 'shadow-md bg-purple-dark',
+                    scrollTo: { behavior: 'smooth', block: 'center' },
+                },
+                useModalOverlay: true,
+            });
+
+            tour.addStep({
+                id: 'career-pathway',
+                text: 'Discover your personalized career pathway here!',
+                attachTo: {
+                    element: '[href="{% url "career_pathway" %}"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Next',
+                        action: tour.next
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'learning-pathway',
+                text: 'Get your personalized learning pathway and enhance your skills!',
+                attachTo: {
+                    element: '[href="{% url "learning_pathway" %}"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Done',
+                        action: tour.complete
+                    }
+                ]
+            });
+
+            // Show the tour on first visit to the dashboard
+            if (window.location.pathname === "{% url 'dashboard' %}" && !localStorage.getItem('tourShown')) {
+                tour.start();
+                localStorage.setItem('tourShown', 'true');
+            }
         });
     </script>
 </body>
