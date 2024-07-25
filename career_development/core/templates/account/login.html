@@ -27,10 +27,11 @@
             <a href="{% url 'signup' %}" class="text-light">Don't have an account? Sign Up</a>
         </div>
         <div class="text-center mt-3">
-            <form method="post" action="{% provider_login_url "google" method="post" %}">
-                {% csrf_token %}
-                <button type="submit" id="buttonDiv">Sign Up with Google</button>
-            </form>        </div>
+            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
+                <i class="fab fa-google"></i> Login with Google
+            </a>
+        </div>
+        
     </div>
     </div>
 </div>
