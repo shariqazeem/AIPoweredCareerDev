@@ -111,7 +111,6 @@ def google_login_token(request):
         logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
