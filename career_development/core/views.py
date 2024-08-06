@@ -44,6 +44,11 @@ model = genai.GenerativeModel(
     model_name="gemini-1.5-flash",
     generation_config=generation_config,
 )
+csrf_token_cookie = request.COOKIES.get('g_csrf_token')
+csrf_token_body = request.POST.get('g_csrf_token')
+
+if not csrf_token_cookie or not csrf_token_body or csrf_token_cookie != csrf_token_body:
+    return JsonResponse({'success': False, 'error': 'CSRF token verification failed'}, status=400)
 
 def home(request):
     return render(request, 'home.html')
@@ -107,6 +112,7 @@ def google_login_token(request):
     except Exception as e:
         logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
 
 def activate(request, uidb64, token):
     try:

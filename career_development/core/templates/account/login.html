@@ -29,10 +29,16 @@
         <div class="text-center mt-3">
             <div id="buttonDiv"></div>
         </div>
+        <div id="g_id_onload"
+             data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+             data-login_uri="https://visionventure.shariqshaukat.online/login"
+             data-auto_prompt="true">
+        </div>
     </div>
 </div>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
     (function() {
         'use strict'
@@ -64,36 +70,36 @@
     }
 
     function handleCredentialResponse(response) {
-    console.log("Encoded JWT ID token: " + response.credential);
-    fetch("/accounts/google/login/token/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "X-CSRFToken": getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            credential: response.credential
+        console.log("Encoded JWT ID token: " + response.credential);
+        fetch("/accounts/google/login/token/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
         })
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error("Network response was not ok: " + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.success) {
-            window.location.href = data.redirect_url;
-        } else {
-            console.error("Error logging in:", data.error);
-            alert("An error occurred: " + data.error);
-        }
-    })
-    .catch(error => {
-        console.error("Error:", error);
-        alert("An error occurred: " + error.message);
-    });
-}
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok: " + response.statusText);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                console.error("Error logging in:", data.error);
+                alert("An error occurred: " + data.error);
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred: " + error.message);
+        });
+    }
 
     window.onload = function () {
         google.accounts.id.initialize({
