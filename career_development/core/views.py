@@ -69,13 +69,42 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
-            messages.success(request, 'Login successful!')
             return redirect('dashboard')
         else:
             messages.error(request, 'Login failed. Please check your username and password.')
     else:
         form = CustomAuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
+
+@csrf_exempt
+def google_login_token(request):
+    try:
+        token_str = json.loads(request.body).get('credential', None)
+        if not token_str:
+            return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
+
+        adapter = GoogleOAuth2Adapter()
+        app = adapter.get_provider().get_app(request)
+        token = SocialToken(token=token_str)
+        login = adapter.complete_login(request, app, token)
+        login.token = token
+
+        login.state = SocialLogin.state_from_request(request)
+        complete_social_login(request, login)
+
+        if login.is_existing:
+            auth_login(request, login.user)
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+        else:
+            login.save(request, connect=True)
+            auth_login(request, login.user)
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+    except OAuth2Error as e:
+        logger.error(f"OAuth2Error during Google login: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        logger.error(f"Error during Google login: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 def activate(request, uidb64, token):
