@@ -87,22 +87,25 @@ def google_one_tap_login(request):
             
             if token:
                 try:
-                    # Initialize adapter with request and complete login
+                    # Initialize adapter and complete login
                     adapter = GoogleOAuth2Adapter(request)
                     app = adapter.get_provider().get_app(request)
-                    
                     token_data = {
                         'access_token': token,
                         'id_token': token
                     }
-                    login = adapter.complete_login(request, app, token_data)
-                    login.token = token
-                    login.state = SocialLogin.state_from_request(request)
-                    complete_social_login(request, login)
+                    # Create a social login object
+                    sociallogin = SocialLogin(adapter=adapter)
+                    sociallogin.token = token_data
+                    sociallogin.state = SocialLogin.state_from_request(request)
+                    complete_social_login(request, sociallogin)
                     
-                    auth_login(request, login.user, backend='django.contrib.auth.backends.ModelBackend')
-                    return JsonResponse({"success": True})
-                except OAuth2Error as e:
+                    if sociallogin.is_valid():
+                        auth_login(request, sociallogin.user, backend='django.contrib.auth.backends.ModelBackend')
+                        return JsonResponse({"success": True})
+                    else:
+                        return JsonResponse({"success": False, "error": "Social login is not valid"}, status=400)
+                except GoogleOAuth2Error as e:
                     logger.error(f"OAuth2Error: {e}")
                     return JsonResponse({"success": False, "error": "OAuth2Error"}, status=400)
                 except Exception as e:
