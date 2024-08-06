@@ -8,10 +8,11 @@ from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
 from django.contrib.auth import login as auth_login, logout as django_logout
-from allauth.socialaccount.models import SocialAccount, SocialLogin
-from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.helpers import complete_social_login
-from allauth.socialaccount.providers.oauth2.client import OAuth2Error
+from allauth.socialaccount.models import SocialLogin
+from allauth.socialaccount.providers.google.provider import GoogleProvider
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 import json
 import google.generativeai as genai
 from django.db.models import Q
@@ -86,14 +87,19 @@ def google_one_tap_login(request):
             
             if token:
                 try:
-                    adapter = GoogleOAuth2Adapter(request)
-                    app = adapter.get_provider().get_app(request)
-                    client = adapter.get_provider().get_client(request, app)
-                    token = client.parse_raw_token(token)
-                    login = adapter.complete_login(request, app, token, response=token)
-                    login.token = token
+                    # Initialize adapter and client with provider settings
+                    adapter = GoogleOAuth2Adapter()
+                    provider = GoogleProvider(request)
+                    app = provider.get_app(request)
+                    client = OAuth2Client(request, app.client_id, app.secret, adapter.access_token_method)
+                    
+                    # Use the token to complete login
+                    token_data = client.get_access_token_data(code=token)
+                    login = adapter.complete_login(request, app, token_data)
+                    login.token = token_data
                     login.state = SocialLogin.state_from_request(request)
                     complete_social_login(request, login)
+                    
                     auth_login(request, login.user, backend='django.contrib.auth.backends.ModelBackend')
                     return JsonResponse({"success": True})
                 except OAuth2Error as e:
@@ -114,7 +120,7 @@ def google_one_tap_login(request):
     else:
         logger.error("Invalid request method")
         return JsonResponse({"success": False, "error": "Invalid request method"}, status=400)
-        
+
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
