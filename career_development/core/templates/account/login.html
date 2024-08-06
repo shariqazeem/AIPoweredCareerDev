@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load socialaccount %}
 {% block title %}Login{% endblock %}
 {% block content %}
@@ -28,17 +27,18 @@
             <a href="{% url 'signup' %}" class="text-light">Don't have an account? Sign Up</a>
         </div>
         <div class="text-center mt-3">
-            <div id="buttonDiv"></div>
-        </div>
-        <div id="g_id_onload"
-             data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
-             data-login_uri="https://visionventure.shariqshaukat.online/accounts/google/login/token/"
-             data-auto_prompt="true">
+            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
+                <i class="fab fa-google"></i> Login with Google
+            </a>
         </div>
     </div>
 </div>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<div id="g_id_onload"
+     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+     data-login_uri="{% url 'google_login_token' %}"
+     data-auto_prompt="false">
+</div>
+<div class="g_id_signin" data-type="standard"></div>
 <script>
     (function() {
         'use strict'
@@ -53,74 +53,35 @@
             }, false)
         })
     })()
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
     function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
-        fetch("/accounts/google/login/token/", {
-            method: "POST",
+        fetch("{% url 'google_login_token' %}", {
+            method: 'POST',
             headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie('csrftoken')
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
             },
             body: JSON.stringify({
                 credential: response.credential
             })
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok: " + response.statusText);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
             if (data.success) {
                 window.location.href = data.redirect_url;
             } else {
-                console.error("Error logging in:", data.error);
-                alert("An error occurred: " + data.error);
+                console.error(data.error);
             }
         })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred: " + error.message);
-        });
+        .catch(error => console.error('Error:', error));
     }
 
     window.onload = function () {
         google.accounts.id.initialize({
             client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-            callback: handleCredentialResponse,
-            ux_mode: 'popup',
+            callback: handleCredentialResponse
         });
-        google.accounts.id.renderButton(
-            document.getElementById("buttonDiv"),
-            { theme: "outline", size: "large" }
-        );
-        google.accounts.id.prompt();
+        google.accounts.id.prompt(); // display the One Tap prompt
     }
 </script>
-
-<style>
-    .valid {
-        color: green;
-    }
-    .invalid {
-        color: red;
-    }
-</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 {% endblock %}

@@ -84,8 +84,9 @@ def google_login_token(request):
             return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
 
         adapter = GoogleOAuth2Adapter()
-        app = adapter.get_provider().get_app(request)
-        token = SocialToken(token=token_str)
+        app = SocialApp.objects.get(provider="google")
+        token = SocialToken(token=token_str, app=app)
+
         login = adapter.complete_login(request, app, token)
         login.token = token
 
