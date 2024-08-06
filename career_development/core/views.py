@@ -78,26 +78,38 @@ def login(request):
     return render(request, 'account/login.html', {'form': form})
 
 @csrf_exempt
-@require_POST
-def google_login(request):
-    body_unicode = request.body.decode('utf-8')
-    body_params = parse.parse_qs(body_unicode)
-    csrf_token_cookie = request.COOKIES.get('g_csrf_token')
-    if not csrf_token_cookie:
-        return HttpResponseBadRequest('No CSRF token in Cookie.')
-    csrf_token_body = body_params.get('g_csrf_token')
-    if not csrf_token_body:
-        return HttpResponseBadRequest('No CSRF token in post body.')
-    if csrf_token_cookie != csrf_token_body[0]:
-        return HttpResponseBadRequest('Failed to verify double submit cookie.')
-    next_url = request.GET.get('next', '/')
+def google_login_token(request):
+    logger.debug("Received Google login token request")
     try:
-        token = body_params.get('credential')[0]
-        idinfo = id_token.verify_oauth2_token(token, requests.Request(), settings.GOOGLE_APP_CLIENT_ID)
-    except ValueError as e:
-        logging.error(e)
-        return HttpResponseBadRequest('Failed to verify Google auth credentials.')
-    return redirect(settings.HOMEPAGE + '/accounts/google/login/?next=' + next_url)
+        token_str = json.loads(request.body).get('credential', None)
+        if not token_str:
+            logger.error("No token provided")
+            return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
+
+        adapter = GoogleOAuth2Adapter()
+        app = adapter.get_provider().get_app(request)
+        token = SocialToken(token=token_str)
+        login = adapter.complete_login(request, app, token)
+        login.token = token
+
+        login.state = SocialLogin.state_from_request(request)
+        complete_social_login(request, login)
+
+        if login.is_existing:
+            auth_login(request, login.user)
+            logger.info("User logged in successfully")
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+        else:
+            login.save(request, connect=True)
+            auth_login(request, login.user)
+            logger.info("New user logged in and connected successfully")
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+    except OAuth2Error as e:
+        logger.error(f"OAuth2Error during Google login: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+    except Exception as e:
+        logger.error(f"Error during Google login: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def activate(request, uidb64, token):
     try:
