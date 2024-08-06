@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
@@ -30,29 +31,37 @@
                 <i class="fab fa-google"></i> Login with Google
             </a>
         </div>
-        <div class="text-center mt-3">
-            <div id="buttonDiv"></div>
-        </div>
     </div>
 </div>
+<div class="g_id_signin" data-type="standard" data-shape="pill"
+     data-theme="outline" data-text="signin_with" data-size="large"
+     data-logo_alignment="left"></div>
 
 <div id="g_id_onload"
      data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
      data-context="signin"
-     data-ux_mode="popup"
-     data-login_uri="https://visionventure.shariqshaukat.online/accounts/google/login/token/"
-     data-itp_support="true">
-</div>
+     data-ux_mode="redirect"
+     data-login_uri="https://visionventure.shariqshaukat.online{% url 'google_login_token' %}?next={{ request.GET.next }}"
+     data-auto_prompt="false"></div>
 
-<div class="g_id_signin"
-     data-type="standard"
-     data-shape="rectangular"
-     data-theme="outline"
-     data-text="signin_with"
-     data-size="large"
-     data-logo_alignment="left">
-</div>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+{% endblock %}
 
+<script>
+    (function() {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
     function handleCredentialResponse(response) {
@@ -85,27 +94,4 @@
         google.accounts.id.prompt(); // display the One Tap prompt
     }
 </script>
-<script>
-    (function() {
-        'use strict'
-        const forms = document.querySelectorAll('.needs-validation')
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
-</script>
-<style>
-    .valid {
-        color: green;
-    }
-    .invalid {
-        color: red;
-    }
-</style>
 {% endblock %}
