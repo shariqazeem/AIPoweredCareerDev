@@ -87,7 +87,7 @@ def google_one_tap_login(request):
         token = data.get('credential')
 
         try:
-            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "YOUR_GOOGLE_CLIENT_ID")
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com")
 
             if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
                 return JsonResponse({'success': False, 'error': 'Wrong issuer.'})
@@ -102,8 +102,8 @@ def google_one_tap_login(request):
             login(request, user)
             return JsonResponse({'success': True})
         
-        except ValueError:
-            return JsonResponse({'success': False, 'error': 'Invalid token.'})
+        except ValueError as e:
+            return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
