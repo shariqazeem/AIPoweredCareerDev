@@ -57,7 +57,6 @@ urlpatterns = [
     path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="text/xml")),
     path('change_profile_picture/', views.change_profile_picture, name='change_profile_picture'),
     path('cancel-connection-request/<int:request_id>/', views.cancel_connection_request, name='cancel_connection_request'),
-    path('accounts/google/login/callback/', views.google_login_token, name='google_login_token'),
-
+    path('google-login', views.google_login, name='google-login'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

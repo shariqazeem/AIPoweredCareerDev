@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load socialaccount %}
 {% block title %}Login{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
@@ -33,12 +32,20 @@
         </div>
     </div>
 </div>
+<div class="g_id_signin" data-type="standard" data-shape="pill"
+     data-theme="outline" data-text="signin_with" data-size="large"
+     data-logo_alignment="left"></div>
+
 <div id="g_id_onload"
      data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
-     data-login_uri="{% url 'google_login_token' %}"
-     data-auto_prompt="false">
-</div>
-<div class="g_id_signin" data-type="standard"></div>
+     data-context="signin"
+     data-ux_mode="redirect"
+     data-login_uri="https://visionventure.shariqshaukat.online{% url 'google-login' %}?next={{ request.GET.next }}"
+     data-auto_prompt="false"></div>
+
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+{% endblock %}
+
 <script>
     (function() {
         'use strict'
@@ -54,36 +61,5 @@
         })
     })()
 </script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-    function handleCredentialResponse(response) {
-        fetch("{% url 'google_login_token' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                credential: response.credential
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect_url;
-            } else {
-                console.error(data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
 
-    window.onload = function () {
-        google.accounts.id.initialize({
-            client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        });
-        google.accounts.id.prompt(); // display the One Tap prompt
-    }
-</script>
 {% endblock %}

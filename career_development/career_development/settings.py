@@ -100,6 +100,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION = 'optional'
 LOGIN_REDIRECT_URL = '/'
 SOCIALACCOUNT_ADAPTER = 'allauth.socialaccount.adapter.DefaultSocialAccountAdapter'
+GOOGLE_APP_CLIENT_ID = '143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com'
+HOMEPAGE = 'https://visionventure.shariqshaukat.online'
 
 
 ROOT_URLCONF = 'career_development.urls'
