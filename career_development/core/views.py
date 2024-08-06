@@ -105,6 +105,8 @@ def google_one_tap_login(request):
                 user.save()
                 logger.debug(f"Created new user: {user}")
 
+            # Set the backend attribute before calling auth_login
+            user.backend = 'allauth.account.auth_backends.AuthenticationBackend'
             auth_login(request, user)  # Correctly pass both request and user to login()
             return JsonResponse({'success': True})
 
