@@ -12,7 +12,7 @@ from allauth.socialaccount.helpers import complete_social_login
 from allauth.socialaccount.models import SocialLogin
 from allauth.socialaccount.providers.google.provider import GoogleProvider
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
-from allauth.socialaccount.providers.oauth2.client import OAuth2Client, OAuth2Error
+from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 import json
 import google.generativeai as genai
 from django.db.models import Q
@@ -90,13 +90,13 @@ def google_one_tap_login(request):
                     # Initialize adapter and complete login
                     adapter = GoogleOAuth2Adapter(request)
                     app = adapter.get_provider().get_app(request)
+                    
                     token_data = {
                         'access_token': token,
                         'id_token': token
                     }
                     # Create a social login object
-                    sociallogin = SocialLogin(adapter=adapter)
-                    sociallogin.token = token_data
+                    sociallogin = adapter.complete_login(request, app, token_data)
                     sociallogin.state = SocialLogin.state_from_request(request)
                     complete_social_login(request, sociallogin)
                     
@@ -105,7 +105,7 @@ def google_one_tap_login(request):
                         return JsonResponse({"success": True})
                     else:
                         return JsonResponse({"success": False, "error": "Social login is not valid"}, status=400)
-                except GoogleOAuth2Error as e:
+                except OAuth2Error as e:
                     logger.error(f"OAuth2Error: {e}")
                     return JsonResponse({"success": False, "error": "OAuth2Error"}, status=400)
                 except Exception as e:
