@@ -87,16 +87,10 @@ def google_one_tap_login(request):
             
             if token:
                 try:
-                    # Initialize adapter and client with provider settings
                     adapter = GoogleOAuth2Adapter(request)
-                    provider = adapter.get_provider()
-                    app = provider.get_app(request)
-                    client = OAuth2Client(request, app.client_id, app.secret, adapter.access_token_method)
-                    
-                    # Use the token to complete login
-                    token_data = client.get_access_token_data(code=token)
-                    login = adapter.complete_login(request, app, token_data)
-                    login.token = token_data
+                    app = adapter.get_provider().get_app(request)
+                    login = adapter.complete_login(request, app, token)
+                    login.token = token
                     login.state = SocialLogin.state_from_request(request)
                     complete_social_login(request, login)
                     
