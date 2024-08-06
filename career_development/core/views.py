@@ -80,12 +80,12 @@ def login(request):
 @csrf_exempt
 def google_login_token(request):
     logger.debug("Received Google login token request")
-    token_str = json.loads(request.body).get('credential', None)
-    if not token_str:
-        logger.error("No token provided")
-        return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
-
     try:
+        token_str = json.loads(request.body).get('credential', None)
+        if not token_str:
+            logger.error("No token provided")
+            return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
+
         adapter = GoogleOAuth2Adapter()
         app = adapter.get_provider().get_app(request)
         token = SocialToken(token=token_str)
