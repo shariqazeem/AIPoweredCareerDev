@@ -94,7 +94,7 @@ def google_login_token(request):
 
         login.state = SocialLogin.state_from_request(request)
         complete_social_login(request, login)
-        
+
         if login.is_existing:
             auth_login(request, login.user)
             logger.info("User logged in successfully")
@@ -106,7 +106,8 @@ def google_login_token(request):
             return JsonResponse({'success': True, 'redirect_url': '/'})
     except Exception as e:
         logger.error(f"Error during Google login: {str(e)}")
-        return JsonResponse({'success': False, 'error': str(e)})
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
+
 
 def activate(request, uidb64, token):
     try:

@@ -87,7 +87,10 @@
                 console.error("Error logging in:", data.error);
             }
         })
-        .catch(error => console.error("Error:", error));
+        .catch(error => {
+            console.error("Error:", error);
+            alert("An error occurred: " + error.message);
+        });
     }
 
     window.onload = function () {
