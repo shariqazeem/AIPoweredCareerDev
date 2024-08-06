@@ -105,7 +105,7 @@ def google_one_tap_login(request):
                 user.save()
                 logger.debug(f"Created new user: {user}")
 
-            login(request, user)
+            login(request, user)  # Correctly pass both request and user to login()
             return JsonResponse({'success': True})
 
         except ValueError as e:
