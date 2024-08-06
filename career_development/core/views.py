@@ -101,7 +101,7 @@ def google_one_tap_login(request):
                     last_name = id_info.get('family_name', '')
 
                     # Use the GoogleOAuth2Adapter to handle the login
-                    adapter = GoogleOAuth2Adapter()
+                    adapter = GoogleOAuth2Adapter(request)
                     app = adapter.get_provider().get_app(request)
                     
                     login = adapter.complete_login(request, app, token)
