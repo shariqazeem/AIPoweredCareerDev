@@ -17,6 +17,9 @@ from django.db.models import Q
 from django.views.decorators.http import require_GET
 import pusher
 from django.views.decorators.csrf import csrf_exempt
+import logging
+
+logger = logging.getLogger(__name__)
 
 pusher_client = pusher.Pusher(
     app_id = "1834647",
@@ -76,8 +79,10 @@ def login(request):
 
 @csrf_exempt
 def google_login_token(request):
+    logger.debug("Received Google login token request")
     token_str = json.loads(request.body).get('credential', None)
     if not token_str:
+        logger.error("No token provided")
         return JsonResponse({'success': False, 'error': 'No token provided'})
 
     adapter = GoogleOAuth2Adapter(request)
@@ -90,12 +95,15 @@ def google_login_token(request):
         complete_social_login(request, login)
         if login.is_existing:
             auth_login(request, login.user)
+            logger.info("User logged in successfully")
             return JsonResponse({'success': True, 'redirect_url': '/'})
         else:
             login.save(request, connect=True)
             auth_login(request, login.user)
+            logger.info("New user logged in and connected successfully")
             return JsonResponse({'success': True, 'redirect_url': '/'})
     except Exception as e:
+        logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
 
 def activate(request, uidb64, token):
