@@ -54,63 +54,95 @@
         </div>        
     </div>
 </div>
+
+<!-- Google One Tap Login -->
+<div id="g_id_onload"
+     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_select="true">
+</div>
+<div class="g_id_signout" style="display:none;">Sign Out</div>
+
 <script>
-    (function() {
-        'use strict'
-        const forms = document.querySelectorAll('.needs-validation')
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
+(function() {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
 
-    const passwordInput = document.getElementById('password1');
-    const lengthRequirement = document.getElementById('length');
-    const uppercaseRequirement = document.getElementById('uppercase');
-    const lowercaseRequirement = document.getElementById('lowercase');
-    const numberRequirement = document.getElementById('number');
-    const specialRequirement = document.getElementById('special');
+const passwordInput = document.getElementById('password1');
+const lengthRequirement = document.getElementById('length');
+const uppercaseRequirement = document.getElementById('uppercase');
+const lowercaseRequirement = document.getElementById('lowercase');
+const numberRequirement = document.getElementById('number');
+const specialRequirement = document.getElementById('special');
 
-    passwordInput.addEventListener('input', function() {
-        const value = passwordInput.value;
-        lengthRequirement.classList.toggle('valid', value.length >= 8);
-        lengthRequirement.classList.toggle('invalid', value.length < 8);
+passwordInput.addEventListener('input', function() {
+    const value = passwordInput.value;
+    lengthRequirement.classList.toggle('valid', value.length >= 8);
+    lengthRequirement.classList.toggle('invalid', value.length < 8);
 
-        uppercaseRequirement.classList.toggle('valid', /[A-Z]/.test(value));
-        uppercaseRequirement.classList.toggle('invalid', !/[A-Z]/.test(value));
+    uppercaseRequirement.classList.toggle('valid', /[A-Z]/.test(value));
+    uppercaseRequirement.classList.toggle('invalid', !/[A-Z]/.test(value));
 
-        lowercaseRequirement.classList.toggle('valid', /[a-z]/.test(value));
-        lowercaseRequirement.classList.toggle('invalid', !/[a-z]/.test(value));
+    lowercaseRequirement.classList.toggle('valid', /[a-z]/.test(value));
+    lowercaseRequirement.classList.toggle('invalid', !/[a-z]/.test(value));
 
-        numberRequirement.classList.toggle('valid', /[0-9]/.test(value));
-        numberRequirement.classList.toggle('invalid', !/[0-9]/.test(value));
+    numberRequirement.classList.toggle('valid', /[0-9]/.test(value));
+    numberRequirement.classList.toggle('invalid', !/[0-9]/.test(value));
 
-        specialRequirement.classList.toggle('valid', /[^A-Za-z0-9]/.test(value));
-        specialRequirement.classList.toggle('invalid', !/[^A-Za-z0-9]/.test(value));
-    });
+    specialRequirement.classList.toggle('valid', /[^A-Za-z0-9]/.test(value));
+    specialRequirement.classList.toggle('invalid', !/[^A-Za-z0-9]/.test(value));
+});
 </script>
 <script src="https://accounts.google.com/gsi/client" async></script>
-    <script>
-      function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
+<script>
+function handleCredentialResponse(response) {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  fetch("{% url 'google_one_tap_login' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken
+    },
+    body: JSON.stringify({
+      credential: response.credential
+    })
+  }).then(response => {
+    return response.json().then(data => {
+      if (response.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
       }
-      window.onload = function () {
-        google.accounts.id.initialize({
-          client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-          callback: handleCredentialResponse
-        });
-        google.accounts.id.renderButton(
-          document.getElementById("buttonDiv"),
-          { theme: "outline", size: "large" }  // customization attributes
-        );
-        google.accounts.id.prompt(); // also display the One Tap dialog
-      }
-    </script>
+    });
+  }).then(data => {
+    if (data.success) {
+      window.location.href = "{% url 'dashboard' %}";
+    } else {
+      console.error("One Tap Sign Up failed", data.error);
+    }
+  }).catch(error => {
+    console.error("Error:", error);
+  });
+}
+
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.prompt();
+}
+</script>
 <style>
     .valid {
         color: green;
