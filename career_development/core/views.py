@@ -83,11 +83,11 @@ def login(request):
 @csrf_exempt
 def google_one_tap_login(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        token = data.get('credential')
-        logger.debug(f"Received token: {token}")
-
         try:
+            data = json.loads(request.body)
+            token = data.get('credential')
+            logger.debug(f"Received token: {token}")
+
             idinfo = id_token.verify_oauth2_token(token, requests.Request(), "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com")
             logger.debug(f"ID Info: {idinfo}")
 
@@ -110,7 +110,10 @@ def google_one_tap_login(request):
 
         except ValueError as e:
             logger.error(f"Token verification failed: {e}")
-            return JsonResponse({'success': False, 'error': str(e)})
+            return JsonResponse({'success': False, 'error': f'Token verification failed: {e}'})
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return JsonResponse({'success': False, 'error': f'Unexpected error: {e}'})
     
     logger.error("Invalid request method.")
     return JsonResponse({'success': False, 'error': 'Invalid request method.'})

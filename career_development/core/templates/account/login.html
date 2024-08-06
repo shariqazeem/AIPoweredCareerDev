@@ -43,44 +43,44 @@
 <div class="g_id_signout" style="display:none;">Sign Out</div>
 
 <script>
-function handleCredentialResponse(response) {
-  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  fetch("{% url 'google_one_tap_login' %}", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-CSRFToken": csrfToken
-    },
-    body: JSON.stringify({
-      credential: response.credential
-    })
-  }).then(response => {
-    return response.json().then(data => {
-      if (response.ok) {
-        return data;
-      } else {
-        return Promise.reject(data);
-      }
-    });
-  }).then(data => {
-    if (data.success) {
-      window.location.href = "{% url 'dashboard' %}";
-    } else {
-      console.error("One Tap Login failed", data.error);
+    function handleCredentialResponse(response) {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      fetch("{% url 'google_one_tap_login' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+          credential: response.credential
+        })
+      }).then(response => {
+        return response.json().then(data => {
+          if (response.ok) {
+            return data;
+          } else {
+            return Promise.reject(data);
+          }
+        });
+      }).then(data => {
+        if (data.success) {
+          window.location.href = "{% url 'dashboard' %}";
+        } else {
+          console.error("One Tap Login failed", data.error);
+        }
+      }).catch(error => {
+        console.error("Error:", error);
+      });
     }
-  }).catch(error => {
-    console.error("Error:", error);
-  });
-}
-
-window.onload = function () {
-  google.accounts.id.initialize({
-    client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-    callback: handleCredentialResponse
-  });
-  google.accounts.id.prompt();
-}
-</script>
+    
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.prompt();
+    }
+    </script>
 
 <style>
   .valid {
