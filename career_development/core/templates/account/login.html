@@ -14,7 +14,7 @@
                     Please provide your username.
                 </div>
             </div>
-            <div class="mb-3">
+            <div class="mb3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
                 <div class="invalid-feedback">
@@ -33,65 +33,46 @@
         </div>
     </div>
 </div>
-<div class="g_id_signin" data-type="standard" data-shape="pill"
-     data-theme="outline" data-text="signin_with" data-size="large"
-     data-logo_alignment="left"></div>
+</div>
 
-<div id="g_id_onload"
-     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
-     data-context="signin"
-     data-ux_mode="redirect"
-     data-login_uri="https://visionventure.shariqshaukat.online{% url 'google_login_token' %}?next={{ request.GET.next }}"
-     data-auto_prompt="false"></div>
-
+<!-- Google One Tap Login -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
-{% endblock %}
-
-{% block extra_scripts %}
 <script>
-    (function() {
-        'use strict'
-        const forms = document.querySelectorAll('.needs-validation')
-        Array.from(forms).forEach(form => {
-            form.addEventListener('submit', event => {
-                if (!form.checkValidity()) {
-                    event.preventDefault()
-                    event.stopPropagation()
-                }
-                form.classList.add('was-validated')
-            }, false)
-        })
-    })()
-</script>
-<script>
-    function handleCredentialResponse(response) {
-        fetch("{% url 'google_login_token' %}", {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: JSON.stringify({
-                credential: response.credential
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect_url;
-            } else {
-                console.error(data.error);
-            }
-        })
-        .catch(error => console.error('Error:', error));
-    }
+  function handleCredentialResponse(response) {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch("{% url 'google_one_tap_login' %}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-CSRFToken": csrfToken
+      },
+      body: JSON.stringify({
+        credential: response.credential
+      })
+    }).then(response => response.json()).then(data => {
+      if (data.success) {
+        window.location.href = "{% url 'dashboard' %}";
+      } else {
+        console.error("One Tap Login failed");
+      }
+    });
+  }
 
-    window.onload = function () {
-        google.accounts.id.initialize({
-            client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-            callback: handleCredentialResponse
-        });
-        google.accounts.id.prompt(); // display the One Tap prompt
-    }
+  window.onload = function () {
+    google.accounts.id.initialize({
+      client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+      callback: handleCredentialResponse
+    });
+    google.accounts.id.prompt(); // also display the One Tap dialog
+  }
 </script>
+
+<style>
+  .valid {
+    color: green;
+  }
+  .invalid {
+    color: red;
+  }
+</style>
 {% endblock %}

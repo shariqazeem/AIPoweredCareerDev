@@ -16,7 +16,6 @@ import json
 import google.generativeai as genai
 from django.db.models import Q
 from django.views.decorators.http import require_GET
-from django.views.decorators.http import require_POST
 import pusher
 from django.views.decorators.csrf import csrf_exempt
 import logging
@@ -70,6 +69,7 @@ def login(request):
         if form.is_valid():
             user = form.get_user()
             auth_login(request, user)
+            messages.success(request, 'Login successful!')
             return redirect('dashboard')
         else:
             messages.error(request, 'Login failed. Please check your username and password.')
@@ -77,39 +77,31 @@ def login(request):
         form = CustomAuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
 
-@csrf_exempt
-def google_login_token(request):
-    logger.debug("Received Google login token request")
-    try:
-        token_str = json.loads(request.body).get('credential', None)
-        if not token_str:
-            logger.error("No token provided")
-            return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
-
-        adapter = GoogleOAuth2Adapter()
-        app = adapter.get_provider().get_app(request)
-        token = SocialToken(token=token_str)
-        login = adapter.complete_login(request, app, token)
-        login.token = token
-
-        login.state = SocialLogin.state_from_request(request)
-        complete_social_login(request, login)
-
-        if login.is_existing:
-            auth_login(request, login.user)
-            logger.info("User logged in successfully")
-            return JsonResponse({'success': True, 'redirect_url': '/'})
-        else:
-            login.save(request, connect=True)
-            auth_login(request, login.user)
-            logger.info("New user logged in and connected successfully")
-            return JsonResponse({'success': True, 'redirect_url': '/'})
-    except OAuth2Error as e:
-        logger.error(f"OAuth2Error during Google login: {str(e)}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    except Exception as e:
-        logger.error(f"Error during Google login: {str(e)}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+def google_one_tap_login(request):
+    if request.method == "POST":
+        data = json.loads(request.body)
+        token = data.get("credential")
+        
+        if token:
+            try:
+                adapter = GoogleOAuth2Adapter(request)
+                app = adapter.get_provider().get_app(request)
+                client = adapter.get_provider().get_client(request, app)
+                token = client.parse_raw_token(token)
+                login = adapter.complete_login(request, app, token, response=token)
+                login.token = token
+                login.state = SocialLogin.state_from_request(request)
+                complete_social_login(request, login)
+                login.user.backend = 'django.contrib.auth.backends.ModelBackend'
+                login.token = token
+                login.state = SocialLogin.state_from_request(request)
+                complete_social_login(request, login)
+                login(request, login.user)
+                return JsonResponse({"success": True})
+            except OAuth2Error:
+                return JsonResponse({"success": False}, status=400)
+        return JsonResponse({"success": False}, status=400)
+    return JsonResponse({"success": False}, status=400)
 
 def activate(request, uidb64, token):
     try:
