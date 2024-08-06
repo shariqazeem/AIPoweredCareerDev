@@ -27,14 +27,11 @@
             <a href="{% url 'signup' %}" class="text-light">Don't have an account? Sign Up</a>
         </div>
         <div class="text-center mt-3">
-            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
-                <i class="fab fa-google"></i> Login with Google
-            </a>
+            <div id="buttonDiv"></div>
         </div>
-        
-    </div>
     </div>
 </div>
+
 <script>
     (function() {
         'use strict'
@@ -49,24 +46,44 @@
             }, false)
         })
     })()
-</script>
-<script src="https://accounts.google.com/gsi/client" async></script>
-    <script>
-      function handleCredentialResponse(response) {
-        console.log("Encoded JWT ID token: " + response.credential);
-      }
-      window.onload = function () {
+
+    function handleCredentialResponse(response) {
+        // Send the credential to your backend to log in the user
+        fetch("/accounts/google/login/token/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                credential: response.credential
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect_url; // Redirect to the dashboard or any desired page
+            } else {
+                console.error("Error logging in:", data.error);
+            }
+        })
+        .catch(error => console.error("Error:", error));
+    }
+
+    window.onload = function () {
         google.accounts.id.initialize({
-          client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-          callback: handleCredentialResponse
+            client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+            callback: handleCredentialResponse,
+            ux_mode: 'popup',  // Use 'popup' mode
         });
         google.accounts.id.renderButton(
-          document.getElementById("buttonDiv"),
-          { theme: "outline", size: "large" }  // customization attributes
+            document.getElementById("buttonDiv"),
+            { theme: "outline", size: "large" }
         );
-        google.accounts.id.prompt(); // also display the One Tap dialog
-      }
-    </script>
+        google.accounts.id.prompt(); // Also display the One Tap dialog
+    }
+</script>
+
 <style>
     .valid {
         color: green;

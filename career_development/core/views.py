@@ -16,6 +16,7 @@ import google.generativeai as genai
 from django.db.models import Q
 from django.views.decorators.http import require_GET
 import pusher
+from django.views.decorators.csrf import csrf_exempt
 
 pusher_client = pusher.Pusher(
     app_id = "1834647",
@@ -72,6 +73,30 @@ def login(request):
     else:
         form = CustomAuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
+
+@csrf_exempt
+def google_login_token(request):
+    token_str = json.loads(request.body).get('credential', None)
+    if not token_str:
+        return JsonResponse({'success': False, 'error': 'No token provided'})
+
+    adapter = GoogleOAuth2Adapter(request)
+    app = adapter.get_provider().get_app(request)
+    token = SocialToken(token=token_str)
+    login = adapter.complete_login(request, app, token)
+    login.token = token
+    try:
+        login.state = SocialLogin.state_from_request(request)
+        complete_social_login(request, login)
+        if login.is_existing:
+            auth_login(request, login.user)
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+        else:
+            login.save(request, connect=True)
+            auth_login(request, login.user)
+            return JsonResponse({'success': True, 'redirect_url': '/'})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
 
 def activate(request, uidb64, token):
     try:

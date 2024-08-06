@@ -3,6 +3,7 @@ from . import views
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from .views import google_login_token
 
 urlpatterns = [
     path('', views.home, name='home'),
@@ -57,6 +58,7 @@ urlpatterns = [
     path('sitemap.xml', TemplateView.as_view(template_name="sitemap.xml", content_type="text/xml")),
     path('change_profile_picture/', views.change_profile_picture, name='change_profile_picture'),
     path('cancel-connection-request/<int:request_id>/', views.cancel_connection_request, name='cancel_connection_request'),
+    path('accounts/google/login/token/', google_login_token, name='google_login_token'),
 
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
