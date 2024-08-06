@@ -1,5 +1,4 @@
 {% extends 'base.html' %}
-{% load static %}
 {% load socialaccount %}
 {% block title %}Login{% endblock %}
 {% block content %}
@@ -15,7 +14,7 @@
                     Please provide your username.
                 </div>
             </div>
-            <div class="mb3">
+            <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password" name="password" required>
                 <div class="invalid-feedback">
@@ -28,18 +27,14 @@
             <a href="{% url 'signup' %}" class="text-light">Don't have an account? Sign Up</a>
         </div>
         <div class="text-center mt-3">
-            <div id="buttonDiv"></div>
+            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
+                <i class="fab fa-google"></i> Login with Google
+            </a>
         </div>
-        <div id="g_id_onload"
-             data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
-             data-login_uri="https://visionventure.shariqshaukat.online/accounts/google/login/token/"
-             data-auto_prompt="true">
-        </div>
+        
+    </div>
     </div>
 </div>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-
 <script>
     (function() {
         'use strict'
@@ -54,68 +49,24 @@
             }, false)
         })
     })()
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    function handleCredentialResponse(response) {
+</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+    <script>
+      function handleCredentialResponse(response) {
         console.log("Encoded JWT ID token: " + response.credential);
-        fetch("/accounts/google/login/token/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": getCookie('csrftoken')
-            },
-            body: JSON.stringify({
-                credential: response.credential
-            })
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error("Network response was not ok: " + response.statusText);
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect_url;
-            } else {
-                console.error("Error logging in:", data.error);
-                alert("An error occurred: " + data.error);
-            }
-        })
-        .catch(error => {
-            console.error("Error:", error);
-            alert("An error occurred: " + error.message);
-        });
-    }
-
-    window.onload = function () {
+      }
+      window.onload = function () {
         google.accounts.id.initialize({
-            client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
-            callback: handleCredentialResponse,
-            ux_mode: 'popup',
+          client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+          callback: handleCredentialResponse
         });
         google.accounts.id.renderButton(
-            document.getElementById("buttonDiv"),
-            { theme: "outline", size: "large" }
+          document.getElementById("buttonDiv"),
+          { theme: "outline", size: "large" }  // customization attributes
         );
-        google.accounts.id.prompt();
-    }
-</script>
-
+        google.accounts.id.prompt(); // also display the One Tap dialog
+      }
+    </script>
 <style>
     .valid {
         color: green;
