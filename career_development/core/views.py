@@ -80,61 +80,32 @@ def login(request):
         form = CustomAuthenticationForm()
     return render(request, 'account/login.html', {'form': form})
 
+@csrf_exempt
 def google_one_tap_login(request):
     if request.method == "POST":
+        data = json.loads(request.body)
+        token = data.get('credential')
+
         try:
-            data = json.loads(request.body)
-            token = data.get("credential")
-            logger.debug(f"Received token: {token}")
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), "YOUR_GOOGLE_CLIENT_ID")
 
-            if token:
-                try:
-                    # Verify the token
-                    id_info = id_token.verify_oauth2_token(token, requests.Request(), "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com")
-                    
-                    if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
-                        raise ValueError('Wrong issuer.')
+            if idinfo['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                return JsonResponse({'success': False, 'error': 'Wrong issuer.'})
 
-                    user_id = id_info['sub']
-                    email = id_info['email']
-                    first_name = id_info.get('given_name', '')
-                    last_name = id_info.get('family_name', '')
+            email = idinfo['email']
+            try:
+                user = User.objects.get(email=email)
+            except User.DoesNotExist:
+                user = User.objects.create_user(username=email, email=email, password=None)
+                user.save()
 
-                    # Use the GoogleOAuth2Adapter to handle the login
-                    adapter = GoogleOAuth2Adapter(request)
-                    app = adapter.get_provider().get_app(request)
-                    
-                    login = adapter.complete_login(request, app, token)
-                    login.token = token
-                    login.state = SocialLogin.state_from_request(request)
-                    complete_social_login(request, login)
-                    
-                    if login.is_valid():
-                        auth_login(request, login.user, backend='django.contrib.auth.backends.ModelBackend')
-                        return JsonResponse({"success": True})
-                    else:
-                        return JsonResponse({"success": False, "error": "Social login is not valid"}, status=400)
-                except ValueError as e:
-                    logger.error(f"Token verification error: {e}")
-                    return JsonResponse({"success": False, "error": "Token verification error"}, status=400)
-                except OAuth2Error as e:
-                    logger.error(f"OAuth2Error: {e}")
-                    return JsonResponse({"success": False, "error": "OAuth2Error"}, status=400)
-                except Exception as e:
-                    logger.error(f"Error completing login: {e}")
-                    return JsonResponse({"success": False, "error": str(e)}, status=500)
-            else:
-                logger.error("Token not provided")
-                return JsonResponse({"success": False, "error": "Token not provided"}, status=400)
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error: {e}")
-            return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
-        except Exception as e:
-            logger.error(f"Unexpected error: {e}")
-            return JsonResponse({"success": False, "error": str(e)}, status=500)
-    else:
-        logger.error("Invalid request method")
-        return JsonResponse({"success": False, "error": "Invalid request method"}, status=400)
+            login(request, user)
+            return JsonResponse({'success': True})
+        
+        except ValueError:
+            return JsonResponse({'success': False, 'error': 'Invalid token.'})
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request method.'})
 
 def activate(request, uidb64, token):
     try:

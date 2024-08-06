@@ -35,8 +35,13 @@
 </div>
 </div>
 
-<!-- Google One Tap Login -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
+<div id="g_id_onload"
+     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_select="true">
+</div>
+<div class="g_id_signout" style="display:none;">Sign Out</div>
+
 <script>
 function handleCredentialResponse(response) {
   const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -62,12 +67,13 @@ function handleCredentialResponse(response) {
 
 window.onload = function () {
   google.accounts.id.initialize({
-    client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+    client_id: "YOUR_GOOGLE_CLIENT_ID",
     callback: handleCredentialResponse
   });
-  google.accounts.id.prompt(); // Display the One Tap dialog
+  google.accounts.id.prompt();
 }
 </script>
+
 
 <style>
   .valid {
