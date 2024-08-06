@@ -85,14 +85,16 @@ def google_login_token(request):
         logger.error("No token provided")
         return JsonResponse({'success': False, 'error': 'No token provided'})
 
-    adapter = GoogleOAuth2Adapter(request)
-    app = adapter.get_provider().get_app(request)
-    token = SocialToken(token=token_str)
-    login = adapter.complete_login(request, app, token)
-    login.token = token
     try:
+        adapter = GoogleOAuth2Adapter(request)
+        app = adapter.get_provider().get_app(request)
+        token = SocialToken(token=token_str)
+        login = adapter.complete_login(request, app, token)
+        login.token = token
+
         login.state = SocialLogin.state_from_request(request)
         complete_social_login(request, login)
+        
         if login.is_existing:
             auth_login(request, login.user)
             logger.info("User logged in successfully")
@@ -105,6 +107,7 @@ def google_login_token(request):
     except Exception as e:
         logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)})
+
 
 def activate(request, uidb64, token):
     try:
