@@ -54,7 +54,15 @@ function handleCredentialResponse(response) {
     body: JSON.stringify({
       credential: response.credential
     })
-  }).then(response => response.json()).then(data => {
+  }).then(response => {
+    return response.json().then(data => {
+      if (response.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
+      }
+    });
+  }).then(data => {
     if (data.success) {
       window.location.href = "{% url 'dashboard' %}";
     } else {
