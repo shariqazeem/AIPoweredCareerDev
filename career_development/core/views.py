@@ -11,6 +11,7 @@ from django.contrib.auth import login as auth_login, logout as django_logout
 from allauth.socialaccount.models import SocialAccount, SocialLogin
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.helpers import complete_social_login
+from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 import json
 import google.generativeai as genai
 from django.db.models import Q
@@ -22,13 +23,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 pusher_client = pusher.Pusher(
-    app_id = "1834647",
-    key = "b398130b0aca7c48575e",
-    secret = "c9075fca224ef336733b",
-    cluster = "mt1",
+    app_id="1834647",
+    key="b398130b0aca7c48575e",
+    secret="c9075fca224ef336733b",
+    cluster="mt1",
     ssl=True,
 )
-
 
 genai.configure(api_key=settings.GEMINI_API_KEY)
 
@@ -104,6 +104,9 @@ def google_login_token(request):
             auth_login(request, login.user)
             logger.info("New user logged in and connected successfully")
             return JsonResponse({'success': True, 'redirect_url': '/'})
+    except OAuth2Error as e:
+        logger.error(f"OAuth2Error during Google login: {str(e)}")
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
     except Exception as e:
         logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
