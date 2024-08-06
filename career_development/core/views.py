@@ -83,7 +83,7 @@ def google_login_token(request):
     token_str = json.loads(request.body).get('credential', None)
     if not token_str:
         logger.error("No token provided")
-        return JsonResponse({'success': False, 'error': 'No token provided'})
+        return JsonResponse({'success': False, 'error': 'No token provided'}, status=400)
 
     try:
         adapter = GoogleOAuth2Adapter(request)
@@ -106,8 +106,7 @@ def google_login_token(request):
             return JsonResponse({'success': True, 'redirect_url': '/'})
     except Exception as e:
         logger.error(f"Error during Google login: {str(e)}")
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 def activate(request, uidb64, token):
     try:
