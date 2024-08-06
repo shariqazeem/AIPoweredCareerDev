@@ -84,27 +84,37 @@ def google_one_tap_login(request):
             data = json.loads(request.body)
             token = data.get("credential")
             logger.debug(f"Received token: {token}")
-            
+
             if token:
                 try:
-                    # Initialize adapter and complete login
-                    adapter = GoogleOAuth2Adapter(request)
+                    # Verify the token
+                    id_info = id_token.verify_oauth2_token(token, requests.Request(), "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com")
+                    
+                    if id_info['iss'] not in ['accounts.google.com', 'https://accounts.google.com']:
+                        raise ValueError('Wrong issuer.')
+
+                    user_id = id_info['sub']
+                    email = id_info['email']
+                    first_name = id_info.get('given_name', '')
+                    last_name = id_info.get('family_name', '')
+
+                    # Use the GoogleOAuth2Adapter to handle the login
+                    adapter = GoogleOAuth2Adapter()
                     app = adapter.get_provider().get_app(request)
                     
-                    token_data = {
-                        'access_token': token,
-                        'id_token': token
-                    }
-                    # Create a social login object
-                    sociallogin = adapter.complete_login(request, app, token_data)
-                    sociallogin.state = SocialLogin.state_from_request(request)
-                    complete_social_login(request, sociallogin)
+                    login = adapter.complete_login(request, app, token)
+                    login.token = token
+                    login.state = SocialLogin.state_from_request(request)
+                    complete_social_login(request, login)
                     
-                    if sociallogin.is_valid():
-                        auth_login(request, sociallogin.user, backend='django.contrib.auth.backends.ModelBackend')
+                    if login.is_valid():
+                        auth_login(request, login.user, backend='django.contrib.auth.backends.ModelBackend')
                         return JsonResponse({"success": True})
                     else:
                         return JsonResponse({"success": False, "error": "Social login is not valid"}, status=400)
+                except ValueError as e:
+                    logger.error(f"Token verification error: {e}")
+                    return JsonResponse({"success": False, "error": "Token verification error"}, status=400)
                 except OAuth2Error as e:
                     logger.error(f"OAuth2Error: {e}")
                     return JsonResponse({"success": False, "error": "OAuth2Error"}, status=400)
