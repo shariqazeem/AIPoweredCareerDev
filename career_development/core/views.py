@@ -101,10 +101,8 @@ def google_login_token(request):
             auth_login(request, login.user)
             return JsonResponse({'success': True, 'redirect_url': '/'})
     except OAuth2Error as e:
-        logger.error(f"OAuth2Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=400)
     except Exception as e:
-        logger.error(f"Error during Google login: {str(e)}")
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
