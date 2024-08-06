@@ -20,6 +20,8 @@ from django.views.decorators.http import require_GET
 import pusher
 from django.views.decorators.csrf import csrf_exempt
 import logging
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 logger = logging.getLogger(__name__)
 
