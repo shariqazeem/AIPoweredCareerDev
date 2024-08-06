@@ -79,28 +79,30 @@ def login(request):
 
 def google_one_tap_login(request):
     if request.method == "POST":
-        data = json.loads(request.body)
-        token = data.get("credential")
-        
-        if token:
-            try:
-                adapter = GoogleOAuth2Adapter(request)
-                app = adapter.get_provider().get_app(request)
-                client = adapter.get_provider().get_client(request, app)
-                token = client.parse_raw_token(token)
-                login = adapter.complete_login(request, app, token, response=token)
-                login.token = token
-                login.state = SocialLogin.state_from_request(request)
-                complete_social_login(request, login)
-                login.user.backend = 'django.contrib.auth.backends.ModelBackend'
-                login.token = token
-                login.state = SocialLogin.state_from_request(request)
-                complete_social_login(request, login)
-                login(request, login.user)
-                return JsonResponse({"success": True})
-            except OAuth2Error:
-                return JsonResponse({"success": False}, status=400)
-        return JsonResponse({"success": False}, status=400)
+        try:
+            data = json.loads(request.body)
+            token = data.get("credential")
+            
+            if token:
+                try:
+                    adapter = GoogleOAuth2Adapter(request)
+                    app = adapter.get_provider().get_app(request)
+                    client = adapter.get_provider().get_client(request, app)
+                    token = client.parse_raw_token(token)
+                    login = adapter.complete_login(request, app, token, response=token)
+                    login.token = token
+                    login.state = SocialLogin.state_from_request(request)
+                    complete_social_login(request, login)
+                    login.user.backend = 'django.contrib.auth.backends.ModelBackend'
+                    login(request, login.user)
+                    return JsonResponse({"success": True})
+                except OAuth2Error as e:
+                    logger.error(f"OAuth2Error: {e}")
+                    return JsonResponse({"success": False}, status=400)
+            return JsonResponse({"success": False}, status=400)
+        except Exception as e:
+            logger.error(f"Unexpected error: {e}")
+            return JsonResponse({"success": False}, status=500)
     return JsonResponse({"success": False}, status=400)
 
 def activate(request, uidb64, token):

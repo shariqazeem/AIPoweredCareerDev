@@ -88,9 +88,14 @@ SOCIALACCOUNT_PROVIDERS = {
         ],
         'AUTH_PARAMS': {
             'access_type': 'online',
-        }
+        },
+        'OAUTH2_CLIENT': {
+            'client_id': '143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com',
+            'secret': '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',
+        },
     }
 }
+
 
 
 ACCOUNT_EMAIL_REQUIRED = True
