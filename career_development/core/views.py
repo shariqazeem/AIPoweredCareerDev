@@ -82,6 +82,7 @@ def google_one_tap_login(request):
         try:
             data = json.loads(request.body)
             token = data.get("credential")
+            logger.debug(f"Received token: {token}")
             
             if token:
                 try:
@@ -93,18 +94,27 @@ def google_one_tap_login(request):
                     login.token = token
                     login.state = SocialLogin.state_from_request(request)
                     complete_social_login(request, login)
-                    login.user.backend = 'django.contrib.auth.backends.ModelBackend'
-                    login(request, login.user)
+                    auth_login(request, login.user, backend='django.contrib.auth.backends.ModelBackend')
                     return JsonResponse({"success": True})
                 except OAuth2Error as e:
                     logger.error(f"OAuth2Error: {e}")
-                    return JsonResponse({"success": False}, status=400)
-            return JsonResponse({"success": False}, status=400)
+                    return JsonResponse({"success": False, "error": "OAuth2Error"}, status=400)
+                except Exception as e:
+                    logger.error(f"Error completing login: {e}")
+                    return JsonResponse({"success": False, "error": str(e)}, status=500)
+            else:
+                logger.error("Token not provided")
+                return JsonResponse({"success": False, "error": "Token not provided"}, status=400)
+        except json.JSONDecodeError as e:
+            logger.error(f"JSON decode error: {e}")
+            return JsonResponse({"success": False, "error": "Invalid JSON"}, status=400)
         except Exception as e:
             logger.error(f"Unexpected error: {e}")
-            return JsonResponse({"success": False}, status=500)
-    return JsonResponse({"success": False}, status=400)
-
+            return JsonResponse({"success": False, "error": str(e)}, status=500)
+    else:
+        logger.error("Invalid request method")
+        return JsonResponse({"success": False, "error": "Invalid request method"}, status=400)
+        
 def activate(request, uidb64, token):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))

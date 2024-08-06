@@ -36,6 +36,7 @@
 </div>
 
 <!-- Google One Tap Login -->
+<!-- Google One Tap Login -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
   function handleCredentialResponse(response) {
@@ -53,8 +54,10 @@
       if (data.success) {
         window.location.href = "{% url 'dashboard' %}";
       } else {
-        console.error("One Tap Login failed");
+        console.error("One Tap Login failed", data.error);
       }
+    }).catch(error => {
+      console.error("Error:", error);
     });
   }
 
@@ -66,6 +69,7 @@
     google.accounts.id.prompt(); // also display the One Tap dialog
   }
 </script>
+
 
 <style>
   .valid {
