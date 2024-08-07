@@ -61,4 +61,7 @@ urlpatterns = [
     path('submit-feedback/', views.submit_feedback, name='submit_feedback'),
     path('resume-advice/', views.resume_advice, name='resume_advice'),
     path('resume-advice/get-advice/', views.get_resume_advice_from_file, name='get_resume_advice_from_file'),
+    path('award_badge/<int:badge_id>/', views.award_badge, name='award_badge'),
+    path('badges/', views.badges, name='badges'),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

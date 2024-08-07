@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from career_development import settings as project_settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm, PrivacySettingsForm, DeleteAccountForm
-from .models import Resource, Connection, Profile, Message, Feedback
+from .models import Resource, Connection, Profile, Message, Feedback, Badge, UserBadge
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
@@ -25,14 +25,15 @@ import logging
 from google.oauth2 import id_token
 from google.auth.transport import requests
 import os
+from django.core.exceptions import ObjectDoesNotExist
 
 logger = logging.getLogger(__name__)
 
 pusher_client = pusher.Pusher(
-    app_id="1834647",
-    key="b398130b0aca7c48575e",
-    secret="c9075fca224ef336733b",
-    cluster="mt1",
+    app_id = "1834647",
+    key = "b398130b0aca7c48575e",
+    secret = "c9075fca224ef336733b",
+    cluster = "mt1",
     ssl=True,
 )
 
@@ -187,44 +188,67 @@ def complete_profile_step3(request):
 @login_required
 def complete_profile_step4(request):
     profile = request.user.profile
-    selected_skills = profile.skills.split(',') if profile.skills else []
     if request.method == 'POST':
-        form = ProfileQuizStep4Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': ','.join(selected_skills)})
+        form = ProfileQuizStep4Form(request.POST, instance=profile)
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile setup completed successfully.')
+            award_badge(request, 'Newbie')  # Pass request object
             return redirect('dashboard')
     else:
-        form = ProfileQuizStep4Form(instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': ','.join(selected_skills)})
+        form = ProfileQuizStep4Form(instance=profile)
     return render(request, 'account/complete_profile_step4.html', {'form': form})
 
 
 @login_required
 def profile(request):
+    profile, created = Profile.objects.get_or_create(user=request.user)
+    if created:
+        # Award "Newbie" badge for new profile creation
+        try:
+            newbie_badge = Badge.objects.get(name='Newbie')
+            if not UserBadge.objects.filter(user=request.user, badge=newbie_badge).exists():
+                UserBadge.objects.create(user=request.user, badge=newbie_badge)
+                messages.success(request, f"Congratulations! You've earned the {newbie_badge.name} badge.")
+        except Badge.DoesNotExist:
+            pass  # Handle case where "Newbie" badge does not exist
+
     if request.method == 'POST':
         user_form = UserUpdateForm(request.POST, instance=request.user)
-        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=request.user.profile)
+        profile_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-            
+
+            # Award badge for updating profile
+            try:
+                profile_updated_badge = Badge.objects.get(name='Profile Updated')
+                if not UserBadge.objects.filter(user=request.user, badge=profile_updated_badge).exists():
+                    UserBadge.objects.create(user=request.user, badge=profile_updated_badge)
+                    messages.success(request, f"Congratulations! You've earned the {profile_updated_badge.name} badge.")
+            except Badge.DoesNotExist:
+                pass  # Handle case where "Profile Updated" badge does not exist
+
             messages.success(request, 'Your profile was successfully updated!')
             return redirect('profile')
         else:
             messages.error(request, 'Please correct the error below.')
     else:
         user_form = UserUpdateForm(instance=request.user)
-        profile_form = ProfileUpdateForm(instance=request.user.profile)
+        profile_form = ProfileUpdateForm(instance=profile)
 
     recommendations = request.user.profile.career_recommendations
     job_listings = request.user.profile.job_prospects
+    badges = UserBadge.objects.filter(user=request.user).select_related('badge')
 
     return render(request, 'profile.html', {
         'user_form': user_form,
         'profile_form': profile_form,
         'recommendations': recommendations,
-        'job_listings': job_listings
+        'job_listings': job_listings,
+        'badges': badges,  # Pass the badges to the template
     })
+
 
 @login_required
 def edit_profile(request):
@@ -281,6 +305,7 @@ def resources(request):
 def connect(request, username):
     user_to_connect = get_object_or_404(User, username=username)
     Connection.objects.get_or_create(user_from=request.user, user_to=user_to_connect)
+    award_badge(request, 'Connect')  # Pass request object
     return redirect('user_profile', username=username)
 
 @login_required
@@ -460,9 +485,11 @@ def get_career_recommendations_view(request):
     if response and hasattr(response, 'text'):
         profile.career_recommendations = response.text
         profile.save()
+        award_badge(request, 'Career Recommendation')  # Pass request object
         return JsonResponse({'status': 'success', 'career_recommendations': profile.career_recommendations})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to generate career recommendations.'}, status=400)
+
 
 @login_required
 def get_job_prospects_view(request):
@@ -472,9 +499,11 @@ def get_job_prospects_view(request):
     if response and hasattr(response, 'text'):
         profile.job_prospects = response.text
         profile.save()
+        award_badge(request, 'Job Prospect')  # Pass request object
         return JsonResponse({'status': 'success', 'job_prospects': profile.job_prospects})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to generate job prospects.'}, status=400)
+
 
 @login_required
 def assess_skills(request):
@@ -484,6 +513,7 @@ def assess_skills(request):
     if response and hasattr(response, 'text'):
         profile.skill_assessment = response.text
         profile.save()
+        award_badge(request, 'Skill Assessment')  # Pass request object
         return JsonResponse({'status': 'success', 'skill_assessment': profile.skill_assessment})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to assess skills.'}, status=400)
@@ -520,10 +550,10 @@ def get_resume_advice(request):
     if response and hasattr(response, 'text'):
         profile.resume_advice = response.text
         profile.save()
+        award_badge(request, 'Resume Advice')  # Pass request object
         return JsonResponse({'status': 'success', 'resume_advice': profile.resume_advice})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
-
 
 @login_required
 def match_jobs(request):
@@ -538,6 +568,7 @@ def match_jobs(request):
     if response and hasattr(response, 'text'):
         profile.matched_jobs = response.text
         profile.save()
+        award_badge(request, 'Matched Jobs')  # Pass request object
         return JsonResponse({'status': 'success', 'matched_jobs': profile.matched_jobs})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to match jobs.'}, status=400)
@@ -550,6 +581,7 @@ def get_learning_resources(request):
     if response and hasattr(response, 'text'):
         profile.learning_resources = response.text
         profile.save()
+        award_badge(request, 'Learning Resources')  # Pass request object
         return JsonResponse({'status': 'success', 'learning_resources': profile.learning_resources})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to fetch learning resources.'}, status=400)
@@ -562,6 +594,7 @@ def find_networking_opportunities(request):
     if response and hasattr(response, 'text'):
         profile.networking_opportunities = response.text
         profile.save()
+        award_badge(request, 'Networking Opportunities')  # Pass request object
         return JsonResponse({'status': 'success', 'networking_opportunities': profile.networking_opportunities})
 
     return JsonResponse({'status': 'error', 'message': 'Failed to fetch networking opportunities.'}, status=400)
@@ -658,6 +691,7 @@ def career_pathway(request):
 def generate_career_pathway(request):
     profile = request.user.profile
     career_pathway_data = get_career_pathway(profile)
+    award_badge(request, 'Career Pathway')  # Pass request object
     return JsonResponse({'career_pathway': career_pathway_data})
 
 @login_required
@@ -690,7 +724,7 @@ def generate_learning_pathway(request):
 
     profile.learning_pathway = learning_pathway
     profile.save()
-
+    award_badge(request, 'Learning Pathway')  # Pass request object
     return JsonResponse({'status': 'success', 'learning_pathway': learning_pathway})
 
 @login_required
@@ -757,6 +791,7 @@ def connect(request, username):
             target_url=reverse('user_profile', args=[request.user.username])
         )
         messages.success(request, 'Connection request sent.')
+        award_badge(request, 'Connect')  # Pass request object
     return redirect('user_profile', username=username)
 
 
@@ -776,6 +811,7 @@ def send_connection_request(request, username):
         ConnectionRequest.objects.create(from_user=request.user, to_user=user_to_connect)
         send_notification(user_to_connect, f'{request.user.username} sent you a connection request.')
         messages.success(request, "Connection request sent.")
+        award_badge(request, 'Connection Request')  # Pass request object
     return redirect('user_profile', username=username)
 
 
@@ -785,6 +821,7 @@ def accept_connection_request(request, request_id):
     connection_request.accept()
     Notification.objects.create(user=connection_request.from_user, message=f'{request.user.username} accepted your connection request.')
     messages.success(request, "Connection request accepted.")
+    award_badge(request, 'Accept Connection')  # Pass request object
     return redirect('view_connections')
 
 @login_required
@@ -915,7 +952,7 @@ def submit_feedback(request):
             feedback_text=feedback_text,
             rating=rating
         )
-
+        award_badge(request, 'Feedback Submitted')  # Pass request object
         return JsonResponse({'status': 'success', 'message': 'Thank you for your feedback!'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
@@ -964,6 +1001,7 @@ def get_resume_advice_from_file(request):
 
             if response and hasattr(response, 'text'):
                 resume_advice = response.text
+                award_badge(request, 'Resume Advice from File')  # Pass request object
                 return JsonResponse({'status': 'success', 'resume_advice': resume_advice})
 
             return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
@@ -971,3 +1009,18 @@ def get_resume_advice_from_file(request):
             default_storage.delete(file_path)  # Ensure file is deleted even if there's an error
             return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
     return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)
+
+@login_required
+def badges(request):
+    badges = UserBadge.objects.filter(user=request.user).select_related('badge')
+    return render(request, 'badges.html', {'badges': badges})
+
+def award_badge(request, badge_name):
+    try:
+        badge = Badge.objects.get(name=badge_name)
+        UserBadge.objects.get_or_create(user=request.user, badge=badge)
+        pusher_client.trigger(f'notifications-{request.user.id}', 'new-notification', {'message': f'You have been awarded the {badge.name} badge!'})
+    except ObjectDoesNotExist:
+        logger.error(f"Badge with name '{badge_name}' does not exist.")
+        messages.error(request, f"Badge with name '{badge_name}' does not exist.")
+

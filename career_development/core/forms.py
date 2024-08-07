@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
-from .models import Profile
+from .models import Profile, Badge
 import json
 
 class UserUpdateForm(forms.ModelForm):
@@ -386,3 +386,9 @@ class PrivacySettingsForm(forms.ModelForm):
 
 class DeleteAccountForm(forms.Form):
     confirm = forms.CharField(max_length=50, label="Type 'DELETE' to confirm")
+
+
+class BadgeForm(forms.ModelForm):
+    class Meta:
+        model = Badge
+        fields = ['name', 'description', 'image']

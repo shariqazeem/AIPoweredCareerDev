@@ -134,6 +134,7 @@
                                 <li><a class="dropdown-item" href="{% url 'profile' %}">Account</a></li>
                                 <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
                                 <li><a class="dropdown-item" href="{% url 'connections' %}">Connections</a></li>
+                                <li><a class="dropdown-item" href="{% url 'badges' %}">Badges</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
@@ -150,7 +151,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'resume_advice' %}">
-                                <i class="fas fa-book"></i> Get Resume Advice
+                                <i class="fas fa-file-alt"></i> Get Resume Advice
                             </a>
                         </li>
                     {% else %}
@@ -290,7 +291,7 @@
 
         });
 
-        const pusher = new Pusher('35480d4f1c9dff249520', {
+        const pusher = new Pusher('b398130b0aca7c48575e', {
             cluster: 'mt1'
         });
 

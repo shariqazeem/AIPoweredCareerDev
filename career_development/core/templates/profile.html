@@ -1,3 +1,4 @@
+<!-- profile.html -->
 {% extends 'base.html' %}
 {% block title %}Edit Profile{% endblock %}
 
@@ -96,7 +97,7 @@
                 <label for="location" class="form-label">Location</label>
                 <input type="text" id="location" name="location" value="{{ user.profile.location }}" class="form-control">
             </div>
-            
+
             <!-- Skill Levels Section -->
             {% if user.profile.career_interests == 'technology' %}
                 <div class="mb-3">
@@ -314,6 +315,4 @@
     window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTitleClass);
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateTitleClass);
 </script>
-
-
 {% endblock %}
