@@ -165,3 +165,12 @@ class Notification(models.Model):
 
     def get_target_url(self):
         return self.target_url if self.target_url else reverse('notifications')
+
+
+class Feedback(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    recommendation = models.TextField()
+    job_listing = models.TextField()
+    feedback_text = models.TextField()
+    rating = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)

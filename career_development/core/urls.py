@@ -58,5 +58,6 @@ urlpatterns = [
     path('change_profile_picture/', views.change_profile_picture, name='change_profile_picture'),
     path('cancel-connection-request/<int:request_id>/', views.cancel_connection_request, name='cancel_connection_request'),
     path('google-one-tap-login/', views.google_one_tap_login, name='google_one_tap_login'),
+    path('submit-feedback/', views.submit_feedback, name='submit_feedback'),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

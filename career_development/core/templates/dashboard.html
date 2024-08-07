@@ -208,6 +208,55 @@
     .enhanced-text ul li, .enhanced-text ol li {
         margin-bottom: 0.5rem;
     }
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        background-color: var(--accent-color);
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+    .modal-body {
+        padding: 2rem;
+    }
+    .modal-footer {
+        padding: 1rem 2rem;
+        background-color: #f1f1f1;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    .rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: center;
+    padding: 0;
+}
+
+    .rating-stars input {
+        display: none;
+    }
+
+    .rating-stars label {
+        display: block;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        background: url('https://img.icons8.com/ios-glyphs/30/000000/star--v1.png') no-repeat;
+        background-size: contain;
+    }
+
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        background: url('https://img.icons8.com/ios-glyphs/30/ff4081/star--v1.png') no-repeat;
+        background-size: contain;
+    }
+
 </style>
 
 <div class="dashboard-container">
@@ -329,9 +378,107 @@
     </div>
 </div>
 
+<!-- Feedback Modal -->
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <div class="mb-3">
+                        <label for="recommendation" class="form-label text-dark">Recommendation</label>
+                        <select class="form-select" id="recommendation" name="recommendation">
+                            <option value="Career Recommendations">Career Recommendations</option>
+                            <option value="Job Prospects">Job Prospects</option>
+                            <option value="Assess Skills">Assess Skills</option>
+                            <option value="Resume Advice">Resume Advice</option>
+                            <option value="Match Jobs">Match Jobs</option>
+                            <option value="Learning Resources">Learning Resources</option>
+                            <option value="Networking Opportunities">Networking Opportunities</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jobListing" class="form-label text-dark">Job Listing</label>
+                        <input type="text" class="form-control" id="jobListing" name="job_listing">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackText" class="form-label text-dark">Feedback</label>
+                        <textarea class="form-control" id="feedbackText" name="feedback_text" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label text-dark">Rating</label>
+                        <div class="rating-stars">
+                            <input type="radio" name="rating" id="star5" value="5"><label for="star5"></label>
+                            <input type="radio" name="rating" id="star4" value="4"><label for="star4"></label>
+                            <input type="radio" name="rating" id="star3" value="3"><label for="star3"></label>
+                            <input type="radio" name="rating" id="star2" value="2"><label for="star2"></label>
+                            <input type="radio" name="rating" id="star1" value="1"><label for="star1"></label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+$(document).ready(function() {
+    let feedbackShown = false;
+
+    // Show the feedback modal when the user scrolls 50% down the page
+    $(window).on('scroll', function() {
+        if (!feedbackShown) {
+            const scrollPosition = $(window).scrollTop() + $(window).height();
+            const documentHeight = $(document).height();
+
+            if ((scrollPosition / documentHeight) > 0.5) {
+                $('#feedbackModal').modal('show');
+                feedbackShown = true;
+            }
+        }
+    });
+
+    $('#feedbackForm').on('submit', function(event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "submit_feedback" %}',
+            data: {
+                recommendation: $('#recommendation').val(),
+                job_listing: $('#jobListing').val(),
+                feedback_text: $('#feedbackText').val(),
+                rating: $('input[name="rating"]:checked').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    $('#feedbackModal').modal('hide');
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ': ' + xhr.responseText);
+            }
+        });
+    });
+
+    // Set feedbackShown to true when the modal is hidden (either by closing or after submission)
+    $('#feedbackModal').on('hidden.bs.modal', function() {
+        feedbackShown = true;
+    });
+});
+
+
     function setLoadingState(button, loading) {
         const cardBody = button.closest('.card-body');
         if (loading) {

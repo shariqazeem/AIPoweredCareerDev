@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm, PrivacySettingsForm, DeleteAccountForm
-from .models import Resource, Connection, Profile, Message
+from .models import Resource, Connection, Profile, Message, Feedback
 from django.contrib.auth.models import User
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib import messages
@@ -16,7 +16,7 @@ from allauth.socialaccount.providers.oauth2.client import OAuth2Error
 import json
 import google.generativeai as genai
 from django.db.models import Q
-from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_GET, require_POST
 import pusher
 from django.views.decorators.csrf import csrf_exempt
 import logging
@@ -895,3 +895,30 @@ def privacy_policy(request):
 
 def terms_of_service(request):
     return render(request, 'terms_of_service.html')
+
+@login_required
+@require_POST
+def submit_feedback(request):
+    if request.method == 'POST':
+        recommendation = request.POST.get('recommendation')
+        job_listing = request.POST.get('job_listing')
+        feedback_text = request.POST.get('feedback_text')
+        rating = request.POST.get('rating')
+
+        Feedback.objects.create(
+            user=request.user,
+            recommendation=recommendation,
+            job_listing=job_listing,
+            feedback_text=feedback_text,
+            rating=rating
+        )
+
+        return JsonResponse({'status': 'success', 'message': 'Thank you for your feedback!'})
+
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+
+@login_required
+@require_GET
+def user_feedback(request):
+    feedback_list = Feedback.objects.filter(user=request.user)
+    return render(request, 'user_feedback.html', {'feedback_list': feedback_list})
