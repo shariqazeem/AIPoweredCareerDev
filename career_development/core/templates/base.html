@@ -148,6 +148,11 @@
                                 <i class="fas fa-book"></i> Learning Pathway
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'resume_advice' %}">
+                                <i class="fas fa-book"></i> Get Resume Advice
+                            </a>
+                        </li>
                     {% else %}
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'login' %}">
@@ -389,6 +394,21 @@
             text: 'Click here to get your first career advice!',
             attachTo: {
                 element: '#get-career-recommendations-btn',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'resume-advice',
+            text: 'Upload your resume and get tailored advice here!',
+            attachTo: {
+                element: '[href="{% url "resume_advice" %}"]',
                 on: 'bottom'
             },
             buttons: [

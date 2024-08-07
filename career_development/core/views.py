@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.conf import settings
+from career_development import settings as project_settings
 from django.http import JsonResponse
 from .forms import UserUpdateForm, ProfileUpdateForm, ProfileQuizStep1Form, ProfileQuizStep2Form, ProfileQuizStep3Form, ProfileQuizStep4Form, CustomAuthenticationForm, CustomUserCreationForm, PrivacySettingsForm, DeleteAccountForm
 from .models import Resource, Connection, Profile, Message, Feedback
@@ -13,6 +13,8 @@ from allauth.socialaccount.models import SocialLogin
 from allauth.socialaccount.providers.google.provider import GoogleProvider
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Error
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 import json
 import google.generativeai as genai
 from django.db.models import Q
@@ -22,6 +24,7 @@ from django.views.decorators.csrf import csrf_exempt
 import logging
 from google.oauth2 import id_token
 from google.auth.transport import requests
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +36,7 @@ pusher_client = pusher.Pusher(
     ssl=True,
 )
 
-genai.configure(api_key=settings.GEMINI_API_KEY)
+genai.configure(api_key=project_settings.GEMINI_API_KEY)  # Use project_settings here
 
 generation_config = {
     "temperature": 1,
@@ -699,8 +702,8 @@ def search_users(request):
         users = User.objects.filter(
             Q(username__icontains=query) |
             Q(profile__skills__icontains=query) |
-            Q(profile__career_interests__icontains=query) |
-            Q(profile__bio__icontains=query)
+            Q(profile__career_interests__icontains(query)) |
+            Q(profile__bio__icontains(query))
         ).distinct()
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -922,3 +925,49 @@ def submit_feedback(request):
 def user_feedback(request):
     feedback_list = Feedback.objects.filter(user=request.user)
     return render(request, 'user_feedback.html', {'feedback_list': feedback_list})
+
+@login_required
+def resume_advice(request):
+    return render(request, 'resume_advice.html')  # Ensure you have this template
+
+@login_required
+def get_resume_advice_from_file(request):
+    if request.method == 'POST' and request.FILES.get('resume'):
+        resume_file = request.FILES['resume']
+        
+        # Save the resume file temporarily
+        file_path = default_storage.save('tmp/' + resume_file.name, ContentFile(resume_file.read()))
+        file_full_path = os.path.join(project_settings.MEDIA_ROOT, file_path)
+        
+        try:
+            # Extract text from resume using a library like PyMuPDF for PDF or python-docx for DOCX
+            if resume_file.name.endswith('.pdf'):
+                import fitz  # PyMuPDF
+                doc = fitz.open(file_full_path)
+                text = ""
+                for page in doc:
+                    text += page.get_text()
+                doc.close()  # Make sure to close the file
+            elif resume_file.name.endswith('.docx'):
+                import docx
+                doc = docx.Document(file_full_path)
+                text = "\n".join([paragraph.text for paragraph in doc.paragraphs])
+            else:
+                return JsonResponse({'status': 'error', 'message': 'Unsupported file type.'}, status=400)
+            
+            # Delete the temporary file
+            default_storage.delete(file_path)
+
+            # Generate resume advice using AI
+            prompt = f"Give resume advice for the following resume content:\n\n{text}"
+            response = model.generate_content(prompt)
+
+            if response and hasattr(response, 'text'):
+                resume_advice = response.text
+                return JsonResponse({'status': 'success', 'resume_advice': resume_advice})
+
+            return JsonResponse({'status': 'error', 'message': 'Failed to generate resume advice.'}, status=400)
+        except Exception as e:
+            default_storage.delete(file_path)  # Ensure file is deleted even if there's an error
+            return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    return JsonResponse({'status': 'error', 'message': 'Invalid request.'}, status=400)

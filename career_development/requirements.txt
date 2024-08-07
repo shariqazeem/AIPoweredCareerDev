@@ -11,3 +11,5 @@ channels-redis
 pusher
 daphne==4.0.0  
 pyjwt==2.0.1  
+pymupdf 
+python-docx

@@ -264,7 +264,6 @@
         <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
         <a href="#job-prospects-section"><i class="fas fa-briefcase"></i> Job Prospects</a>
         <a href="#assess-skills-section"><i class="fas fa-chart-bar"></i> Assess Skills</a>
-        <a href="#resume-advice-section"><i class="fas fa-file-alt"></i> Resume Advice</a>
         <a href="#match-jobs-section"><i class="fas fa-handshake"></i> Match Jobs</a>
         <a href="#learning-resources-section"><i class="fas fa-book"></i> Learning Resources</a>
         <a href="#networking-opportunities-section"><i class="fas fa-users"></i> Networking Opportunities</a>
@@ -281,7 +280,7 @@
                             <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Profile Picture" class="profile-picture">
                         {% endif %}
                         <div class="profile-picture-overlay">
-                            <i class="fas fa-camera"></i> 
+                            <i class="fas fa-camera"></i> Change
                         </div>
                         <input type="file" id="profilePictureInput" class="d-none">
                     </div>
@@ -334,16 +333,6 @@
                 <div id="skill-assessment" class="enhanced-text mt-4"></div>
             </div>
         </div>
-        <div id="resume-advice-section" class="card fade-in">
-            <div class="card-body">
-                <h3 class="card-title mode-dependent-text">Resume Advice</h3>
-                <button id="get-resume-advice-btn" class="btn btn-primary w-100 mb-3">
-                    <span class="btn-text">Get Advice</span>
-                    <span class="spinner-border" role="status" aria-hidden="true"></span>
-                </button>
-                <div id="resume-advice" class="enhanced-text mt-4"></div>
-            </div>
-        </div>
         <div id="match-jobs-section" class="card fade-in">
             <div class="card-body">
                 <h3 class="card-title mode-dependent-text">Match Jobs</h3>
@@ -393,7 +382,6 @@
                             <option value="Career Recommendations">Career Recommendations</option>
                             <option value="Job Prospects">Job Prospects</option>
                             <option value="Assess Skills">Assess Skills</option>
-                            <option value="Resume Advice">Resume Advice</option>
                             <option value="Match Jobs">Match Jobs</option>
                             <option value="Learning Resources">Learning Resources</option>
                             <option value="Networking Opportunities">Networking Opportunities</option>
@@ -477,175 +465,172 @@ $(document).ready(function() {
     });
 });
 
-
-    function setLoadingState(button, loading) {
-        const cardBody = button.closest('.card-body');
-        if (loading) {
-            button.classList.add('loading');
-            cardBody.closest('.card').classList.add('loading');
-            button.disabled = true;
-        } else {
-            button.classList.remove('loading');
-            cardBody.closest('.card').classList.remove('loading');
-            button.disabled = false;
-        }
+function setLoadingState(button, loading) {
+    const cardBody = button.closest('.card-body');
+    if (loading) {
+        button.classList.add('loading');
+        cardBody.closest('.card').classList.add('loading');
+        button.disabled = true;
+    } else {
+        button.classList.remove('loading');
+        cardBody.closest('.card').classList.remove('loading');
+        button.disabled = false;
     }
+}
 
-    function formatText(text) {
-        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
-        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
-        text = text.replace(/\n/g, '<br>'); 
-        text = text.replace(/- \[ \] (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
-        text = text.replace(/\d+\. (.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
-        return text;
-    }
+function formatText(text) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
+    text = text.replace(/\n/g, '<br>'); 
+    text = text.replace(/- \[ \] (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
+    text = text.replace(/\d+\. (.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
+    return text;
+}
 
-    function handleButtonClick(buttonId, url, resultSelector, resultKey) {
-        const button = document.getElementById(buttonId);
-        button.addEventListener('click', function() {
-            setLoadingState(button, true);
-            fetch(url, { method: 'GET' })
-                .then(response => response.json())
-                .then(data => {
-                    setLoadingState(button, false);
-                    if (data.status === 'success') {
-                        const formattedText = formatText(data[resultKey]);
-                        document.querySelector(resultSelector).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
-                    } else {
-                        alert(data.message);
-                    }
-                })
-                .catch(error => {
-                    setLoadingState(button, false);
-                    alert('An error occurred. Please try again.');
-                });
-        });
-    }
+function handleButtonClick(buttonId, url, resultSelector, resultKey) {
+    const button = document.getElementById(buttonId);
+    button.addEventListener('click', function() {
+        setLoadingState(button, true);
+        fetch(url, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                setLoadingState(button, false);
+                if (data.status === 'success') {
+                    const formattedText = formatText(data[resultKey]);
+                    document.querySelector(resultSelector).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                setLoadingState(button, false);
+                alert('An error occurred. Please try again.');
+            });
+    });
+}
 
-    document.addEventListener('DOMContentLoaded', function() {
-        handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations_view" %}', '#career-recommendations', 'career_recommendations');
-        handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects_view" %}', '#job-prospects', 'job_prospects');
-        handleButtonClick('assess-skills-btn', '{% url "assess_skills" %}', '#skill-assessment', 'skill_assessment');
-        handleButtonClick('get-resume-advice-btn', '{% url "get_resume_advice" %}', '#resume-advice', 'resume_advice');
-        handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');
-        handleButtonClick('get-learning-resources-btn', '{% url "get_learning_resources" %}', '#learning-resources', 'learning_resources');
-        handleButtonClick('find-networking-opportunities-btn', '{% url "find_networking_opportunities" %}', '#networking-opportunities', 'networking_opportunities');
+document.addEventListener('DOMContentLoaded', function() {
+    handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations_view" %}', '#career-recommendations', 'career_recommendations');
+    handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects_view" %}', '#job-prospects', 'job_prospects');
+    handleButtonClick('assess-skills-btn', '{% url "assess_skills" %}', '#skill-assessment', 'skill_assessment');
+    handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');
+    handleButtonClick('get-learning-resources-btn', '{% url "get_learning_resources" %}', '#learning-resources', 'learning_resources');
+    handleButtonClick('find-networking-opportunities-btn', '{% url "find_networking_opportunities" %}', '#networking-opportunities', 'networking_opportunities');
 
-        // Smooth scroll for sidebar links
-        document.querySelectorAll('.sidebar a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+    // Smooth scroll for sidebar links
+    document.querySelectorAll('.sidebar a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
             });
         });
-
-        // Display formatted saved content
-        const savedContent = {
-            'career_recommendations': `{% if profile.career_recommendations %}{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}{% endif %}`,
-            'job_prospects': `{% if profile.job_prospects %}{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}{% endif %}`,
-            'skill_assessment': `{% if profile.skill_assessment %}{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}{% endif %}`,
-            'resume_advice': `{% if profile.resume_advice %}{% filter escapejs %}{{ profile.resume_advice|safe }}{% endfilter %}{% endif %}`,
-            'matched_jobs': `{% if profile.matched_jobs %}{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}{% endif %}`,
-            'learning_resources': `{% if profile.learning_resources %}{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}{% endif %}`,
-            'networking_opportunities': `{% if profile.networking_opportunities %}{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}{% endif %}`
-        };
-
-        for (const [key, value] of Object.entries(savedContent)) {
-            if (value && value !== '{}') {
-                const formattedText = formatText(value);
-                document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
-            }
-        }
     });
 
-    document.addEventListener('DOMContentLoaded', function() {
-        var skillAssessmentData = {{ skill_assessment|safe }};
-        
-        console.log("Skill Assessment Data:", skillAssessmentData);  // Debug statement
+    // Display formatted saved content
+    const savedContent = {
+        'career_recommendations': `{% if profile.career_recommendations %}{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}{% endif %}`,
+        'job_prospects': `{% if profile.job_prospects %}{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}{% endif %}`,
+        'skill_assessment': `{% if profile.skill_assessment %}{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}{% endif %}`,
+        'matched_jobs': `{% if profile.matched_jobs %}{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}{% endif %}`,
+        'learning_resources': `{% if profile.learning_resources %}{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}{% endif %}`,
+        'networking_opportunities': `{% if profile.networking_opportunities %}{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}{% endif %}`
+    };
 
-        if (skillAssessmentData && skillAssessmentData.labels && skillAssessmentData.data) {
-            var ctx = document.getElementById('skillAssessmentChart').getContext('2d');
-            var skillAssessmentChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: skillAssessmentData.labels,
-                    datasets: [{
-                        label: 'Skill Assessment',
-                        data: skillAssessmentData.data,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            max: 3,
-                            ticks: {
-                                stepSize: 1,
-                                callback: function(value) {
-                                    var levels = ['Beginner', 'Intermediate', 'Advanced'];
-                                    return levels[value - 1];
-                                }
+    for (const [key, value] of Object.entries(savedContent)) {
+        if (value && value !== '{}') {
+            const formattedText = formatText(value);
+            document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var skillAssessmentData = {{ skill_assessment|safe }};
+    
+    console.log("Skill Assessment Data:", skillAssessmentData);  // Debug statement
+
+    if (skillAssessmentData && skillAssessmentData.labels && skillAssessmentData.data) {
+        var ctx = document.getElementById('skillAssessmentChart').getContext('2d');
+        var skillAssessmentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: skillAssessmentData.labels,
+                datasets: [{
+                    label: 'Skill Assessment',
+                    data: skillAssessmentData.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 3,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                var levels = ['Beginner', 'Intermediate', 'Advanced'];
+                                return levels[value - 1];
                             }
                         }
                     }
                 }
-            });
-        } else {
-            console.error("Skill Assessment Data is not available or is invalid");
-        }
-
-        // Change profile picture on file input change
-        const profilePictureInput = document.getElementById('profilePictureInput');
-        const profilePictureWrapper = document.querySelector('.profile-picture-wrapper');
-
-        profilePictureWrapper.addEventListener('click', () => {
-            profilePictureInput.click();
-        });
-
-        profilePictureInput.addEventListener('change', function () {
-            const file = this.files[0];
-            if (file) {
-                const formData = new FormData();
-                formData.append('profile_picture', file);
-
-                fetch('{% url "change_profile_picture" %}', {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.status === 'success') {
-                        location.reload();
-                    } else {
-                        alert('Failed to change profile picture.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred. Please try again.');
-                });
             }
         });
+    } else {
+        console.error("Skill Assessment Data is not available or is invalid");
+    }
+
+    // Change profile picture on file input change
+    const profilePictureInput = document.getElementById('profilePictureInput');
+    const profilePictureWrapper = document.querySelector('.profile-picture-wrapper');
+
+    profilePictureWrapper.addEventListener('click', () => {
+        profilePictureInput.click();
     });
+
+    profilePictureInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+
+            fetch('{% url "change_profile_picture" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Failed to change profile picture.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    });
+});
 </script>
 {% endblock %}
