@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
 
 <style>
+    /* General Dashboard Styles */
     .dashboard-container {
         display: flex;
     }
@@ -43,10 +44,8 @@
         border: none;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
-        overflow-wrap: break-word;
         background-color: var(--card-bg);
         color: var(--card-text);
-        perspective: 1000px;
     }
     .card-body {
         padding: 1.5rem;
@@ -282,7 +281,7 @@
                             <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Profile Picture" class="profile-picture">
                         {% endif %}
                         <div class="profile-picture-overlay">
-                            <i class="fas fa-camera"></i> Change
+                            <i class="fas fa-camera"></i> 
                         </div>
                         <input type="file" id="profilePictureInput" class="d-none">
                     </div>
