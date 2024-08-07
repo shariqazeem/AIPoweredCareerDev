@@ -736,8 +736,8 @@ def search_users(request):
         users = User.objects.filter(
             Q(username__icontains=query) |
             Q(profile__skills__icontains=query) |
-            Q(profile__career_interests__icontains(query)) |
-            Q(profile__bio__icontains(query))
+            Q(profile__career_interests__icontains=query) |
+            Q(profile__bio__icontains=query)
         ).distinct()
 
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
@@ -745,6 +745,7 @@ def search_users(request):
         return JsonResponse({'suggestions': suggestions})
 
     return render(request, 'search_results.html', {'users': users, 'query': query})
+
 
 @login_required
 def chat(request, username):
