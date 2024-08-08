@@ -418,13 +418,15 @@
 $(document).ready(function() {
     let feedbackShown = false;
 
-    // Show the feedback modal when the user scrolls 50% down the page
+    // Show the feedback modal based on scroll position
     $(window).on('scroll', function() {
         if (!feedbackShown) {
             const scrollPosition = $(window).scrollTop() + $(window).height();
             const documentHeight = $(document).height();
 
-            if ((scrollPosition / documentHeight) > 0.5) {
+            const feedbackScrollThreshold = localStorage.getItem('careerRecommendationClicked') ? 0.6 : 0.9;
+
+            if ((scrollPosition / documentHeight) > feedbackScrollThreshold) {
                 $('#feedbackModal').modal('show');
                 feedbackShown = true;
             }
@@ -499,6 +501,9 @@ function handleButtonClick(buttonId, url, resultSelector, resultKey) {
                     document.querySelector(resultSelector).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
                 } else {
                     alert(data.message);
+                }
+                if (buttonId === 'get-career-recommendations-btn') {
+                    localStorage.setItem('careerRecommendationClicked', 'true');
                 }
             })
             .catch(error => {
