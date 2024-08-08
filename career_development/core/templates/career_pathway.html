@@ -112,6 +112,7 @@
         color: var(--card-text, #ffffff);
         border-radius: 20px;
         padding: 1.5rem;
+        overflow: hidden;
     }
 
     @media (max-width: 768px) {
@@ -140,9 +141,10 @@
 <script src="https://d3js.org/d3.v6.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const careerPathwayData = {{ career_pathway|safe }};
-        drawCareerPathway(careerPathwayData);
-
+        {% if career_pathway %}
+            drawCareerPathway({{ career_pathway|safe }});
+        {% endif %}
+        
         document.getElementById('refreshPathway').addEventListener('click', function() {
             refreshCareerPathway();
         });
@@ -174,7 +176,11 @@
         const svg = d3.select('#careerPathway').append('svg')
             .attr('width', width)
             .attr('height', height)
-            .style('background', 'var(--card-bg, #2c2f33)');
+            .style('background', 'var(--card-bg, #2c2f33)')
+            .call(d3.zoom().on('zoom', function (event) {
+                svg.attr('transform', event.transform);
+            }))
+            .append('g');
 
         const simulation = d3.forceSimulation(careerPathwayData.nodes)
             .force('link', d3.forceLink(careerPathwayData.links).id(d => d.id).distance(150))
@@ -195,7 +201,7 @@
             .selectAll('circle')
             .data(careerPathwayData.nodes)
             .enter().append('circle')
-            .attr('r', 20)
+            .attr('r', d => window.innerWidth < 768 ? 10 : 20)
             .attr('fill', '#007bff')
             .call(d3.drag()
                 .on('start', dragstarted)
@@ -210,7 +216,7 @@
             .attr('dy', 3)
             .attr('x', 20)
             .html(d => formatText(d.name))
-            .style('font-size', '12px')
+            .style('font-size', d => window.innerWidth < 768 ? '10px' : '12px')
             .style('fill', '#fff')
             .style('text-anchor', 'start')
             .style('width', '200px');
@@ -247,16 +253,19 @@
     }
 
     function refreshCareerPathway() {
-        setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), true);
+        const button = document.getElementById('refreshPathway');
+        const cardBody = document.querySelector('.card-body');
+        setLoadingState(button, cardBody, true);
+        
         fetch("{% url 'generate_career_pathway' %}")
             .then(response => response.json())
             .then(data => {
-                setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), false);
+                setLoadingState(button, cardBody, false);
                 drawCareerPathway(data.career_pathway);
             })
             .catch(error => {
                 console.error('Error fetching career pathway:', error);
-                setLoadingState(document.getElementById('refreshPathway'), document.querySelector('.card-body'), false);
+                setLoadingState(button, cardBody, false);
             });
     }
 

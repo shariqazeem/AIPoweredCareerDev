@@ -143,6 +143,20 @@
             background-color: #f8f9fa;
             color: #212529;
         }
+
+        .toast-header strong {
+            color: #ff4081;
+        }
+        .toast-header .btn-close {
+            filter: invert(1);
+        }
+        .toast-body a {
+            color: #ff4081;
+            text-decoration: none;
+        }
+        .toast-body a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
@@ -234,11 +248,10 @@
             </div>
         </div>
     </nav>
-
+    
     <div aria-live="polite" aria-atomic="true" class="position-relative">
-       <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
-       </div>
-   </div>
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
+    </div>
 
     <div class="container mt-4 fade-in">
         {% if messages %}
@@ -256,6 +269,7 @@
        
         {% endblock %}
     </div>
+    
     <script>
         function applyMode(mode) {
             let body = document.body;
@@ -360,11 +374,11 @@
             var toastHTML = `
                 <div class="toast fade show" role="alert" aria-live="assertive" aria-atomic="true">
                     <div class="toast-header">
-                        <strong class="me-auto">Notification</strong>
+                        <strong class="me-auto">New Notification</strong>
                         <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                     </div>
                     <div class="toast-body">
-                        ${data.message}
+                        ${data.message} <a href="{% url 'badges' %}">Click here to see your achievements</a>.
                     </div>
                 </div>
             `;
