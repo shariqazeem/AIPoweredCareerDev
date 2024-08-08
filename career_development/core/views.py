@@ -189,15 +189,16 @@ def complete_profile_step3(request):
 def complete_profile_step4(request):
     profile = request.user.profile
     if request.method == 'POST':
-        form = ProfileQuizStep4Form(request.POST, instance=profile)
+        form = ProfileQuizStep4Form(request.POST, instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': profile.skills})
         if form.is_valid():
             form.save()
             messages.success(request, 'Profile setup completed successfully.')
             award_badge(request, 'Newbie')  # Pass request object
             return redirect('dashboard')
     else:
-        form = ProfileQuizStep4Form(instance=profile)
+        form = ProfileQuizStep4Form(instance=profile, initial={'career_interests': profile.career_interests, 'selected_skills': profile.skills})
     return render(request, 'account/complete_profile_step4.html', {'form': form})
+
 
 
 @login_required
