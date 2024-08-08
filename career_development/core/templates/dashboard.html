@@ -137,6 +137,9 @@
             opacity: 1;
         }
     }
+    .username {
+        word-break: break-word;
+    }
     /* Responsive styles */
     @media (max-width: 768px) {
         .sidebar {
@@ -230,16 +233,14 @@
         border-bottom-right-radius: 10px;
     }
     .rating-stars {
-    display: flex;
-    flex-direction: row-reverse;
-    justify-content: center;
-    padding: 0;
-}
-
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        padding: 0;
+    }
     .rating-stars input {
         display: none;
     }
-
     .rating-stars label {
         display: block;
         cursor: pointer;
@@ -248,14 +249,12 @@
         background: url('https://img.icons8.com/ios-glyphs/30/000000/star--v1.png') no-repeat;
         background-size: contain;
     }
-
     .rating-stars input:checked ~ label,
     .rating-stars label:hover,
     .rating-stars label:hover ~ label {
         background: url('https://img.icons8.com/ios-glyphs/30/ff4081/star--v1.png') no-repeat;
         background-size: contain;
     }
-
 </style>
 
 <div class="dashboard-container">
@@ -285,7 +284,7 @@
                         <input type="file" id="profilePictureInput" class="d-none">
                     </div>
                     <div class="d-flex flex-column align-items-center">
-                        <h2 class="m-0">{{ user.username }}</h2>
+                        <h2 class="m-0 username">{{ user.username }}</h2>
                         <p class="m-0">{{ user.email }}</p>
                     </div>
                     <div class="profile-actions mt-2">

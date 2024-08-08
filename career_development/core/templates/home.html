@@ -5,7 +5,7 @@
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
     <div class="text-center shadow-lg rounded-lg p-5 bg-dark text-light" style="max-width: 600px; width: 100%;">
         {% if user.is_authenticated %}
-            <h1 class="display-4 font-weight-bold mb-4">Welcome, {{ user.username }}!</h1>
+            <h1 class="display-4 font-weight-bold mb-4">Welcome, <span class="username">{{ user.username }}</span>!</h1>
             <p class="lead">Explore your career opportunities and manage your profile.</p>
             <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg mt-4">Go to Dashboard</a>
         {% else %}
@@ -45,4 +45,9 @@
         });
     });
 </script>
+<style>
+    .username {
+        word-break: break-word;
+    }
+</style>
 {% endblock %}
