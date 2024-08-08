@@ -46,6 +46,33 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        .loader {
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .loader-logo {
+            width: 100px;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
         .search-suggestions {
             position: absolute;
             z-index: 1000;
@@ -119,6 +146,10 @@
     </style>
 </head>
 <body>
+    <div id="loader" class="loader">
+        <img src="{% static 'images/logo.png' %}" alt="Loading..." class="loader-logo">
+    </div>
+
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'home' %}">
@@ -203,7 +234,6 @@
             </div>
         </div>
     </nav>
-    
 
     <div aria-live="polite" aria-atomic="true" class="position-relative">
        <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer">
@@ -449,6 +479,15 @@
             tour.start();
             localStorage.setItem('tourShown', 'true');
         }
+
+        // Show and hide the loader
+        window.addEventListener('load', function () {
+            document.getElementById('loader').style.display = 'none';
+        });
+        
+        window.addEventListener('beforeunload', function () {
+            document.getElementById('loader').style.display = 'flex';
+        });
     </script>
 </body>
 </html>
