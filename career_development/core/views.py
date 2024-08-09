@@ -804,17 +804,21 @@ def connections_list(request, username):
     connections = Connection.objects.filter(user_from=user).select_related('user_to')
     return render(request, 'connections_list.html', {'connections': connections, 'profile_user': user})
 
+
 @login_required
 def send_connection_request(request, username):
-    user_to_connect = get_object_or_404(User, username=username)
-    if ConnectionRequest.objects.filter(from_user=request.user, to_user=user_to_connect).exists():
-        messages.error(request, "Connection request already sent.")
-    else:
+    if request.method == 'POST':
+        user_to_connect = get_object_or_404(User, username=username)
+        if ConnectionRequest.objects.filter(from_user=request.user, to_user=user_to_connect).exists():
+            return JsonResponse({'status': 'error', 'message': 'Connection request already sent.'})
+        
         ConnectionRequest.objects.create(from_user=request.user, to_user=user_to_connect)
         send_notification(user_to_connect, f'{request.user.username} sent you a connection request.')
-        messages.success(request, "Connection request sent.")
         award_badge(request, 'Connection Request')  # Pass request object
-    return redirect('user_profile', username=username)
+        return JsonResponse({'status': 'success'})
+    
+    return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+
 
 
 @login_required
@@ -1026,3 +1030,17 @@ def award_badge(request, badge_name):
         logger.error(f"Badge with name '{badge_name}' does not exist.")
         messages.error(request, f"Badge with name '{badge_name}' does not exist.")
 
+@login_required
+def find_people(request):
+    profile = request.user.profile
+    career_interest = profile.career_interests
+
+    # Find people with the same career interest
+    people = Profile.objects.filter(career_interests=career_interest).exclude(user=request.user)
+
+    context = {
+        'people': people,
+        'career_interest': career_interest,
+    }
+
+    return render(request, 'find_people.html', context)

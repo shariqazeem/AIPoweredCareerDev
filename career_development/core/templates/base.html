@@ -208,6 +208,11 @@
                             </ul>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link" href="{% url 'find_people' %}">
+                                <i class="fas fa-users"></i> Find People
+                            </a>
+                        </li>                        
+                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'career_pathway' %}">
                                 <i class="fas fa-road"></i> Career Pathway
                             </a>
@@ -493,6 +498,25 @@
             tour.start();
             localStorage.setItem('tourShown', 'true');
         }
+
+        // Save and resume tour step
+        tour.on('complete', function() {
+            localStorage.removeItem('tourStep');
+        });
+
+        tour.on('cancel', function() {
+            localStorage.setItem('tourStep', tour.currentStep.id);
+        });
+
+        window.addEventListener('load', function() {
+            const savedStep = localStorage.getItem('tourStep');
+            if (savedStep) {
+                tour.show(savedStep);
+            } else if (!localStorage.getItem('tourShown')) {
+                tour.start();
+                localStorage.setItem('tourShown', 'true');
+            }
+        });
 
         // Show and hide the loader
         window.addEventListener('load', function () {
