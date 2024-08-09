@@ -2,6 +2,7 @@
 {% load notification_tags %}
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -16,16 +17,20 @@
     <link rel="mask-icon" href="{% static 'images/safari-pinned-tab.svg' %}" color="#5bbad5">
 
     <!-- SEO Meta Tags -->
-    <meta name="description" content="VisionVenture is a career development platform providing personalized career pathways, job recommendations, and learning resources to help you achieve your career goals.">
-    <meta name="keywords" content="career development, job recommendations, learning resources, career pathway, resume advice">
+    <meta name="description"
+        content="VisionVenture is a career development platform providing personalized career pathways, job recommendations, and learning resources to help you achieve your career goals.">
+    <meta name="keywords"
+        content="career development, job recommendations, learning resources, career pathway, resume advice">
     <meta name="author" content="VisionVenture">
     <meta property="og:title" content="VisionVenture - Your Career Development Platform">
-    <meta property="og:description" content="Discover personalized career pathways, get job recommendations, and find the right learning resources with VisionVenture.">
+    <meta property="og:description"
+        content="Discover personalized career pathways, get job recommendations, and find the right learning resources with VisionVenture.">
     <meta property="og:image" content="{% static 'images/android-chrome-512x512.png' %}">
     <meta property="og:url" content="https://visionventure.shariqshaukat.online">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="VisionVenture - Your Career Development Platform">
-    <meta name="twitter:description" content="Discover personalized career pathways, get job recommendations, and find the right learning resources with VisionVenture.">
+    <meta name="twitter:description"
+        content="Discover personalized career pathways, get job recommendations, and find the right learning resources with VisionVenture.">
     <meta name="twitter:image" content="{% static 'images/android-chrome-512x512.png' %}">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -37,8 +42,10 @@
     <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
     <script src="https://accounts.google.com/gsi/client" async></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js"
+        crossorigin="anonymous"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -68,6 +75,7 @@
             0% {
                 transform: rotate(0deg);
             }
+
             100% {
                 transform: rotate(360deg);
             }
@@ -81,64 +89,82 @@
             border: 1px solid #ccc;
             border-radius: 4px;
         }
+
         .search-suggestions a {
             display: block;
             padding: 10px;
             color: #333;
             text-decoration: none;
         }
+
         .search-suggestions a:hover {
             background-color: #f0f0f0;
         }
+
         .fade-in {
             animation: fadeIn 1s ease-in-out;
         }
+
         @keyframes fadeIn {
             from {
                 opacity: 0;
             }
+
             to {
                 opacity: 1;
             }
         }
+
         .toast-body {
             color: #212529;
         }
+
         .card {
             transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
+
         .card:hover {
             transform: translateY(-10px);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
+
         body {
             font-family: "Montserrat", sans-serif;
         }
+
         body.light-mode {
             background-color: #ffffff;
             color: #000000;
         }
+
         body.dark-mode {
             background-color: #171c28;
             color: #ffffff;
         }
+
         .navbar {
             transition: background-color 0.3s, color 0.3s;
         }
-        .navbar-brand, .nav-link {
+
+        .navbar-brand,
+        .nav-link {
             color: inherit !important;
         }
+
         .nav-link:hover {
             color: #ff4081 !important;
         }
+
         .btn-light {
             border: 1px solid #e0e0e0;
         }
+
         .dark-mode .btn-light {
             background-color: #555;
             color: #e0e0e0;
             border: 1px solid #777;
         }
+
         .light-mode .navbar {
             background-color: #f8f9fa;
             color: #212529;
@@ -147,18 +173,22 @@
         .toast-header strong {
             color: #ff4081;
         }
+
         .toast-header .btn-close {
             filter: invert(1);
         }
+
         .toast-body a {
             color: #ff4081;
             text-decoration: none;
         }
+
         .toast-body a:hover {
             text-decoration: underline;
         }
+
         .navbar {
-        padding: 0.5rem 1rem;
+            padding: 0.5rem 1rem;
         }
 
         .nav-link {
@@ -192,7 +222,8 @@
             flex: 1;
         }
 
-        #searchToggle, #modeSwitch {
+        #searchToggle,
+        #modeSwitch {
             cursor: pointer;
         }
 
@@ -201,18 +232,20 @@
                 flex-direction: column;
                 align-items: start;
             }
+
             .nav-item {
                 width: 100%;
             }
+
             .search-bar {
                 position: absolute;
                 top: 56px;
                 width: 100%;
             }
-            }
-
+        }
     </style>
 </head>
+
 <body>
     <div id="loader" class="loader">
         <img src="{% static 'images/logo.png' %}" alt="Loading..." class="loader-logo">
@@ -223,77 +256,98 @@
             <a class="navbar-brand" href="{% url 'home' %}">
                 <img src="{% static 'images/logo.png' %}" alt="VisionVenture" style="height: 40px;">
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
-                        <!-- Direct Links (outside dropdown) -->
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'dashboard' %}">
-                                <i class="fas fa-tachometer-alt"></i> Dashboard
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'career_pathway' %}">
-                                <i class="fas fa-road"></i> Career Pathway
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'learning_pathway' %}">
-                                <i class="fas fa-book"></i> Learning Path
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'resume_advice' %}">
-                                <i class="fas fa-file-alt"></i> Resume Advice
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'find_people' %}">
-                                <i class="fas fa-users"></i> Find People
-                            </a>
-                        </li>
-                        <!-- Profile Dropdown -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="profileMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu" aria-labelledby="profileMenu">
-                                <li><a class="dropdown-item" href="{% url 'user_messages' %}">
-                                    <i class="fas fa-comments"></i> Messages</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'profile' %}">
-                                    <i class="fas fa-user"></i> Account</a></li>
-                                <li><a class="dropdown-item" href="{% url 'settings' %}">
-                                    <i class="fas fa-cog"></i> Settings</a></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">
-                                    <i class="fas fa-sign-out-alt"></i> Logout</a></li>
-                            </ul>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dashboard' %}">
+                            <i class="fas fa-tachometer-alt"></i> Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'career_pathway' %}">
+                            <i class="fas fa-road"></i> Career Pathway
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'learning_pathway' %}">
+                            <i class="fas fa-book"></i> Learning Path
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'resume_advice' %}">
+                            <i class="fas fa-file-alt"></i> Resume Advice
+                        </a>
+                    </li>
+                    
 
-                        <!-- Notifications -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-bell"></i> 
-                                <span class="badge bg-danger">{{ user|unread_notifications_count }}</span>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" id="notificationsList">
-                                <li><a class="dropdown-item" href="#">Loading notifications...</a></li>
-                            </ul>
-                        </li>
+                    <!-- Community Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="communityMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-users"></i> Community
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="communityMenu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'find_people' %}">
+                                    <i class="fas fa-users"></i> Find People
+                                </a>
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'connections' %}">
+                                    <i class="fas fa-link"></i> Connections</a></li>
+                            <li><a class="dropdown-item" href="{% url 'badges' %}">
+                                    <i class="fas fa-trophy"></i> Achievements</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Profile Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="profileMenu" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle"></i> {{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="profileMenu">
+                            <li><a class="dropdown-item" href="{% url 'user_messages' %}">
+                                    <i class="fas fa-comments"></i> Messages</a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
+                            <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fas fa-user"></i> Account</a></li>
+                            <li><a class="dropdown-item" href="{% url 'settings' %}">
+                                    <i class="fas fa-cog"></i> Settings</a></li>
+                            <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Notifications -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-bell"></i>
+                            <span class="badge bg-danger">{{ user|unread_notifications_count }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown"
+                            id="notificationsList">
+                            <li><a class="dropdown-item" href="#">Loading notifications...</a></li>
+                        </ul>
+                    </li>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'login' %}">
-                                <i class="fas fa-sign-in-alt"></i> Login
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'signup' %}">
-                                <i class="fas fa-user-plus"></i> Sign Up
-                            </a>
-                        </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="fas fa-sign-in-alt"></i> Login
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'signup' %}">
+                            <i class="fas fa-user-plus"></i> Sign Up
+                        </a>
+                    </li>
                     {% endif %}
 
                     <!-- Search Icon -->
@@ -313,12 +367,14 @@
             </div>
         </div>
     </nav>
-    
+
+
     <!-- Search Bar (Initially Hidden) -->
     <div class="search-bar d-none" id="searchBar">
         <div class="container position-relative">
             <form class="d-flex" method="get" action="{% url 'search_users' %}" id="searchForm">
-                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search" id="searchInput">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search"
+                    id="searchInput">
                 <button class="btn btn-primary" type="submit">Search</button>
                 <button class="btn btn-secondary ms-2" type="button" id="searchClose">
                     <i class="fas fa-times"></i>
@@ -327,81 +383,81 @@
             <div class="search-suggestions" id="searchSuggestions" style="display: none;"></div>
         </div>
     </div>
-    
-    
-    
+
+
+
     <div aria-live="polite" aria-atomic="true" class="position-relative">
         <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
     </div>
 
     <div class="container mt-4 fade-in">
         {% if messages %}
-            <div class="mb-4">
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
+        <div class="mb-4">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
+            {% endfor %}
+        </div>
         {% endif %}
-        
+
         {% block content %}
         {% endblock %}
     </div>
     <script>
         function applyMode(mode) {
-    const body = document.body;
-    const navbar = document.querySelector('.navbar');
-    
-    if (mode === 'dark') {
-        body.classList.add('dark-mode');
-        body.classList.remove('light-mode');
-        navbar.classList.remove('navbar-light', 'bg-light');
-        navbar.classList.add('navbar-dark', 'bg-dark');
-        document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-sun"></i>'; // Switch to sun icon
-    } else {
-        body.classList.add('light-mode');
-        body.classList.remove('dark-mode');
-        navbar.classList.remove('navbar-dark', 'bg-dark');
-        navbar.classList.add('navbar-light', 'bg-light');
-        document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-moon"></i>'; // Switch to moon icon
-    }
-}
+            const body = document.body;
+            const navbar = document.querySelector('.navbar');
 
-function toggleMode() {
-    const currentMode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
-    const newMode = currentMode === 'dark' ? 'light' : 'dark';
-    localStorage.setItem('mode', newMode);
-    applyMode(newMode);
-}
+            if (mode === 'dark') {
+                body.classList.add('dark-mode');
+                body.classList.remove('light-mode');
+                navbar.classList.remove('navbar-light', 'bg-light');
+                navbar.classList.add('navbar-dark', 'bg-dark');
+                document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-sun"></i>'; // Switch to sun icon
+            } else {
+                body.classList.add('light-mode');
+                body.classList.remove('dark-mode');
+                navbar.classList.remove('navbar-dark', 'bg-dark');
+                navbar.classList.add('navbar-light', 'bg-light');
+                document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-moon"></i>'; // Switch to moon icon
+            }
+        }
 
-document.addEventListener('DOMContentLoaded', function() {
-    const savedMode = localStorage.getItem('mode') || 'dark';
-    applyMode(savedMode);
+        function toggleMode() {
+            const currentMode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+            const newMode = currentMode === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('mode', newMode);
+            applyMode(newMode);
+        }
 
-    const searchToggle = document.getElementById('searchToggle');
-    const searchBar = document.getElementById('searchBar');
-    const searchClose = document.getElementById('searchClose');
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedMode = localStorage.getItem('mode') || 'dark';
+            applyMode(savedMode);
 
-    searchToggle.addEventListener('click', function(e) {
-        e.preventDefault();
-        searchBar.classList.toggle('d-none');
-        document.getElementById('searchInput').focus();
-    });
+            const searchToggle = document.getElementById('searchToggle');
+            const searchBar = document.getElementById('searchBar');
+            const searchClose = document.getElementById('searchClose');
 
-    searchClose.addEventListener('click', function() {
-        searchBar.classList.add('d-none');
-    });
-});
+            searchToggle.addEventListener('click', function (e) {
+                e.preventDefault();
+                searchBar.classList.toggle('d-none');
+                document.getElementById('searchInput').focus();
+            });
 
-        document.addEventListener('DOMContentLoaded', function() {
+            searchClose.addEventListener('click', function () {
+                searchBar.classList.add('d-none');
+            });
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
             let savedMode = localStorage.getItem('mode') || 'dark';
             applyMode(savedMode);
         });
 
-        $(document).ready(function() {
-            $('#searchInput').on('keyup', function() {
+        $(document).ready(function () {
+            $('#searchInput').on('keyup', function () {
                 let query = $(this).val();
                 if (query.length >= 2) {
                     $.ajax({
@@ -409,12 +465,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         data: {
                             'q': query
                         },
-                        success: function(data) {
+                        success: function (data) {
                             let suggestions = data.suggestions;
                             let suggestionsContainer = $('#searchSuggestions');
                             suggestionsContainer.empty();
                             if (suggestions.length > 0) {
-                                suggestions.forEach(function(suggestion) {
+                                suggestions.forEach(function (suggestion) {
                                     let suggestionItem = `<a href="${suggestion.url}">${suggestion.username}</a>`;
                                     suggestionsContainer.append(suggestionItem);
                                 });
@@ -429,7 +485,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
 
-            $('body').click(function(e) {
+            $('body').click(function (e) {
                 if (!$(e.target).closest('.search-suggestions, #searchInput').length) {
                     $('#searchSuggestions').hide();
                 }
@@ -439,11 +495,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 $.ajax({
                     url: '{% url "fetch_notifications" %}',
                     method: 'GET',
-                    success: function(data) {
+                    success: function (data) {
                         let notificationsList = $('#notificationsList');
                         notificationsList.empty();
                         if (data.notifications.length > 0) {
-                            data.notifications.forEach(function(notification) {
+                            data.notifications.forEach(function (notification) {
                                 notificationsList.append(`<li><a class="dropdown-item" href="${notification.url}">${notification.message}</a></li>`);
                             });
                         } else {
@@ -460,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
         const channel = pusher.subscribe('notifications-{{ request.user.id }}');
-        channel.bind('new-notification', function(data) {
+        channel.bind('new-notification', function (data) {
             var notificationsList = document.getElementById('notificationsList');
             var newNotification = document.createElement('li');
             newNotification.innerHTML = `<a class="dropdown-item" href="#">${data.message}</a>`;
@@ -484,7 +540,7 @@ document.addEventListener('DOMContentLoaded', function() {
             toast.show();
         });
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             let tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             let tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
@@ -493,124 +549,124 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Shepherd.js Guided Tour (Conditional)
         {% if request.user.is_authenticated and request.path == "/dashboard/" %}
-            const tour = new Shepherd.Tour({
-                defaultStepOptions: {
-                    cancelIcon: {
-                        enabled: true
-                    },
-                    classes: 'shadow-md bg-purple-dark',
-                    scrollTo: { behavior: 'smooth', block: 'center' },
+        const tour = new Shepherd.Tour({
+            defaultStepOptions: {
+                cancelIcon: {
+                    enabled: true
                 },
-                useModalOverlay: true,
-            });
+                classes: 'shadow-md bg-purple-dark',
+                scrollTo: { behavior: 'smooth', block: 'center' },
+            },
+            useModalOverlay: true,
+        });
 
-            function openNavbar() {
-                const navbarCollapse = document.getElementById('navbarNav');
-                if (window.getComputedStyle(navbarCollapse).display === 'none') {
-                    document.querySelector('.navbar-toggler').click();
+        function openNavbar() {
+            const navbarCollapse = document.getElementById('navbarNav');
+            if (window.getComputedStyle(navbarCollapse).display === 'none') {
+                document.querySelector('.navbar-toggler').click();
+            }
+        }
+
+        tour.addStep({
+            id: 'career-pathway',
+            text: 'Discover your personalized career pathway here!',
+            attachTo: {
+                element: '[href="{% url "career_pathway" %}"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ],
+            when: {
+                show: function () {
+                    if (window.innerWidth < 768) {
+                        openNavbar();
+                    }
                 }
             }
+        });
 
-            tour.addStep({
-                id: 'career-pathway',
-                text: 'Discover your personalized career pathway here!',
-                attachTo: {
-                    element: '[href="{% url "career_pathway" %}"]',
-                    on: 'bottom'
-                },
-                buttons: [
-                    {
-                        text: 'Next',
-                        action: tour.next
-                    }
-                ],
-                when: {
-                    show: function() {
-                        if (window.innerWidth < 768) {
-                            openNavbar();
-                        }
+        tour.addStep({
+            id: 'learning-pathway',
+            text: 'Get your personalized learning pathway and enhance your skills!',
+            attachTo: {
+                element: '[href="{% url "learning_pathway" %}"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ],
+            when: {
+                show: function () {
+                    if (window.innerWidth < 768) {
+                        openNavbar();
                     }
                 }
-            });
+            }
+        });
 
-            tour.addStep({
-                id: 'learning-pathway',
-                text: 'Get your personalized learning pathway and enhance your skills!',
-                attachTo: {
-                    element: '[href="{% url "learning_pathway" %}"]',
-                    on: 'bottom'
-                },
-                buttons: [
-                    {
-                        text: 'Next',
-                        action: tour.next
-                    }
-                ],
-                when: {
-                    show: function() {
-                        if (window.innerWidth < 768) {
-                            openNavbar();
-                        }
-                    }
+        tour.addStep({
+            id: 'career-recommendation',
+            text: 'Click here to get your first career advice!',
+            attachTo: {
+                element: '#get-career-recommendations-btn',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
                 }
-            });
+            ]
+        });
 
-            tour.addStep({
-                id: 'career-recommendation',
-                text: 'Click here to get your first career advice!',
-                attachTo: {
-                    element: '#get-career-recommendations-btn',
-                    on: 'bottom'
-                },
-                buttons: [
-                    {
-                        text: 'Next',
-                        action: tour.next
-                    }
-                ]
-            });
+        tour.addStep({
+            id: 'resume-advice',
+            text: 'Upload your resume and get tailored advice here!',
+            attachTo: {
+                element: '[href="{% url "resume_advice" %}"]',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Done',
+                    action: tour.complete
+                }
+            ]
+        });
 
-            tour.addStep({
-                id: 'resume-advice',
-                text: 'Upload your resume and get tailored advice here!',
-                attachTo: {
-                    element: '[href="{% url "resume_advice" %}"]',
-                    on: 'bottom'
-                },
-                buttons: [
-                    {
-                        text: 'Done',
-                        action: tour.complete
-                    }
-                ]
-            });
+        // Show the tour on first visit to the dashboard
+        if (!localStorage.getItem('tourShown')) {
+            tour.start();
+            localStorage.setItem('tourShown', 'true');
+        }
 
-            // Show the tour on first visit to the dashboard
-            if (!localStorage.getItem('tourShown')) {
+        // Save and resume tour step
+        tour.on('complete', function () {
+            localStorage.removeItem('tourStep');
+        });
+
+        tour.on('cancel', function () {
+            localStorage.setItem('tourStep', tour.currentStep.id);
+        });
+
+        window.addEventListener('load', function () {
+            const savedStep = localStorage.getItem('tourStep');
+            if (savedStep) {
+                tour.show(savedStep);
+            } else if (!localStorage.getItem('tourShown')) {
                 tour.start();
                 localStorage.setItem('tourShown', 'true');
             }
-
-            // Save and resume tour step
-            tour.on('complete', function() {
-                localStorage.removeItem('tourStep');
-            });
-
-            tour.on('cancel', function() {
-                localStorage.setItem('tourStep', tour.currentStep.id);
-            });
-
-            window.addEventListener('load', function() {
-                const savedStep = localStorage.getItem('tourStep');
-                if (savedStep) {
-                    tour.show(savedStep);
-                } else if (!localStorage.getItem('tourShown')) {
-                    tour.start();
-                    localStorage.setItem('tourShown', 'true');
-                }
-            });
+        });
         {% endif %}
-        
+
         window.addEventListener('load', function () {
             document.getElementById('loader').style.display = 'none';
         });
@@ -620,4 +676,5 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     </script>
 </body>
+
 </html>
