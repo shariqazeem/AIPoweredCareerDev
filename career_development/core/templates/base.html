@@ -157,29 +157,59 @@
         .toast-body a:hover {
             text-decoration: underline;
         }
+        .navbar {
+        padding: 0.5rem 1rem;
+        }
+
         .nav-link {
-            padding: 5px 10px;
+            padding: 0.5rem;
             font-size: 0.9rem;
             white-space: nowrap;
         }
 
-        .navbar-nav .nav-item {
-            margin-right: 10px;
+        .nav-item .badge {
+            position: absolute;
+            top: 8px;
+            right: 0px;
+            font-size: 0.6rem;
+        }
+
+        .dropdown-menu {
+            min-width: 200px;
+        }
+
+        .search-bar {
+            background-color: #f8f9fa;
+            padding: 0.5rem 0;
         }
 
         #searchForm {
-            max-width: 200px;
+            display: flex;
+            align-items: center;
         }
 
-        .navbar-brand img {
-            height: 35px;  /* Adjust if needed */
+        #searchInput {
+            flex: 1;
+        }
+
+        #searchToggle, #modeSwitch {
+            cursor: pointer;
         }
 
         @media (max-width: 992px) {
-            .navbar-nav .nav-item {
-                margin-right: 5px;
+            .navbar-nav {
+                flex-direction: column;
+                align-items: start;
             }
-        }
+            .nav-item {
+                width: 100%;
+            }
+            .search-bar {
+                position: absolute;
+                top: 56px;
+                width: 100%;
+            }
+            }
 
     </style>
 </head>
@@ -199,46 +229,47 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     {% if user.is_authenticated %}
+                        <!-- Direct Links (outside dropdown) -->
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'dashboard' %}">
                                 <i class="fas fa-tachometer-alt"></i> Dashboard
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'user_messages' %}">
-                                <i class="fas fa-comments"></i> Messages
-                            </a>
-                        </li>
-                        <li class="nav-item">
                             <a class="nav-link" href="{% url 'career_pathway' %}">
-                                <i class="fas fa-road"></i> Career
+                                <i class="fas fa-road"></i> Career Pathway
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'learning_pathway' %}">
-                                <i class="fas fa-book"></i> Learning
+                                <i class="fas fa-book"></i> Learning Path
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'resume_advice' %}">
-                                <i class="fas fa-file-alt"></i> Resume
+                                <i class="fas fa-file-alt"></i> Resume Advice
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'find_people' %}">
-                                <i class="fas fa-users"></i> People
+
+                        <!-- Profile Dropdown -->
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="profileMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-user-circle"></i> {{ user.username }}
                             </a>
+                            <ul class="dropdown-menu" aria-labelledby="profileMenu">
+                                <li><a class="dropdown-item" href="{% url 'user_messages' %}">
+                                    <i class="fas fa-comments"></i> Messages</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="{% url 'profile' %}">
+                                    <i class="fas fa-user"></i> Account</a></li>
+                                <li><a class="dropdown-item" href="{% url 'settings' %}">
+                                    <i class="fas fa-cog"></i> Settings</a></li>
+                                <li><a class="dropdown-item" href="{% url 'logout' %}">
+                                    <i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                            </ul>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'connections' %}">
-                                <i class="fas fa-link"></i> Connections
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'badges' %}">
-                                <i class="fas fa-trophy"></i> Badges
-                            </a>
-                        </li>
+
+                        <!-- Notifications -->
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="notificationsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-bell"></i> 
@@ -246,16 +277,6 @@
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown" id="notificationsList">
                                 <li><a class="dropdown-item" href="#">Loading notifications...</a></li>
-                            </ul>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <i class="fas fa-user-circle"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                                <li><a class="dropdown-item" href="{% url 'profile' %}">Account</a></li>
-                                <li><a class="dropdown-item" href="{% url 'settings' %}">Settings</a></li>
-                                <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
                             </ul>
                         </li>
                     {% else %}
@@ -270,20 +291,38 @@
                             </a>
                         </li>
                     {% endif %}
-                    <li class="nav-item position-relative">
-                        <form class="d-flex" method="get" action="{% url 'search_users' %}" id="searchForm">
-                            <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search" id="searchInput">
-                            <button class="btn btn-outline-light" type="submit">Search</button>
-                        </form>
-                        <div class="search-suggestions" id="searchSuggestions" style="display: none;"></div>
-                    </li>
+
+                    <!-- Search Icon -->
                     <li class="nav-item">
-                        <button class="btn btn-light ms-3" id="mode-switch" onclick="toggleMode()">🌞/🌜</button>
+                        <a class="nav-link" href="#" id="searchToggle">
+                            <i class="fas fa-search"></i>
+                        </a>
+                    </li>
+
+                    <!-- Mode Switch Icon -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="modeSwitch" onclick="toggleMode()">
+                            <i class="fas fa-moon"></i>
+                        </a>
                     </li>
                 </ul>
             </div>
         </div>
     </nav>
+    
+    <!-- Search Bar (Initially Hidden) -->
+    <div class="search-bar d-none" id="searchBar">
+        <div class="container position-relative">
+            <form class="d-flex" method="get" action="{% url 'search_users' %}" id="searchForm">
+                <input class="form-control me-2" type="search" name="q" placeholder="Search" aria-label="Search" id="searchInput">
+                <button class="btn btn-primary" type="submit">Search</button>
+                <button class="btn btn-secondary ms-2" type="button" id="searchClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </form>
+            <div class="search-suggestions" id="searchSuggestions" style="display: none;"></div>
+        </div>
+    </div>
     
     
     
@@ -306,35 +345,51 @@
         {% block content %}
         {% endblock %}
     </div>
-    
     <script>
         function applyMode(mode) {
-            let body = document.body;
-            if (mode === 'dark') {
-                body.classList.add('dark-mode');
-                body.classList.remove('light-mode');
-                let navbar = document.querySelector('.navbar');
-                navbar.classList.remove('navbar-light', 'bg-light');
-                navbar.classList.add('navbar-dark', 'bg-dark');
-            } else {
-                body.classList.add('light-mode');
-                body.classList.remove('dark-mode');
-                let navbar = document.querySelector('.navbar');
-                navbar.classList.remove('navbar-dark', 'bg-dark');
-                navbar.classList.add('navbar-light', 'bg-light');
-            }
-        }
+    const body = document.body;
+    const navbar = document.querySelector('.navbar');
+    
+    if (mode === 'dark') {
+        body.classList.add('dark-mode');
+        body.classList.remove('light-mode');
+        navbar.classList.remove('navbar-light', 'bg-light');
+        navbar.classList.add('navbar-dark', 'bg-dark');
+        document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-sun"></i>'; // Switch to sun icon
+    } else {
+        body.classList.add('light-mode');
+        body.classList.remove('dark-mode');
+        navbar.classList.remove('navbar-dark', 'bg-dark');
+        navbar.classList.add('navbar-light', 'bg-light');
+        document.getElementById('modeSwitch').innerHTML = '<i class="fas fa-moon"></i>'; // Switch to moon icon
+    }
+}
 
-        function toggleMode() {
-            let body = document.body;
-            if (body.classList.contains('dark-mode')) {
-                localStorage.setItem('mode', 'light');
-                applyMode('light');
-            } else {
-                localStorage.setItem('mode', 'dark');
-                applyMode('dark');
-            }
-        }
+function toggleMode() {
+    const currentMode = document.body.classList.contains('dark-mode') ? 'dark' : 'light';
+    const newMode = currentMode === 'dark' ? 'light' : 'dark';
+    localStorage.setItem('mode', newMode);
+    applyMode(newMode);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const savedMode = localStorage.getItem('mode') || 'dark';
+    applyMode(savedMode);
+
+    const searchToggle = document.getElementById('searchToggle');
+    const searchBar = document.getElementById('searchBar');
+    const searchClose = document.getElementById('searchClose');
+
+    searchToggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        searchBar.classList.toggle('d-none');
+        document.getElementById('searchInput').focus();
+    });
+
+    searchClose.addEventListener('click', function() {
+        searchBar.classList.add('d-none');
+    });
+});
 
         document.addEventListener('DOMContentLoaded', function() {
             let savedMode = localStorage.getItem('mode') || 'dark';
