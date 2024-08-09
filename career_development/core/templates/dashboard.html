@@ -365,7 +365,8 @@
     </div>
 </div>
 
-<!-- Feedback Modal -->
+<!-- Feedback Modal (only show if feedback hasn't been submitted) -->
+{% if not user.profile.has_submitted_feedback %}
 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -410,12 +411,14 @@
         </div>
     </div>
 </div>
+{% endif %}
 
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
 $(document).ready(function() {
+    {% if not user.profile.has_submitted_feedback %}
     let feedbackShown = false;
 
     // Show the feedback modal based on scroll position
@@ -450,6 +453,7 @@ $(document).ready(function() {
                 if (response.status === 'success') {
                     alert(response.message);
                     $('#feedbackModal').modal('hide');
+                    localStorage.setItem('feedbackSubmitted', 'true'); // Optional: Store in local storage too
                 } else {
                     alert('Error: ' + response.message);
                 }
@@ -460,11 +464,12 @@ $(document).ready(function() {
         });
     });
 
-    // Set feedbackShown to true when the modal is hidden (either by closing or after submission)
     $('#feedbackModal').on('hidden.bs.modal', function() {
         feedbackShown = true;
     });
+    {% endif %}
 });
+
 
 function setLoadingState(button, loading) {
     const cardBody = button.closest('.card-body');

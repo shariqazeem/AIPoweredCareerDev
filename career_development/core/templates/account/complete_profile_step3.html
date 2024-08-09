@@ -1,42 +1,49 @@
 {% extends "base.html" %}
 {% block title %}Complete Profile - Step 3{% endblock %}
 {% block content %}
-<div class="progress mt-3">
-    <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-</div>
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow-lg bg-dark text-light" style="width: 100%; max-width: 500px;">
-        <h2 class="text-center mb-4">Complete Profile - Step 3</h2>
-        <form method="post" class="needs-validation" novalidate>
-            {% csrf_token %}
-            <div class="form-group">
-                {{ form.resume_job_title.label_tag }} {{ form.resume_job_title }}
-                {% if form.resume_job_title.errors %}
-                    <div class="invalid-feedback">{{ form.resume_job_title.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.resume_skills_experiences.label_tag }} {{ form.resume_skills_experiences }}
-                {% if form.resume_skills_experiences.errors %}
-                    <div class="invalid-feedback">{{ form.resume_skills_experiences.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.resume_education.label_tag }} {{ form.resume_education }}
-                {% if form.resume_education.errors %}
-                    <div class="invalid-feedback">{{ form.resume_education.errors }}</div>
-                {% endif %}
-            </div>
-            <div class="form-group">
-                {{ form.professional_experience.label_tag }} {{ form.professional_experience }}
-                {% if form.professional_experience.errors %}
-                    <div class="invalid-feedback">{{ form.professional_experience.errors }}</div>
-                {% endif %}
-            </div>
-            <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
-        </form>
-        <div class="text-center mt-3">
-            <a href="{% url 'complete_profile_step4' %}" class="btn btn-secondary">Skip to Next Step</a>
+<div class="container mt-3">
+    <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar" style="width: 75%;" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="height: calc(100vh - 120px);">
+        <div class="card p-4 shadow-lg bg-dark text-light overflow-auto" style="width: 100%; max-width: 500px; max-height: calc(100vh - 160px);">
+            <h2 class="text-center mb-4">Complete Profile - Step 3</h2>
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="form-group mb-3">
+                    {{ form.resume_job_title.label_tag }}
+                    {{ form.resume_job_title }}
+                    <small class="form-text text-light">Example: "Software Engineer, Data Analyst, Marketing Manager".</small>
+                    {% if form.resume_job_title.errors %}
+                        <div class="invalid-feedback">{{ form.resume_job_title.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.resume_skills_experiences.label_tag }}
+                    {{ form.resume_skills_experiences }}
+                    <small class="form-text text-light">Highlight your key skills and experiences. Example: "Proficient in Python, Data Analysis, Project Management."</small>
+                    {% if form.resume_skills_experiences.errors %}
+                        <div class="invalid-feedback">{{ form.resume_skills_experiences.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.resume_education.label_tag }}
+                    {{ form.resume_education }}
+                    <small class="form-text text-light">Example: "B.Sc. in Computer Science, M.Sc. in Data Science".</small>
+                    {% if form.resume_education.errors %}
+                        <div class="invalid-feedback">{{ form.resume_education.errors }}</div>
+                    {% endif %}
+                </div>
+                <div class="form-group mb-3">
+                    {{ form.professional_experience.label_tag }}
+                    {{ form.professional_experience }}
+                    <small class="form-text text-light">Detail your relevant work experiences. Example: "Worked as a Data Analyst at XYZ Corp for 3 years."</small>
+                    {% if form.professional_experience.errors %}
+                        <div class="invalid-feedback">{{ form.professional_experience.errors }}</div>
+                    {% endif %}
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
+            </form>
         </div>
     </div>
 </div>
@@ -70,7 +77,7 @@
 
         tour.addStep({
             id: 'resume_job_title',
-            text: 'Enter the job title you are applying for, if any. This field is optional.',
+            text: 'Enter the job title you are applying for, if any. This helps us match you with relevant opportunities.',
             attachTo: {
                 element: '#id_resume_job_title',
                 on: 'bottom'
@@ -85,7 +92,7 @@
 
         tour.addStep({
             id: 'resume_skills_experiences',
-            text: 'List your skills and experiences relevant to your desired job.',
+            text: 'List your skills and experiences relevant to your desired job. This helps us assess your fit for different roles.',
             attachTo: {
                 element: '#id_resume_skills_experiences',
                 on: 'bottom'
@@ -104,7 +111,7 @@
 
         tour.addStep({
             id: 'resume_education',
-            text: 'Provide your educational background. This field is optional.',
+            text: 'Provide your educational background to help us understand your academic qualifications.',
             attachTo: {
                 element: '#id_resume_education',
                 on: 'bottom'
@@ -123,7 +130,7 @@
 
         tour.addStep({
             id: 'professional_experience',
-            text: 'Detail your professional experience. This field is optional.',
+            text: 'Detail your professional experience. This helps us understand your work history and achievements.',
             attachTo: {
                 element: '#id_professional_experience',
                 on: 'bottom'

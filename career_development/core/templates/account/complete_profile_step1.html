@@ -9,14 +9,20 @@
         <h2 class="text-center mb-4">Complete Profile - Step 1</h2>
         <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
-            <div class="form-group">
-                {{ form.bio.label_tag }} {{ form.bio }}
+            <div class="form-group mb-3">
+                {{ form.bio.label_tag }}
+                {{ form.bio }}
+                <small class="form-text text-light">Example: "I'm a marketing student passionate about digital marketing and strategic planning."</small>
             </div>
-            <div class="form-group">
-                {{ form.location.label_tag }} {{ form.location }}
+            <div class="form-group mb-3">
+                {{ form.location.label_tag }}
+                {{ form.location }}
+                <small class="form-text text-light" style="color: #cccccc;">Start typing to see suggestions. Example: "United Arab, Pak"</small>
             </div>
-            <div class="form-group">
-                {{ form.career_interests.label_tag }} {{ form.career_interests }}
+            <div class="form-group mb-3">
+                {{ form.career_interests.label_tag }}
+                {{ form.career_interests }}
+                <small class="form-text text-light" style="color: #cccccc;">Choose a field that aligns with your passions and goals.</small>
             </div>
             <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
         </form>
@@ -51,7 +57,7 @@
 
         tour.addStep({
             id: 'bio',
-            text: 'Provide a brief introduction about yourself.',
+            text: 'Provide a brief introduction about yourself. This helps us tailor the advice specifically for you.',
             attachTo: {
                 element: '#id_bio',
                 on: 'bottom'
@@ -66,7 +72,7 @@
 
         tour.addStep({
             id: 'location',
-            text: 'Enter the city or region you are currently located in.',
+            text: 'Enter the city or region you are currently located in. This helps us provide region-specific advice and opportunities.',
             attachTo: {
                 element: '#id_location',
                 on: 'bottom'
@@ -85,7 +91,7 @@
 
         tour.addStep({
             id: 'career_interests',
-            text: 'Select the field you are most interested in for your career.',
+            text: 'Select the field you are most interested in for your career. This will help us align the resources and advice we provide.',
             attachTo: {
                 element: '#id_career_interests',
                 on: 'bottom'

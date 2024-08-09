@@ -27,6 +27,7 @@ class Profile(models.Model):
     career_pathway = models.JSONField(blank=True, default=dict, null=True)
     learning_pathway = models.TextField(blank=True, default='')
     private = models.BooleanField(default=False)  # New field to make profile private
+    has_submitted_feedback = models.BooleanField(default=False)
 
     # Technology Skills
     html_skill_level = models.IntegerField(default=1, choices=[(1, 'Beginner'), (2, 'Intermediate'), (3, 'Advanced')])

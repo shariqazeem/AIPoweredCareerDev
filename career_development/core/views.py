@@ -958,10 +958,17 @@ def submit_feedback(request):
             feedback_text=feedback_text,
             rating=rating
         )
+
+        # Update the profile to indicate feedback has been submitted
+        profile = request.user.profile
+        profile.has_submitted_feedback = True
+        profile.save()
+
         award_badge(request, 'Feedback Submitted')  # Pass request object
         return JsonResponse({'status': 'success', 'message': 'Thank you for your feedback!'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request method.'}, status=400)
+
 
 @login_required
 @require_GET

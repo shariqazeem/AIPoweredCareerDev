@@ -121,23 +121,27 @@ class ProfileUpdateForm(forms.ModelForm):
 
 
 class ProfileQuizStep1Form(forms.ModelForm):
-    bio_choices = [
-        ('student', 'I am a student'),
-        ('professional', 'I am a professional'),
-        ('career_change', 'I am looking to change my career'),
-    ]
-    bio = forms.ChoiceField(choices=bio_choices, widget=forms.Select(attrs={'class': 'form-control'}), label='Tell us about yourself')
-    location = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your location'}), label='Where are you located?')
-    career_interests = forms.ChoiceField(choices=[
-        ('technology', 'Technology'),
-        ('arts', 'Arts'),
-        ('science', 'Science'),
-        ('business', 'Business'),
-        ('music', 'Music'),
-        ('sports', 'Sports'),
-        ('fashion', 'Fashion Designing'),
-        # Add more career fields as needed
-    ], widget=forms.Select(attrs={'class': 'form-control'}), label='Select your career interest')
+    bio = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'E.g., "I\'m a marketing student passionate about digital marketing and strategic planning."'}),
+        label='Tell us about yourself'
+    )
+    location = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your location'}),
+        label='Where are you located?'
+    )
+    career_interests = forms.ChoiceField(
+        choices=[
+            ('technology', 'Technology'),
+            ('arts', 'Arts'),
+            ('science', 'Science'),
+            ('business', 'Business'),
+            ('music', 'Music'),
+            ('sports', 'Sports'),
+            ('fashion', 'Fashion Designing'),
+        ], 
+        widget=forms.Select(attrs={'class': 'form-control'}), 
+        label='Select your career interest'
+    )
 
     class Meta:
         model = Profile
@@ -218,7 +222,7 @@ class ProfileQuizStep2Form(forms.ModelForm):
         choices=[],
         label='Select your skills'
     )
-    other_skills = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control'}), required=False, label='Other Skills')
+    other_skills = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'E.g., Cloud Computing, AI Ethics'}), required=False, label='Other Skills')
     career_goals = forms.ChoiceField(
         choices=[
             ('leader', 'Become a Leader in my Field'),
