@@ -18,7 +18,7 @@
             {% if profile_user.profile.profile_picture %}
                 <img src="{{ profile_user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture" style="width: 150px; height: 150px;">
             {% else %}
-                <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="rounded-circle" style="width: 150px; height: 150px;">
+                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Default Profile Picture" class="rounded-circle profile-picture" style="width: 150px; height: 150px;">
             {% endif %}
         </div>
         {% if is_private and not is_connected %}
