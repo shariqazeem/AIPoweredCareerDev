@@ -271,7 +271,6 @@
         {% endif %}
         
         {% block content %}
-       
         {% endblock %}
     </div>
     
@@ -400,129 +399,130 @@
             })
         });
 
-        // Shepherd.js Guided Tour
-        const tour = new Shepherd.Tour({
-            defaultStepOptions: {
-                cancelIcon: {
-                    enabled: true
+        // Shepherd.js Guided Tour (Conditional)
+        {% if request.user.is_authenticated and request.path == "/dashboard/" %}
+            const tour = new Shepherd.Tour({
+                defaultStepOptions: {
+                    cancelIcon: {
+                        enabled: true
+                    },
+                    classes: 'shadow-md bg-purple-dark',
+                    scrollTo: { behavior: 'smooth', block: 'center' },
                 },
-                classes: 'shadow-md bg-purple-dark',
-                scrollTo: { behavior: 'smooth', block: 'center' },
-            },
-            useModalOverlay: true,
-        });
+                useModalOverlay: true,
+            });
 
-        function openNavbar() {
-            const navbarCollapse = document.getElementById('navbarNav');
-            if (window.getComputedStyle(navbarCollapse).display === 'none') {
-                document.querySelector('.navbar-toggler').click();
-            }
-        }
-
-        tour.addStep({
-            id: 'career-pathway',
-            text: 'Discover your personalized career pathway here!',
-            attachTo: {
-                element: '[href="{% url "career_pathway" %}"]',
-                on: 'bottom'
-            },
-            buttons: [
-                {
-                    text: 'Next',
-                    action: tour.next
+            function openNavbar() {
+                const navbarCollapse = document.getElementById('navbarNav');
+                if (window.getComputedStyle(navbarCollapse).display === 'none') {
+                    document.querySelector('.navbar-toggler').click();
                 }
-            ],
-            when: {
-                show: function() {
-                    if (window.innerWidth < 768) {
-                        openNavbar();
+            }
+
+            tour.addStep({
+                id: 'career-pathway',
+                text: 'Discover your personalized career pathway here!',
+                attachTo: {
+                    element: '[href="{% url "career_pathway" %}"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Next',
+                        action: tour.next
+                    }
+                ],
+                when: {
+                    show: function() {
+                        if (window.innerWidth < 768) {
+                            openNavbar();
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        tour.addStep({
-            id: 'learning-pathway',
-            text: 'Get your personalized learning pathway and enhance your skills!',
-            attachTo: {
-                element: '[href="{% url "learning_pathway" %}"]',
-                on: 'bottom'
-            },
-            buttons: [
-                {
-                    text: 'Next',
-                    action: tour.next
-                }
-            ],
-            when: {
-                show: function() {
-                    if (window.innerWidth < 768) {
-                        openNavbar();
+            tour.addStep({
+                id: 'learning-pathway',
+                text: 'Get your personalized learning pathway and enhance your skills!',
+                attachTo: {
+                    element: '[href="{% url "learning_pathway" %}"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Next',
+                        action: tour.next
+                    }
+                ],
+                when: {
+                    show: function() {
+                        if (window.innerWidth < 768) {
+                            openNavbar();
+                        }
                     }
                 }
-            }
-        });
+            });
 
-        tour.addStep({
-            id: 'career-recommendation',
-            text: 'Click here to get your first career advice!',
-            attachTo: {
-                element: '#get-career-recommendations-btn',
-                on: 'bottom'
-            },
-            buttons: [
-                {
-                    text: 'Next',
-                    action: tour.next
-                }
-            ]
-        });
+            tour.addStep({
+                id: 'career-recommendation',
+                text: 'Click here to get your first career advice!',
+                attachTo: {
+                    element: '#get-career-recommendations-btn',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Next',
+                        action: tour.next
+                    }
+                ]
+            });
 
-        tour.addStep({
-            id: 'resume-advice',
-            text: 'Upload your resume and get tailored advice here!',
-            attachTo: {
-                element: '[href="{% url "resume_advice" %}"]',
-                on: 'bottom'
-            },
-            buttons: [
-                {
-                    text: 'Done',
-                    action: tour.complete
-                }
-            ]
-        });
+            tour.addStep({
+                id: 'resume-advice',
+                text: 'Upload your resume and get tailored advice here!',
+                attachTo: {
+                    element: '[href="{% url "resume_advice" %}"]',
+                    on: 'bottom'
+                },
+                buttons: [
+                    {
+                        text: 'Done',
+                        action: tour.complete
+                    }
+                ]
+            });
 
-        // Show the tour on first visit to the dashboard
-        if (window.location.pathname === "{% url 'dashboard' %}" && !localStorage.getItem('tourShown')) {
-            tour.start();
-            localStorage.setItem('tourShown', 'true');
-        }
-
-        // Save and resume tour step
-        tour.on('complete', function() {
-            localStorage.removeItem('tourStep');
-        });
-
-        tour.on('cancel', function() {
-            localStorage.setItem('tourStep', tour.currentStep.id);
-        });
-
-        window.addEventListener('load', function() {
-            const savedStep = localStorage.getItem('tourStep');
-            if (savedStep) {
-                tour.show(savedStep);
-            } else if (!localStorage.getItem('tourShown')) {
+            // Show the tour on first visit to the dashboard
+            if (!localStorage.getItem('tourShown')) {
                 tour.start();
                 localStorage.setItem('tourShown', 'true');
             }
-        });
 
-        // Show and hide the loader
+            // Save and resume tour step
+            tour.on('complete', function() {
+                localStorage.removeItem('tourStep');
+            });
+
+            tour.on('cancel', function() {
+                localStorage.setItem('tourStep', tour.currentStep.id);
+            });
+
+            window.addEventListener('load', function() {
+                const savedStep = localStorage.getItem('tourStep');
+                if (savedStep) {
+                    tour.show(savedStep);
+                } else if (!localStorage.getItem('tourShown')) {
+                    tour.start();
+                    localStorage.setItem('tourShown', 'true');
+                }
+            });
+        {% endif %}
+        
         window.addEventListener('load', function () {
             document.getElementById('loader').style.display = 'none';
         });
-        
+
         window.addEventListener('beforeunload', function () {
             document.getElementById('loader').style.display = 'flex';
         });
