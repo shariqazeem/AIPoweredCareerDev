@@ -1,4 +1,0 @@
-DJANGO_SETTINGS_MODULE=career_development.settings
-$env:DJANGO_SETTINGS_MODULE="career_development.settings"
-$env:GEMINI_API_KEY="AIzaSyDNzpoxi9BNT_eUnBXonZ6-JpJ6wWL7Q0Q"
-daphne -p 8001 career_development.asgi:application
