@@ -1,13 +1,72 @@
+<!-- profile.html -->
 {% extends 'base.html' %}
 {% block title %}Edit Profile{% endblock %}
 
 {% block content %}
-<div class="container mt-5">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+<style>
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-wrap: break-word;
+        background-color: var(--card-bg, #2c2f33);
+        color: var(--card-text, #ffffff);
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    body.light-mode .card {
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    body.light-mode .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    body.light-mode .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    body.light-mode .text-light {
+        color: #000000 !important;
+    }
+
+    body.light-mode .bg-dark {
+        background-color: #ffffff !important;
+    }
+
+    .text-light-mode {
+        color: #000000 !important;
+    }
+
+    .text-dark-mode {
+        color: #ffffff !important;
+    }
+</style>
+
+<div class="container mt-5 fade-in">
     <div class="card p-4 shadow-lg">
-        <h1 class="card-title text-center mb-4">Edit Profile</h1>
-        <form method="post">
+        <h1 id="edit-profile-title" class="card-title text-center mb-4">Edit Profile</h1>
+        <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
-            <!-- Username and Email -->
             <div class="row mb-3">
                 <div class="col-md-6">
                     <label for="username" class="form-label">Username</label>
@@ -18,36 +77,242 @@
                     <input type="email" id="email" name="email" value="{{ user.email }}" class="form-control" readonly>
                 </div>
             </div>
-            <!-- Bio -->
             <div class="mb-3">
                 <label for="bio" class="form-label">Bio</label>
                 <textarea id="bio" name="bio" rows="3" class="form-control">{{ user.profile.bio }}</textarea>
             </div>
-            <!-- Skills -->
             <div class="mb-3">
                 <label for="skills" class="form-label">Skills</label>
                 <input type="text" id="skills" name="skills" value="{{ user.profile.skills }}" class="form-control">
             </div>
-            <!-- Career Goals -->
             <div class="mb-3">
                 <label for="career_goals" class="form-label">Career Goals</label>
                 <textarea id="career_goals" name="career_goals" rows="3" class="form-control">{{ user.profile.career_goals }}</textarea>
             </div>
-            <!-- Professional Experience -->
             <div class="mb-3">
                 <label for="professional_experience" class="form-label">Professional Experience</label>
                 <textarea id="professional_experience" name="professional_experience" rows="3" class="form-control">{{ user.profile.professional_experience }}</textarea>
             </div>
-            <!-- Location -->
             <div class="mb-3">
                 <label for="location" class="form-label">Location</label>
                 <input type="text" id="location" name="location" value="{{ user.profile.location }}" class="form-control">
             </div>
-            <!-- Submit Button -->
+
+            <!-- Skill Levels Section -->
+            {% if user.profile.career_interests == 'technology' %}
+                <div class="mb-3">
+                    <label for="html_skill_level" class="form-label">HTML Skill Level</label>
+                    <select id="html_skill_level" name="html_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.html_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.html_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.html_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="css_skill_level" class="form-label">CSS Skill Level</label>
+                    <select id="css_skill_level" name="css_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.css_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.css_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.css_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="js_skill_level" class="form-label">JavaScript Skill Level</label>
+                    <select id="js_skill_level" name="js_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.js_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.js_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.js_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="python_skill_level" class="form-label">Python Skill Level</label>
+                    <select id="python_skill_level" name="python_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.python_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.python_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.python_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="django_skill_level" class="form-label">Django Skill Level</label>
+                    <select id="django_skill_level" name="django_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.django_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.django_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.django_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            {% elif user.profile.career_interests == 'business' %}
+                <div class="mb-3">
+                    <label for="management_skill_level" class="form-label">Management Skill Level</label>
+                    <select id="management_skill_level" name="management_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.management_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.management_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.management_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="marketing_skill_level" class="form-label">Marketing Skill Level</label>
+                    <select id="marketing_skill_level" name="marketing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.marketing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.marketing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.marketing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="finance_skill_level" class="form-label">Finance Skill Level</label>
+                    <select id="finance_skill_level" name="finance_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.finance_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.finance_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.finance_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="sales_skill_level" class="form-label">Sales Skill Level</label>
+                    <select id="sales_skill_level" name="sales_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.sales_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.sales_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.sales_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            {% elif user.profile.career_interests == 'arts' %}
+                <div class="mb-3">
+                    <label for="drawing_skill_level" class="form-label">Drawing Skill Level</label>
+                    <select id="drawing_skill_level" name="drawing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.drawing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.drawing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.drawing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="painting_skill_level" class="form-label">Painting Skill Level</label>
+                    <select id="painting_skill_level" name="painting_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.painting_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.painting_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.painting_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="sculpting_skill_level" class="form-label">Sculpting Skill Level</label>
+                    <select id="sculpting_skill_level" name="sculpting_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.sculpting_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.sculpting_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.sculpting_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="photography_skill_level" class="form-label">Photography Skill Level</label>
+                    <select id="photography_skill_level" name="photography_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.photography_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.photography_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.photography_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            {% elif user.profile.career_interests == 'music' %}
+                <div class="mb-3">
+                    <label for="singing_skill_level" class="form-label">Singing Skill Level</label>
+                    <select id="singing_skill_level" name="singing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.singing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.singing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.singing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="instrumental_skill_level" class="form-label">Instrumental Skill Level</label>
+                    <select id="instrumental_skill_level" name="instrumental_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.instrumental_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.instrumental_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.instrumental_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="composing_skill_level" class="form-label">Composing Skill Level</label>
+                    <select id="composing_skill_level" name="composing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.composing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.composing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.composing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="conducting_skill_level" class="form-label">Conducting Skill Level</label>
+                    <select id="conducting_skill_level" name="conducting_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.conducting_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.conducting_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.conducting_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            {% elif user.profile.career_interests == 'sports' %}
+                <div class="mb-3">
+                    <label for="playing_skill_level" class="form-label">Playing Skill Level</label>
+                    <select id="playing_skill_level" name="playing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.playing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.playing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.playing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="coaching_skill_level" class="form-label">Coaching Skill Level</label>
+                    <select id="coaching_skill_level" name="coaching_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.coaching_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.coaching_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.coaching_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="refereeing_skill_level" class="form-label">Refereeing Skill Level</label>
+                    <select id="refereeing_skill_level" name="refereeing_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.refereeing_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.refereeing_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.refereeing_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="physical_training_skill_level" class="form-label">Physical Training Skill Level</label>
+                    <select id="physical_training_skill_level" name="physical_training_skill_level" class="form-control">
+                        <option value="1" {% if user.profile.physical_training_skill_level == 1 %}selected{% endif %}>Beginner</option>
+                        <option value="2" {% if user.profile.physical_training_skill_level == 2 %}selected{% endif %}>Intermediate</option>
+                        <option value="3" {% if user.profile.physical_training_skill_level == 3 %}selected{% endif %}>Advanced</option>
+                    </select>
+                </div>
+            {% endif %}
+            <div class="mb-3">
+                <label for="profile_picture" class="form-label">Profile Picture</label>
+                <input type="file" id="profile_picture" name="profile_picture" class="form-control">
+                {% if user.profile.profile_picture %}
+                    <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="img-thumbnail mt-2" style="max-width: 200px;">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="true" id="remove_profile_picture" name="remove_profile_picture">
+                        <label class="form-check-label" for="remove_profile_picture">
+                            Remove profile picture
+                        </label>
+                    </div>
+                {% endif %}
+            </div>
+
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary">Save Changes</button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    function updateTitleClass() {
+        const titleElement = document.getElementById('edit-profile-title');
+        const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+        if (isDarkMode) {
+            titleElement.classList.remove('text-light-mode');
+            titleElement.classList.add('text-dark-mode');
+        } else {
+            titleElement.classList.remove('text-dark-mode');
+            titleElement.classList.add('text-light-mode');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateTitleClass();
+    });
+
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateTitleClass);
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', updateTitleClass);
+</script>
 {% endblock %}

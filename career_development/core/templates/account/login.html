@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load socialaccount %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="card p-4 shadow-lg bg-dark text-light" style="width: 100%; max-width: 400px;">
+        <h2 class="text-center mb-4">Welcome Back</h2>
+        <form method="post" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="username" class="form-label">Username</label>
+                <input type="text" class="form-control" id="username" name="username" required>
+                <div class="invalid-feedback">
+                    Please provide your username.
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+                <div class="invalid-feedback">
+                    Please provide your password.
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="{% url 'signup' %}" class="text-light">Don't have an account? Sign Up</a>
+        </div>
+        <div class="text-center mt-3">
+            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
+                <i class="fab fa-google"></i> Login with Google
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Google One Tap Login -->
+<div id="g_id_onload"
+     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_select="true">
+</div>
+<div class="g_id_signout" style="display:none;">Sign Out</div>
+
+<script>
+    function handleCredentialResponse(response) {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      fetch("{% url 'google_one_tap_login' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({
+          credential: response.credential
+        })
+      }).then(response => {
+        return response.json().then(data => {
+          if (response.ok) {
+            return data;
+          } else {
+            return Promise.reject(data);
+          }
+        });
+      }).then(data => {
+        if (data.success) {
+          window.location.href = "{% url 'dashboard' %}";
+        } else {
+          console.error("One Tap Login failed", data.error);
+        }
+      }).catch(error => {
+        console.error("Error:", error);
+      });
+    }
+    
+    window.onload = function () {
+      google.accounts.id.initialize({
+        client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+      });
+      google.accounts.id.prompt();
+    }
+    </script>    
+
+<style>
+  .valid {
+    color: green;
+  }
+  .invalid {
+    color: red;
+  }
+</style>
+{% endblock %}

@@ -1,28 +1,25 @@
-/* core/static/css/style.css */
-/* Custom styles for your application */
-/* Example: */
-
-.container {
-    max-width: 800px;
-    margin: auto;
+#chat-log .bg-primary {
+    background-color: #007bff !important;
+    color: white;
 }
 
-.navbar-brand {
-    font-weight: bold;
+#chat-log .bg-light {
+    background-color: #f8f9fa !important;
 }
 
-.btn-secondary {
-    margin-top: 10px;
+#chat-log .text-right {
+    text-align: right;
 }
 
-.list-group-item {
-    border: none;
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
 }
 
-/* Add more custom styles as needed */
-.error {
-        background-color: #f56565; /* red */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
     }
-.success {
-        background-color: #48bb78; /* green */
+    to {
+        opacity: 1;
     }
+}

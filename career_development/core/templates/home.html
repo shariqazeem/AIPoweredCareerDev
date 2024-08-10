@@ -2,23 +2,52 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-    {% if user.is_authenticated %}
-        <div class="shadow-lg rounded-lg p-6">
-            <h1 class="text-3xl font-bold mb-4">Welcome, {{ user.username }}!</h1>
-            <p class="text-lg">Explore your career opportunities and manage your profile.</p>
-            <div class="mt-4">
-                <a href="{% url 'profile' %}" class="btn btn-primary">Edit Profile</a>
-                <a href="{% url 'user_profile' user.username %}" class="btn btn-secondary ml-2">View Profile</a>
+<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="text-center shadow-lg rounded-lg p-5 bg-dark text-light" style="max-width: 600px; width: 100%;">
+        {% if user.is_authenticated %}
+            <h1 class="display-4 font-weight-bold mb-4">Welcome, <span class="username">{{ user.username }}</span>!</h1>
+            <p class="lead">Explore your career opportunities and manage your profile.</p>
+            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg mt-4">Go to Dashboard</a>
+        {% else %}
+            <h1 class="display-4 font-weight-bold mb-4">Welcome to AI-Powered Career Advice Platform</h1>
+            <p class="lead mb-4">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
+            <div>
+                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg mt-4">Sign Up</a>
+                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg mt-4 ml-2">Log In</a>
             </div>
-        </div>
-    {% else %}
-        <div class=" shadow-lg rounded-lg p-6 text-center">
-            <h1 class="text-3xl font-bold mb-4">Welcome to AI-Powered Career Advice Platform</h1>
-            <p class="text-lg mb-4">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
-            <div class="mt-4">
-                <a href="{% url 'signup' %}" class="btn btn-primary">Sign Up</a>
-                <a href="{% url 'login' %}" class="btn btn-secondary ml-2">Log In</a>
-            </div>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
+</div>
+
+<!-- Adding some interactive elements -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Welcome animation
+        const welcomeText = document.querySelector('.display-4');
+        if (welcomeText) {
+            welcomeText.style.opacity = 0;
+            setTimeout(() => {
+                welcomeText.style.transition = 'opacity 2s';
+                welcomeText.style.opacity = 1;
+            }, 500);
+        }
+
+        // Button hover effects
+        const buttons = document.querySelectorAll('.btn');
+        buttons.forEach(button => {
+            button.addEventListener('mouseover', () => {
+                button.style.transform = 'scale(1.1)';
+                button.style.transition = 'transform 0.3s';
+            });
+            button.addEventListener('mouseout', () => {
+                button.style.transform = 'scale(1)';
+            });
+        });
+    });
+</script>
+<style>
+    .username {
+        word-break: break-word;
+    }
+</style>
 {% endblock %}

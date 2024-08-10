@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Messages{% endblock %}
+
+{% block content %}
+<style>
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .list-group-item {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .list-group-item:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+
+    .message-info {
+        display: flex;
+        align-items: center;
+    }
+
+    .message-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .message-content p {
+        margin: 0;
+        padding: 0;
+    }
+
+    .message-timestamp {
+        font-size: 0.85rem;
+        color: #888;
+    }
+
+    @media (max-width: 768px) {
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+        }
+
+        .message-content p {
+            font-size: 0.9rem;
+        }
+    }
+</style>
+<div class="container mt-4 fade-in">
+    <h1 class="mb-4">Messages</h1>
+    <ul class="list-group">
+        {% for user, message in conversations.items %}
+            <li class="list-group-item d-flex align-items-center">
+                <div class="message-info">
+                    {% if user.profile.profile_picture %}
+                        <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture">
+                    {% else %}
+                        <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="rounded-circle profile-picture">
+                    {% endif %}
+                </div>
+                <div class="message-content">
+                    <a href="{% url 'chat' user.username %}" class="text-dark font-weight-bold">{{ user.username }}</a>
+                    <p>{{ message.content|truncatewords:10 }}</p>
+                    <small class="message-timestamp">{{ message.timestamp }}</small>
+                </div>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No messages found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

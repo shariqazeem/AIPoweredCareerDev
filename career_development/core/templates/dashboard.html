@@ -3,28 +3,643 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-    <div class="col-span-1 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Profile</h2>
-        <p><strong>Username:</strong> {{ user.username }}</p>
-        <p><strong>Email:</strong> {{ user.email }}</p>
-        <a href="{% url 'profile' %}" class="text-blue-600">Edit Profile</a>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+<style>
+    /* General Dashboard Styles */
+    .dashboard-container {
+        display: flex;
+    }
+    .sidebar {
+        width: 250px;
+        height: 100vh;
+        padding-top: 20px;
+        position: fixed;
+        background-color: var(--sidebar-bg);
+        color: var(--sidebar-text);
+    }
+    .sidebar a {
+        color: var(--sidebar-text);
+        padding: 10px;
+        text-decoration: none;
+        display: block;
+        transition: background-color 0.3s, color 0.3s;
+    }
+    .sidebar a:hover {
+        background-color: var(--sidebar-hover-bg);
+        color: var(--sidebar-hover-text);
+    }
+    .content {
+        flex-grow: 1;
+        padding: 2rem;
+        margin-left: 250px;
+        background-color: var(--content-bg);
+        color: var(--content-text);
+        width: calc(100% - 250px);
+        transition: margin-left 0.3s ease;
+    }
+    .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+        background-color: var(--card-bg);
+        color: var(--card-text);
+    }
+    .card-body {
+        padding: 1.5rem;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+    }
+    .card.loading .card-body {
+        animation: flip 1.5s infinite;
+    }
+    @keyframes flip {
+        0% {
+            transform: rotateY(0deg);
+        }
+        50% {
+            transform: rotateY(180deg);
+        }
+        100% {
+            transform: rotateY(360deg);
+        }
+    }
+    .card-title {
+        font-size: 1.5rem;
+        border-bottom: 2px solid var(--accent-color);
+        padding-bottom: 0.5rem;
+        margin-bottom: 1rem;
+    }
+    .btn-primary {
+        background-color: var(--accent-color);
+        border-color: var(--accent-color);
+        transition: background-color 0.3s, border-color 0.3s;
+    }
+    .btn-primary:hover {
+        background-color: var(--accent-hover-color);
+        border-color: var(--accent-hover-color);
+    }
+    .spinner-border {
+        display: none;
+        margin-left: 5px;
+    }
+    .loading .spinner-border {
+        display: inline-block;
+    }
+    .loading .btn-text {
+        display: none;
+    }
+    .profile-section {
+        margin: 20px 0;
+        text-align: center;
+    }
+    .profile-picture-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 10px;
+    }
+    .profile-picture {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+    }
+    .profile-picture-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
+    .profile-picture-wrapper:hover .profile-picture-overlay {
+        opacity: 1;
+    }
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    .username {
+        word-break: break-word;
+    }
+    /* Responsive styles */
+    @media (max-width: 768px) {
+        .sidebar {
+            display: none;
+        }
+        .content {
+            margin-left: 0;
+            width: 100%;
+            padding: 1rem;
+        }
+        .profile-section {
+            flex-direction: column;
+            align-items: center;
+        }
+        .profile-picture-wrapper {
+            width: 60px;
+            height: 60px;
+        }
+        .profile-actions {
+            margin-top: 10px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    }
+    /* Light mode styles */
+    body.light-mode {
+        --sidebar-bg: #f8f9fa;
+        --sidebar-text: #212529;
+        --sidebar-hover-bg: #e9ecef;
+        --sidebar-hover-text: #212529;
+        --content-bg: #ffffff;
+        --content-text: #212529;
+        --card-bg: #ffffff;
+        --card-text: #212529;
+        --accent-color: #ff4081;
+        --accent-hover-color: #e91e63;
+    }
+    /* Dark mode styles */
+    body.dark-mode {
+        --sidebar-bg: #2c2f33;
+        --sidebar-text: #ffffff;
+        --sidebar-hover-bg: #ff4081;
+        --sidebar-hover-text: #ffffff;
+        --content-bg: #171c28;
+        --content-text: #ffffff;
+        --card-bg: #2c2f33;
+        --card-text: #ffffff;
+        --accent-color: #ff4081;
+        --accent-hover-color: #e91e63;
+    }
+    /* Enhanced Text Styles */
+    .enhanced-text {
+        line-height: 1.6;
+        font-size: 1rem;
+    }
+    .enhanced-text strong {
+        color: var(--accent-color);
+    }
+    .enhanced-text em {
+        color: var(--accent-hover-color);
+        font-style: italic;
+    }
+    .enhanced-text ul, .enhanced-text ol {
+        margin: 1rem 0;
+        padding-left: 1.5rem;
+    }
+    .enhanced-text ul li, .enhanced-text ol li {
+        margin-bottom: 0.5rem;
+    }
+    .modal-content {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+    .modal-header {
+        background-color: var(--accent-color);
+        color: white;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+    }
+    .modal-header .btn-close {
+        filter: invert(1);
+    }
+    .modal-body {
+        padding: 2rem;
+    }
+    .modal-footer {
+        padding: 1rem 2rem;
+        background-color: #f1f1f1;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+    }
+    .rating-stars {
+        display: flex;
+        flex-direction: row-reverse;
+        justify-content: center;
+        padding: 0;
+    }
+    .rating-stars input {
+        display: none;
+    }
+    .rating-stars label {
+        display: block;
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+        background: url('https://img.icons8.com/ios-glyphs/30/000000/star--v1.png') no-repeat;
+        background-size: contain;
+    }
+    .rating-stars input:checked ~ label,
+    .rating-stars label:hover,
+    .rating-stars label:hover ~ label {
+        background: url('https://img.icons8.com/ios-glyphs/30/ff4081/star--v1.png') no-repeat;
+        background-size: contain;
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="sidebar fade-in">
+        <h2 class="text-center mode-dependent-text">VisionVenture</h2>
+        <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
+        <a href="#job-prospects-section"><i class="fas fa-briefcase"></i> Job Prospects</a>
+        <a href="#assess-skills-section"><i class="fas fa-chart-bar"></i> Assess Skills</a>
+        <a href="#match-jobs-section"><i class="fas fa-handshake"></i> Match Jobs</a>
+        <a href="#learning-resources-section"><i class="fas fa-book"></i> Learning Resources</a>
+        <a href="#networking-opportunities-section"><i class="fas fa-users"></i> Networking Opportunities</a>
+        <a href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
     </div>
-    <div class="col-span-2 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Career Recommendations</h2>
-        <ul>
-            {% for recommendation in recommendations %}
-                <li class="mb-2">{{ recommendation }}</li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div class="col-span-2 bg-white p-4 rounded shadow">
-        <h2 class="text-xl font-bold mb-2">Job Listings</h2>
-        <ul>
-            {% for job in job_listings %}
-                <li class="mb-2">{{ job }}</li>
-            {% endfor %}
-        </ul>
+    <div class="content fade-in">
+        <div class="card fade-in">
+            <div class="card-body">
+                <div class="profile-section d-flex align-items-center flex-wrap justify-content-center">
+                    <div class="profile-picture-wrapper">
+                        {% if user.profile.profile_picture %}
+                            <img src="{{ user.profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
+                        {% else %}
+                            <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Profile Picture" class="profile-picture">
+                        {% endif %}
+                        <div class="profile-picture-overlay">
+                            <i class="fas fa-camera"></i> 
+                        </div>
+                        <input type="file" id="profilePictureInput" class="d-none">
+                    </div>
+                    <div class="d-flex flex-column align-items-center">
+                        <h2 class="m-0 username">{{ user.username }}</h2>
+                        <p class="m-0">{{ user.email }}</p>
+                    </div>
+                    <div class="profile-actions mt-2">
+                        <a href="{% url 'profile' %}" class="btn btn-sm btn-dark m-auto">Edit Profile</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="skill-assessment-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Skill Assessment</h3>
+                <canvas id="skillAssessmentChart" width="200" height="100"></canvas>
+            </div>
+        </div>
+
+        <!-- Career Recommendations -->
+        <div id="career-recommendations-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Career Recommendations</h3>
+                <button id="get-career-recommendations-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Recommendations</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="career-recommendations" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
+        <div id="job-prospects-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Job Prospects</h3>
+                <button id="get-job-prospects-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Job Prospects</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="job-prospects" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
+        <div id="assess-skills-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Assess Skills</h3>
+                <button id="assess-skills-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Assess Skills</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="skill-assessment" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
+        <div id="match-jobs-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Match Jobs</h3>
+                <button id="match-jobs-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Match Jobs</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="matched-jobs" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
+        <div id="learning-resources-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Learning Resources</h3>
+                <button id="get-learning-resources-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Get Resources</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="learning-resources" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
+        <div id="networking-opportunities-section" class="card fade-in">
+            <div class="card-body">
+                <h3 class="card-title mode-dependent-text">Networking Opportunities</h3>
+                <button id="find-networking-opportunities-btn" class="btn btn-primary w-100 mb-3">
+                    <span class="btn-text">Find Opportunities</span>
+                    <span class="spinner-border" role="status" aria-hidden="true"></span>
+                </button>
+                <div id="networking-opportunities" class="enhanced-text mt-4"></div>
+            </div>
+        </div>
     </div>
 </div>
+
+<!-- Feedback Modal (only show if feedback hasn't been submitted) -->
+{% if not user.profile.has_submitted_feedback %}
+<div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="feedbackModalLabel">Submit Feedback</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="feedbackForm">
+                    <div class="mb-3">
+                        <label for="recommendation" class="form-label text-dark">Recommendation</label>
+                        <select class="form-select" id="recommendation" name="recommendation">
+                            <option value="Career Recommendations">Career Recommendations</option>
+                            <option value="Job Prospects">Job Prospects</option>
+                            <option value="Assess Skills">Assess Skills</option>
+                            <option value="Match Jobs">Match Jobs</option>
+                            <option value="Learning Resources">Learning Resources</option>
+                            <option value="Networking Opportunities">Networking Opportunities</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="jobListing" class="form-label text-dark">Job Listing</label>
+                        <input type="text" class="form-control" id="jobListing" name="job_listing">
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedbackText" class="form-label text-dark">Feedback</label>
+                        <textarea class="form-control" id="feedbackText" name="feedback_text" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="rating" class="form-label text-dark">Rating</label>
+                        <div class="rating-stars">
+                            <input type="radio" name="rating" id="star5" value="5"><label for="star5"></label>
+                            <input type="radio" name="rating" id="star4" value="4"><label for="star4"></label>
+                            <input type="radio" name="rating" id="star3" value="3"><label for="star3"></label>
+                            <input type="radio" name="rating" id="star2" value="2"><label for="star2"></label>
+                            <input type="radio" name="rating" id="star1" value="1"><label for="star1"></label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    {% if not user.profile.has_submitted_feedback %}
+    let feedbackShown = false;
+
+    // Show the feedback modal based on scroll position
+    $(window).on('scroll', function() {
+        if (!feedbackShown) {
+            const scrollPosition = $(window).scrollTop() + $(window).height();
+            const documentHeight = $(document).height();
+
+            const feedbackScrollThreshold = localStorage.getItem('careerRecommendationClicked') ? 0.5 : 0.9;
+
+            if ((scrollPosition / documentHeight) > feedbackScrollThreshold) {
+                $('#feedbackModal').modal('show');
+                feedbackShown = true;
+            }
+        }
+    });
+
+    $('#feedbackForm').on('submit', function(event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: 'POST',
+            url: '{% url "submit_feedback" %}',
+            data: {
+                recommendation: $('#recommendation').val(),
+                job_listing: $('#jobListing').val(),
+                feedback_text: $('#feedbackText').val(),
+                rating: $('input[name="rating"]:checked').val(),
+                csrfmiddlewaretoken: '{{ csrf_token }}'
+            },
+            success: function(response) {
+                if (response.status === 'success') {
+                    alert(response.message);
+                    $('#feedbackModal').modal('hide');
+                    localStorage.setItem('feedbackSubmitted', 'true'); // Optional: Store in local storage too
+                } else {
+                    alert('Error: ' + response.message);
+                }
+            },
+            error: function(xhr, errmsg, err) {
+                console.log(xhr.status + ': ' + xhr.responseText);
+            }
+        });
+    });
+
+    $('#feedbackModal').on('hidden.bs.modal', function() {
+        feedbackShown = true;
+    });
+    {% endif %}
+});
+
+
+function setLoadingState(button, loading) {
+    const cardBody = button.closest('.card-body');
+    if (loading) {
+        button.classList.add('loading');
+        cardBody.closest('.card').classList.add('loading');
+        button.disabled = true;
+    } else {
+        button.classList.remove('loading');
+        cardBody.closest('.card').classList.remove('loading');
+        button.disabled = false;
+    }
+}
+
+function formatText(text) {
+    text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
+    text = text.replace(/\*(.*?)\*/g, '<em>$1</em>'); 
+    text = text.replace(/\n/g, '<br>'); 
+    text = text.replace(/- \[ \] (.*?)(?=\n|$)/g, '<ul><li>$1</li></ul>');
+    text = text.replace(/\d+\. (.*?)(?=\n|$)/g, '<ol><li>$1</li></ol>');
+    return text;
+}
+
+function handleButtonClick(buttonId, url, resultSelector, resultKey) {
+    const button = document.getElementById(buttonId);
+    button.addEventListener('click', function() {
+        setLoadingState(button, true);
+        fetch(url, { method: 'GET' })
+            .then(response => response.json())
+            .then(data => {
+                setLoadingState(button, false);
+                if (data.status === 'success') {
+                    const formattedText = formatText(data[resultKey]);
+                    document.querySelector(resultSelector).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
+                } else {
+                    alert(data.message);
+                }
+                if (buttonId === 'get-career-recommendations-btn') {
+                    localStorage.setItem('careerRecommendationClicked', 'true');
+                }
+            })
+            .catch(error => {
+                setLoadingState(button, false);
+                alert('An error occurred. Please try again.');
+            });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    handleButtonClick('get-career-recommendations-btn', '{% url "get_career_recommendations_view" %}', '#career-recommendations', 'career_recommendations');
+    handleButtonClick('get-job-prospects-btn', '{% url "get_job_prospects_view" %}', '#job-prospects', 'job_prospects');
+    handleButtonClick('assess-skills-btn', '{% url "assess_skills" %}', '#skill-assessment', 'skill_assessment');
+    handleButtonClick('match-jobs-btn', '{% url "match_jobs" %}', '#matched-jobs', 'matched_jobs');
+    handleButtonClick('get-learning-resources-btn', '{% url "get_learning_resources" %}', '#learning-resources', 'learning_resources');
+    handleButtonClick('find-networking-opportunities-btn', '{% url "find_networking_opportunities" %}', '#networking-opportunities', 'networking_opportunities');
+
+    // Smooth scroll for sidebar links
+    document.querySelectorAll('.sidebar a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            document.querySelector(this.getAttribute('href')).scrollIntoView({
+                behavior: 'smooth'
+            });
+        });
+    });
+
+    // Display formatted saved content
+    const savedContent = {
+        'career_recommendations': `{% if profile.career_recommendations %}{% filter escapejs %}{{ profile.career_recommendations|safe }}{% endfilter %}{% endif %}`,
+        'job_prospects': `{% if profile.job_prospects %}{% filter escapejs %}{{ profile.job_prospects|safe }}{% endfilter %}{% endif %}`,
+        'skill_assessment': `{% if profile.skill_assessment %}{% filter escapejs %}{{ profile.skill_assessment|safe }}{% endfilter %}{% endif %}`,
+        'matched_jobs': `{% if profile.matched_jobs %}{% filter escapejs %}{{ profile.matched_jobs|safe }}{% endfilter %}{% endif %}`,
+        'learning_resources': `{% if profile.learning_resources %}{% filter escapejs %}{{ profile.learning_resources|safe }}{% endfilter %}{% endif %}`,
+        'networking_opportunities': `{% if profile.networking_opportunities %}{% filter escapejs %}{{ profile.networking_opportunities|safe }}{% endfilter %}{% endif %}`
+    };
+
+    for (const [key, value] of Object.entries(savedContent)) {
+        if (value && value !== '{}') {
+            const formattedText = formatText(value);
+            document.querySelector(`#${key.replace('_', '-')}`).innerHTML = `<div class="enhanced-text">${formattedText}</div>`;
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    var skillAssessmentData = {{ skill_assessment|safe }};
+    
+    console.log("Skill Assessment Data:", skillAssessmentData);  // Debug statement
+
+    if (skillAssessmentData && skillAssessmentData.labels && skillAssessmentData.data) {
+        var ctx = document.getElementById('skillAssessmentChart').getContext('2d');
+        var skillAssessmentChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: skillAssessmentData.labels,
+                datasets: [{
+                    label: 'Skill Assessment',
+                    data: skillAssessmentData.data,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 3,
+                        ticks: {
+                            stepSize: 1,
+                            callback: function(value) {
+                                var levels = ['Beginner', 'Intermediate', 'Advanced'];
+                                return levels[value - 1];
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    } else {
+        console.error("Skill Assessment Data is not available or is invalid");
+    }
+
+    // Change profile picture on file input change
+    const profilePictureInput = document.getElementById('profilePictureInput');
+    const profilePictureWrapper = document.querySelector('.profile-picture-wrapper');
+
+    profilePictureWrapper.addEventListener('click', () => {
+        profilePictureInput.click();
+    });
+
+    profilePictureInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const formData = new FormData();
+            formData.append('profile_picture', file);
+
+            fetch('{% url "change_profile_picture" %}', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    location.reload();
+                } else {
+                    alert('Failed to change profile picture.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again.');
+            });
+        }
+    });
+});
+</script>
 {% endblock %}

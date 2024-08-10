@@ -1,0 +1,279 @@
+{% extends 'base.html' %}
+{% block title %}Career Pathway{% endblock %}
+
+{% block content %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.1/css/all.min.css">
+
+<style>
+    .fade-in {
+        animation: fadeIn 1s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .card {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        overflow-wrap: break-word;
+        background-color: var(--card-bg, #2c2f33);
+        color: var(--card-text, #ffffff);
+        perspective: 1000px;
+        position: relative;
+        margin-bottom: 2rem;
+        transition: background-color 0.3s, color 0.3s;
+    }
+
+    .card-body {
+        padding: 1.5rem;
+        transition: transform 0.6s;
+        transform-style: preserve-3d;
+        position: relative;
+        transform-origin: center right;
+    }
+
+    .card.loading .card-body {
+        transform: rotateY(180deg);
+    }
+
+    .spinner-border {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        display: none;
+    }
+
+    .card.loading .spinner-border {
+        display: block;
+    }
+
+    .btn-primary {
+        background-color: #ff4081;
+        border-color: #ff4081;
+        transition: background-color 0.3s, border-color 0.3s;
+        position: relative;
+    }
+
+    .btn-primary:hover {
+        background-color: #e91e63;
+        border-color: #e91e63;
+    }
+
+    .btn-spinner {
+        display: none;
+        position: absolute;
+        right: 1rem;
+    }
+
+    .btn-primary.loading .btn-spinner {
+        display: inline-block;
+    }
+
+    .btn-primary.loading .btn-text {
+        visibility: hidden;
+    }
+
+    body.light-mode .card {
+        background-color: #ffffff;
+        color: #000000;
+    }
+
+    body.light-mode .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    body.light-mode .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+    }
+
+    body.light-mode .text-light {
+        color: #000000 !important;
+    }
+
+    body.light-mode .bg-dark {
+        background-color: #ffffff !important;
+    }
+
+    .svg-container {
+        width: 100%;
+        height: 80vh;
+        background-color: var(--card-bg, #2c2f33);
+        color: var(--card-text, #ffffff);
+        border-radius: 20px;
+        padding: 1.5rem;
+        overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+        .svg-container {
+            height: 60vh;
+        }
+    }
+</style>
+
+<div class="container mt-5 fade-in">
+    <h2 class="text-center mb-4 text-light mode-dependent-text">Interactive Career Pathway</h2>
+    <div class="card fade-in">
+        <div class="card-body">
+            <button id="refreshPathway" class="btn btn-primary mb-4 w-100">
+                <span class="btn-text">Refresh Pathway</span>
+                <span class="spinner-border spinner-border-sm btn-spinner" role="status" aria-hidden="true"></span>
+            </button>
+            <div class="spinner-border text-light" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+            <div id="careerPathway" class="svg-container"></div>
+        </div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v6.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if career_pathway %}
+            drawCareerPathway({{ career_pathway|safe }});
+        {% endif %}
+        
+        document.getElementById('refreshPathway').addEventListener('click', function() {
+            refreshCareerPathway();
+        });
+    });
+
+    function setLoadingState(button, cardBody, loading) {
+        if (loading) {
+            cardBody.classList.add('loading');
+            button.classList.add('loading');
+            button.disabled = true;
+        } else {
+            cardBody.classList.remove('loading');
+            button.classList.remove('loading');
+            button.disabled = false;
+        }
+    }
+
+    function drawCareerPathway(careerPathwayData) {
+        d3.select('#careerPathway').select('svg').remove();
+
+        if (!careerPathwayData.nodes.length) {
+            console.log("No career pathway data available.");
+            return;
+        }
+
+        const container = document.getElementById('careerPathway');
+        const width = container.clientWidth;
+        const height = container.clientHeight;
+        const svg = d3.select('#careerPathway').append('svg')
+            .attr('width', width)
+            .attr('height', height)
+            .style('background', 'var(--card-bg, #2c2f33)')
+            .call(d3.zoom().on('zoom', function (event) {
+                svg.attr('transform', event.transform);
+            }))
+            .append('g');
+
+        const simulation = d3.forceSimulation(careerPathwayData.nodes)
+            .force('link', d3.forceLink(careerPathwayData.links).id(d => d.id).distance(150))
+            .force('charge', d3.forceManyBody().strength(-300))
+            .force('center', d3.forceCenter(width / 2, height / 2))
+            .force('collide', d3.forceCollide().radius(50));
+
+        const link = svg.append('g')
+            .attr('class', 'links')
+            .selectAll('line')
+            .data(careerPathwayData.links)
+            .enter().append('line')
+            .attr('stroke-width', 2)
+            .attr('stroke', '#999');
+
+        const node = svg.append('g')
+            .attr('class', 'nodes')
+            .selectAll('circle')
+            .data(careerPathwayData.nodes)
+            .enter().append('circle')
+            .attr('r', d => window.innerWidth < 768 ? 10 : 20)
+            .attr('fill', '#007bff')
+            .call(d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended));
+
+        const label = svg.append('g')
+            .attr('class', 'labels')
+            .selectAll('text')
+            .data(careerPathwayData.nodes)
+            .enter().append('text')
+            .attr('dy', 3)
+            .attr('x', 20)
+            .html(d => formatText(d.name))
+            .style('font-size', d => window.innerWidth < 768 ? '10px' : '12px')
+            .style('fill', '#fff')
+            .style('text-anchor', 'start')
+            .style('width', '200px');
+
+        simulation.on('tick', () => {
+            link.attr('x1', d => d.source.x)
+                .attr('y1', d => d.source.y)
+                .attr('x2', d => d.target.x)
+                .attr('y2', d => d.target.y);
+
+            node.attr('cx', d => d.x)
+                .attr('cy', d => d.y);
+
+            label.attr('x', d => d.x + 10)
+                .attr('y', d => d.y);
+        });
+
+        function dragstarted(event, d) {
+            if (!event.active) simulation.alphaTarget(0.3).restart();
+            d.fx = d.x;
+            d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+            d.fx = event.x;
+            d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+            if (!event.active) simulation.alphaTarget(0);
+            d.fx = null;
+            d.fy = null;
+        }
+    }
+
+    function refreshCareerPathway() {
+        const button = document.getElementById('refreshPathway');
+        const cardBody = document.querySelector('.card-body');
+        setLoadingState(button, cardBody, true);
+        
+        fetch("{% url 'generate_career_pathway' %}")
+            .then(response => response.json())
+            .then(data => {
+                setLoadingState(button, cardBody, false);
+                drawCareerPathway(data.career_pathway);
+            })
+            .catch(error => {
+                console.error('Error fetching career pathway:', error);
+                setLoadingState(button, cardBody, false);
+            });
+    }
+
+    function formatText(text) {
+        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
+        text = text.replace(/\n/g, '<br>');
+        return text;
+    }
+</script>
+{% endblock %}

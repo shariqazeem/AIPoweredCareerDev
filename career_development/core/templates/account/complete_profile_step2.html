@@ -1,16 +1,164 @@
 {% extends "base.html" %}
-
-{% block title %}Complete Profile Step 2{% endblock %}
-
+{% block title %}Complete Profile - Step 2{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 500px;">
-        <h2 class="text-center mb-4">Complete Profile - Step 2</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
-        </form>
+<div class="container mt-3">
+    <div class="progress mb-4">
+        <div class="progress-bar" role="progressbar" style="width: 50%;" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100"></div>
+    </div>
+    <div class="d-flex justify-content-center align-items-center" style="height: calc(100vh - 120px);">
+        <div class="card p-4 shadow-lg bg-dark text-light overflow-auto" style="width: 100%; max-width: 600px; max-height: calc(100vh - 160px);">
+            <h2 class="text-center mb-4">Complete Profile - Step 2</h2>
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="accordion" id="profileCompletionAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="skillsHeading">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#skillsCollapse" aria-expanded="true" aria-controls="skillsCollapse">
+                                Select Your Skills
+                            </button>
+                        </h2>
+                        <div id="skillsCollapse" class="accordion-collapse collapse show" aria-labelledby="skillsHeading" data-bs-parent="#profileCompletionAccordion">
+                            <div class="accordion-body">
+                                <p class="text-muted">Choose skills that you excel at or are interested in developing further.</p>
+                                <div class="form-group">
+                                    {{ form.skills.label_tag }}
+                                    {{ form.skills }}
+                                    <small class="form-text text-muted">If you don't see your skill, you can add it in the "Other Skills" section below.</small>
+                                </div>
+                                <div class="form-group mt-3">
+                                    {{ form.other_skills.label_tag }}
+                                    {{ form.other_skills }}
+                                    <small class="form-text text-muted">For any additional skills not listed above.</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="goalsHeading">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#goalsCollapse" aria-expanded="false" aria-controls="goalsCollapse">
+                                Select Your Career Goals
+                            </button>
+                        </h2>
+                        <div id="goalsCollapse" class="accordion-collapse collapse" aria-labelledby="goalsHeading" data-bs-parent="#profileCompletionAccordion">
+                            <div class="accordion-body">
+                                <p class="text-muted">Define what you aim to achieve in your career. This will help us tailor our recommendations.</p>
+                                <div class="form-group">
+                                    {{ form.career_goals.label_tag }}
+                                    {{ form.career_goals }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary w-100 mt-3">Next</button>
+            </form>
+        </div>
     </div>
 </div>
+<script>
+    (function() {
+        'use strict'
+        const forms = document.querySelectorAll('.needs-validation')
+        Array.from(forms).forEach(form => {
+            form.addEventListener('submit', event => {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+</script>
+<script>
+    $(function() {
+        const skillsByInterest = {
+            "technology": ["HTML", "CSS", "JavaScript", "Python", "Django", "Node.js", "PHP", "Java", "C#", "C++", "SQL", "React", "Angular"],
+            "business": ["Management", "Marketing", "Finance", "Sales", "Accounting", "Human Resources", "Operations", "Strategic Planning"],
+            "arts": ["Drawing", "Painting", "Sculpting", "Photography", "Graphic Design", "Illustration", "Animation", "Printmaking"],
+            "music": ["Instrument Playing", "Vocals", "Composition", "Music Production", "Music Theory", "Conducting", "DJing", "Sound Engineering"],
+            "sports": ["Team Sports", "Individual Sports", "Coaching", "Fitness", "Nutrition", "Physiotherapy", "Sports Management"],
+            "fashion": ["Fashion Designing", "Fashion Styling", "Fashion Illustration", "Fashion Merchandising", "Textile Design", "Pattern Making", "Sewing", "Fashion Marketing"]
+        };
+
+        const careerInterest = "{{ form.career_interests.value }}";
+        const availableSkills = skillsByInterest[careerInterest] || [];
+
+        $("#id_skills").autocomplete({
+            source: availableSkills,
+            minLength: 0
+        }).focus(function() {
+            $(this).autocomplete("search");
+        });
+    });
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tour = new Shepherd.Tour({
+            defaultStepOptions: {
+                classes: 'shadow-md bg-purple-dark',
+                scrollTo: true,
+                cancelIcon: {
+                    enabled: true
+                },
+                arrow: true
+            }
+        });
+
+        tour.addStep({
+            id: 'skills',
+            text: 'Select the skills you possess or want to develop. You can choose multiple skills.',
+            attachTo: {
+                element: '#id_skills',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'other_skills',
+            text: 'Add any additional skills that are not listed. This helps us understand your full skill set.',
+            attachTo: {
+                element: '#id_other_skills',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Previous',
+                    action: tour.back
+                },
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'career_goals',
+            text: 'Specify your career goals to help us provide tailored advice and opportunities.',
+            attachTo: {
+                element: '#id_career_goals',
+                on: 'bottom'
+            },
+            buttons: [
+                {
+                    text: 'Previous',
+                    action: tour.back
+                },
+                {
+                    text: 'Finish',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        tour.start();
+    });
+</script>
 {% endblock %}

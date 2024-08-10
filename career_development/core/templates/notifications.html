@@ -1,0 +1,16 @@
+<!-- notifications.html -->
+{% extends 'base.html' %}
+{% block title %}Notifications{% endblock %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Notifications</h2>
+    <ul class="list-group">
+        {% for notification in notifications %}
+            <li class="list-group-item">
+                {{ notification.message }}
+                <a href="{% url 'mark_notification_read' notification.id %}" class="btn btn-sm btn-secondary float-end">Mark as read</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

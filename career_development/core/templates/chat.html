@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Chat{% endblock %}
+
+{% block content %}
+<style>
+    .chat-container {
+        display: flex;
+        flex-direction: column;
+        height: calc(100vh - 56px); /* Adjusted to exclude the height of the navbar */
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        background-color: #343a40;
+        color: white;
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+    }
+
+    .profile-picture {
+        width: 50px;
+        height: 50px;
+        object-fit: cover;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+
+    .card-body {
+        flex: 1;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+        padding: 1rem;
+        background-color: #ffffff;
+        max-height: calc(100vh - 200px); /* Adjusted to ensure input field is always visible */
+    }
+
+    .chat-message {
+        margin-bottom: 0.5rem;
+        padding: 0.75rem 1rem;
+        border-radius: 1rem;
+        max-width: 75%;
+        word-wrap: break-word;
+        display: inline-block;
+    }
+
+    .chat-message.self {
+        align-self: flex-end;
+        background-color: #007bff;
+        color: white;
+    }
+
+    .chat-message.other {
+        align-self: flex-start;
+        background-color: #e9ecef;
+        color: black;
+    }
+
+    .card-footer {
+        padding: 0.5rem 1rem;
+        background-color: #343a40;
+        display: flex;
+        align-items: center;
+        flex-shrink: 0;
+    }
+
+    .input-group {
+        flex: 1;
+        display: flex;
+    }
+
+    .input-group input {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        border-top-left-radius: 0.25rem;
+        border-bottom-left-radius: 0.25rem;
+        outline: none;
+    }
+
+    .input-group button {
+        padding: 0.75rem 1rem;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-top-right-radius: 0.25rem;
+        border-bottom-right-radius: 0.25rem;
+        transition: background-color 0.3s ease;
+        outline: none;
+    }
+
+    .input-group button:hover {
+        background-color: #0056b3;
+    }
+
+    @media (max-width: 768px) {
+        .card-header h3 {
+            font-size: 1.25rem;
+        }
+
+        .profile-picture {
+            width: 40px;
+            height: 40px;
+        }
+    }
+</style>
+<div class="container mt-4">
+    <div class="chat-container">
+        <div class="card-header">
+            {% if receiver.profile.profile_picture %}
+                <img src="{{ receiver.profile.profile_picture.url }}" alt="Profile Picture" class="profile-picture">
+            {% else %}
+                <img src="{% static 'default_profile_picture.png' %}" alt="Default Profile Picture" class="profile-picture">
+            {% endif %}
+            <h3 class="mb-0 ml-3"><a href="{% url 'user_profile' receiver.username %}" class="text-decoration-none text-light">{{ receiver.username }}</a></h3>
+        </div>
+        <div class="card-body" id="chat-log">
+            {% for message in chat_messages %}
+                <div class="chat-message {% if message.sender == user %}self{% else %}other{% endif %}">
+                    {{ message.content }}
+                </div>
+            {% endfor %}
+        </div>
+        <div class="card-footer">
+            <div class="input-group">
+                <input id="chat-message-input" type="text" class="form-control" placeholder="Type a message..." title="Type your message here">
+                <div class="input-group-append">
+                    <button id="chat-message-submit" class="btn btn-primary" title="Send your message">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    const username = "{{ receiver.username }}";  // Embed the receiver's username in the JavaScript code
+const chatSocket = new WebSocket(
+    (window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws/chat/' + username + '/'
+);
+
+chatSocket.onopen = function(e) {
+    console.log('WebSocket connection established');
+};
+
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    console.log('Message received:', data);
+    const chatLog = document.querySelector('#chat-log');
+    const newMessage = document.createElement('div');
+    newMessage.classList.add('chat-message', 'p-2', 'rounded', 'mb-2');
+    if (data.sender === '{{ user.username }}') {
+        newMessage.classList.add('self');
+    } else {
+        newMessage.classList.add('other');
+    }
+    newMessage.textContent = data.message;
+    chatLog.appendChild(newMessage);
+    chatLog.scrollTop = chatLog.scrollHeight;  // Auto-scroll to the bottom
+};
+
+chatSocket.onerror = function(e) {
+    console.error('WebSocket Error:', e);
+};
+
+chatSocket.onclose = function(e) {
+    console.log('Chat socket closed unexpectedly', e);
+};
+
+document.querySelector('#chat-message-submit').onclick = function(e) {
+    const messageInputDom = document.querySelector('#chat-message-input');
+    const message = messageInputDom.value;
+
+    if (chatSocket.readyState === WebSocket.OPEN) {
+        chatSocket.send(JSON.stringify({
+            'message': message
+        }));
+        messageInputDom.value = '';
+    } else {
+        console.error('WebSocket is not open. Current state is:', chatSocket.readyState);
+    }
+};
+
+// Ensure the chat log is scrolled to the bottom when the page loads
+document.addEventListener('DOMContentLoaded', function() {
+    const chatLog = document.querySelector('#chat-log');
+    chatLog.scrollTop = chatLog.scrollHeight;
+});
+
+</script>
+
+{% endblock %}

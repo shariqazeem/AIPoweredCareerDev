@@ -1,32 +1,154 @@
 {% extends 'base.html' %}
+{% load socialaccount %}
 {% block title %}Sign Up{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="card p-4 shadow-lg" style="width: 100%; max-width: 400px;">
-        <h2 class="text-center mb-4">Sign Up</h2>
-        <form method="post">
+    <div class="card p-4 shadow-lg bg-dark text-light" style="width: 100%; max-width: 400px;">
+        <h2 class="text-center mb-4">Join Us</h2>
+        <form method="post" class="needs-validation" novalidate>
             {% csrf_token %}
             <div class="mb-3">
                 <label for="username" class="form-label">Username</label>
                 <input type="text" class="form-control" id="username" name="username" required>
+                <div class="invalid-feedback">
+                    Please provide your username.
+                </div>
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Email address</label>
+                <label for="email" class="form-label">Email</label>
                 <input type="email" class="form-control" id="email" name="email" required>
+                <div class="invalid-feedback">
+                    Please provide a valid email.
+                </div>
             </div>
             <div class="mb-3">
                 <label for="password1" class="form-label">Password</label>
                 <input type="password" class="form-control" id="password1" name="password1" required>
+                <div class="invalid-feedback">
+                    Please provide a password.
+                </div>
+                <ul id="password-requirements" class="list-unstyled mt-2">
+                    <li id="length" class="invalid">At least 8 characters</li>
+                    <li id="uppercase" class="invalid">At least one uppercase letter</li>
+                    <li id="lowercase" class="invalid">At least one lowercase letter</li>
+                    <li id="number" class="invalid">At least one number</li>
+                    <li id="special" class="invalid">At least one special character</li>
+                </ul>
             </div>
             <div class="mb-3">
                 <label for="password2" class="form-label">Confirm Password</label>
                 <input type="password" class="form-control" id="password2" name="password2" required>
+                <div class="invalid-feedback">
+                    Please confirm your password.
+                </div>
             </div>
             <button type="submit" class="btn btn-primary w-100">Sign Up</button>
         </form>
         <div class="text-center mt-3">
             <a href="{% url 'login' %}" class="text-light">Already have an account? Log in</a>
         </div>
+        <div class="text-center mt-3">
+            <a href="{% provider_login_url "google" %}" class="btn btn-outline-primary w-100">
+                <i class="fab fa-google"></i> Sign Up with Google
+            </a>
+        </div>        
     </div>
 </div>
+
+<!-- Google One Tap Login -->
+<div id="g_id_onload"
+     data-client_id="143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com"
+     data-callback="handleCredentialResponse"
+     data-auto_select="true">
+</div>
+<div class="g_id_signout" style="display:none;">Sign Out</div>
+
+<script>
+(function() {
+    'use strict'
+    const forms = document.querySelectorAll('.needs-validation')
+    Array.from(forms).forEach(form => {
+        form.addEventListener('submit', event => {
+            if (!form.checkValidity()) {
+                event.preventDefault()
+                event.stopPropagation()
+            }
+            form.classList.add('was-validated')
+        }, false)
+    })
+})()
+
+const passwordInput = document.getElementById('password1');
+const lengthRequirement = document.getElementById('length');
+const uppercaseRequirement = document.getElementById('uppercase');
+const lowercaseRequirement = document.getElementById('lowercase');
+const numberRequirement = document.getElementById('number');
+const specialRequirement = document.getElementById('special');
+
+passwordInput.addEventListener('input', function() {
+    const value = passwordInput.value;
+    lengthRequirement.classList.toggle('valid', value.length >= 8);
+    lengthRequirement.classList.toggle('invalid', value.length < 8);
+
+    uppercaseRequirement.classList.toggle('valid', /[A-Z]/.test(value));
+    uppercaseRequirement.classList.toggle('invalid', !/[A-Z]/.test(value));
+
+    lowercaseRequirement.classList.toggle('valid', /[a-z]/.test(value));
+    lowercaseRequirement.classList.toggle('invalid', !/[a-z]/.test(value));
+
+    numberRequirement.classList.toggle('valid', /[0-9]/.test(value));
+    numberRequirement.classList.toggle('invalid', !/[0-9]/.test(value));
+
+    specialRequirement.classList.toggle('valid', /[^A-Za-z0-9]/.test(value));
+    specialRequirement.classList.toggle('invalid', !/[^A-Za-z0-9]/.test(value));
+});
+</script>
+<script src="https://accounts.google.com/gsi/client" async></script>
+<script>
+function handleCredentialResponse(response) {
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  fetch("{% url 'google_one_tap_login' %}", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "X-CSRFToken": csrfToken
+    },
+    body: JSON.stringify({
+      credential: response.credential
+    })
+  }).then(response => {
+    return response.json().then(data => {
+      if (response.ok) {
+        return data;
+      } else {
+        return Promise.reject(data);
+      }
+    });
+  }).then(data => {
+    if (data.success) {
+      window.location.href = "{% url 'dashboard' %}";
+    } else {
+      console.error("One Tap Sign Up failed", data.error);
+    }
+  }).catch(error => {
+    console.error("Error:", error);
+  });
+}
+
+window.onload = function () {
+  google.accounts.id.initialize({
+    client_id: "143450501986-0bs7v2vcmeimcv5daq1e9st5vs5s1eed.apps.googleusercontent.com",
+    callback: handleCredentialResponse
+  });
+  google.accounts.id.prompt();
+}
+</script>
+<style>
+    .valid {
+        color: green;
+    }
+    .invalid {
+        color: red;
+    }
+</style>
 {% endblock %}

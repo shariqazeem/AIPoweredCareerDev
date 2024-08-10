@@ -1,0 +1,15 @@
+Django>=3.2,<4.0
+gunicorn
+psycopg2-binary
+django-environ
+google-generativeai
+django-allauth
+django_browser_reload
+Pillow
+channels
+channels-redis
+pusher
+daphne==4.0.0  
+pyjwt==2.0.1  
+pymupdf 
+python-docx

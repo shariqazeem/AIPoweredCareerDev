@@ -1,60 +1,86 @@
-<!-- core/templates/user_profile.html -->
 {% extends 'base.html' %}
 
 {% block title %}{{ profile_user.username }}'s Profile{% endblock %}
-
+{% load static %}
 {% block content %}
-<div class="container mx-auto mt-8">
-    <div class=" shadow-md rounded-lg p-6">
-        <h1 class="text-3xl font-bold mb-4">{{ profile_user.username }}'s Profile</h1>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-                <ul class="divide-y divide-gray-200">
-                    <li class="py-2">
-                        <span class="font-bold">Email:</span> {{ profile_user.email }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Location:</span> {{ profile_user.profile.location }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Skills:</span> {{ profile_user.profile.skills }}
-                    </li>
-                </ul>
-            </div>
-            <div>
-                <ul class="divide-y divide-gray-200">
-                    <li class="py-2">
-                        <span class="font-bold">Career Goals:</span> {{ profile_user.profile.career_goals }}
-                    </li>
-                    <li class="py-2">
-                        <span class="font-bold">Professional Experience:</span> {{ profile_user.profile.professional_experience }}
-                    </li>
-                </ul>
-            </div>
+<style>
+    .profile-picture {
+        width: 80px;
+        height: 80px;
+        object-fit: cover;
+        margin-right: 20px;
+    }
+</style>
+<div class="container mt-5">
+    <div class="card p-4 shadow-lg">
+        <h1 class="card-title text-center mb-4">{{ profile_user.username }}'s Profile</h1>
+        <div class="text-center mb-4">
+            {% if profile_user.profile.profile_picture %}
+                <img src="{{ profile_user.profile.profile_picture.url }}" alt="Profile Picture" class="rounded-circle profile-picture" style="width: 150px; height: 150px;">
+            {% else %}
+                <img src="https://img.freepik.com/free-psd/3d-illustration-person-with-glasses_23-2149436191.jpg?w=740&t=st=1721942794~exp=1721943394~hmac=c084dd6d7ff19f68befc1bcd55805caf988acf278233869cb1f4f9b05a9ab373" alt="Default Profile Picture" class="rounded-circle profile-picture" style="width: 150px; height: 150px;">
+            {% endif %}
         </div>
-<!-- 
-        {% comment %} 
-        {% if recommendations %}
-        <h2 class="mt-6 text-xl font-bold">Career Recommendations</h2>
-        <ul class="mt-2 divide-y divide-gray-200">
-            {% for recommendation in recommendations %}
-            <li class="py-2">{{ recommendation }}</li>
-            {% endfor %}
-        </ul>
+        {% if is_private and not is_connected %}
+            <p class="text-center">This profile is private. Connect to see more details.</p>
+            <div class="text-center">
+                <button class="btn btn-primary connect-btn" data-url="{% url 'send_connection_request' profile_user.username %}">Connect</button>
+            </div>
+        {% else %}
+            <p><strong>Bio:</strong> {{ profile_user.profile.bio }}</p>
+            <p><strong>Location:</strong> {{ profile_user.profile.location }}</p>
+            <p><strong>Skills:</strong> {{ profile_user.profile.skills }}</p>
+            <p><strong>Career Goals:</strong> {{ profile_user.profile.career_goals }}</p>
+            <p><strong>Professional Experience:</strong> {{ profile_user.profile.professional_experience }}</p>
+            <div class="text-center">
+                {% if is_connected %}
+                    <a href="{% url 'remove_connection' profile_user.username %}" class="btn btn-danger">Remove Connection</a>
+                {% else %}
+                    <button class="btn btn-primary connect-btn" data-url="{% url 'send_connection_request' profile_user.username %}">Connect</button>
+                {% endif %}
+                <a href="{% url 'chat' profile_user.username %}" class="btn btn-secondary">Message</a>
+            </div>
         {% endif %}
-
-        {% if job_postings %}
-        <h2 class="mt-6 text-xl font-bold">Job Postings</h2>
-        <ul class="mt-2 divide-y divide-gray-200">
-            {% for job in job_postings %}
-            <li class="py-2">{{ job.title }} at {{ job.company }} - {{ job.location }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
-        {% endcomment %} -->
-
-        <a href="{% url 'home' %}" class="mt-6 inline-block bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg">Back to Home</a>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Add click event listener to the connect button
+    document.querySelectorAll('.connect-btn').forEach(function(button) {
+        button.addEventListener('click', function(event) {
+            event.preventDefault();
+
+            const url = this.dataset.url;
+            const button = this;
+
+            // Send AJAX request to connect
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Update button text and disable it
+                    button.textContent = 'Request Sent';
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-success');
+                    button.disabled = true;
+                } else {
+                    alert(data.message || 'Error sending connection request.');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred. Please try again later.');
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

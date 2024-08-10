@@ -1,14 +1,58 @@
-<!-- core/templates/connections.html -->
 {% extends 'base.html' %}
 
-{% block title %}My Connections{% endblock %}
+{% block title %}Connections{% endblock %}
 
 {% block content %}
-<h1 class="mt-4">My Connections</h1>
-<ul class="list-group">
-    {% for connection in connections %}
-        <li class="list-group-item">{{ connection.user_to.username }}</li>
-    {% endfor %}
-</ul>
-<p><a class="btn btn-secondary mt-3" href="{% url 'home' %}">Back to Home</a></p>
+<div class="container mt-5">
+    <h1 class="text-center">Connections</h1>
+    <div class="card p-4 shadow-lg">
+        <h2>Your Connections</h2>
+        <div class="list-group">
+            {% for connection in connections %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ connection.user_to.username }}</h5>
+                    </div>
+                    <div>
+                        <a href="{% url 'user_profile' connection.user_to.username %}" class="btn btn-info btn-sm">View Profile</a>
+                        <a href="{% url 'chat' connection.user_to.username %}" class="btn btn-secondary btn-sm">Message</a>
+                        <a href="{% url 'remove_connection' connection.user_to.username %}" class="btn btn-danger btn-sm">Remove</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="mt-4">Connection Requests</h2>
+        <div class="list-group">
+            {% for request in requests %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ request.from_user.username }}</h5>
+                    </div>
+                    <div>
+                        <a href="{% url 'accept_connection_request' request.id %}" class="btn btn-success btn-sm">Accept</a>
+                        <a href="{% url 'reject_connection_request' request.id %}" class="btn btn-danger btn-sm">Reject</a>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <h2 class="mt-4">Sent Connection Requests</h2>
+        <div class="list-group">
+            {% for request in sent_requests %}
+                <div class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="mb-1">{{ request.to_user.username }}</h5>
+                    </div>
+                    <div>
+                        <form method="POST" action="{% url 'cancel_connection_request' request.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
 {% endblock %}
