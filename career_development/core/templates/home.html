@@ -2,55 +2,137 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
-<div class="d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="text-center shadow-lg rounded-lg p-5 bg-dark text-light" style="max-width: 600px; width: 100%;">
+<div class="d-flex justify-content-center align-items-center min-vh-100">
+    <div class="text-center p-5 glass-card" style="max-width: 700px; width: 100%;">
         {% if user.is_authenticated %}
-            <h1 class="display-4 font-weight-bold mb-4">Welcome, <span class="username">{{ user.username }}</span>!</h1>
-            <p class="lead">Explore your career opportunities and manage your profile.</p>
-            <a href="{% url 'dashboard' %}" class="btn btn-primary btn-lg mt-4">Go to Dashboard</a>
+            <h1 class="display-4 fw-bold mb-4 welcome-text">Welcome, <span class="username gradient-text">{{ user.username }}</span>!</h1>
+            <p class="lead text-light-50 mb-5">Explore your career opportunities and manage your profile.</p>
+            <a href="{% url 'dashboard' %}" class="custom-btn btn-primary-gradient btn-lg mt-4">
+                <span>Go to Dashboard</span>
+                <i class="fas fa-arrow-right ms-2"></i>
+            </a>
         {% else %}
-            <h1 class="display-4 font-weight-bold mb-4">Welcome to AI-Powered Career Advice Platform</h1>
-            <p class="lead mb-4">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
-            <div>
-                <a href="{% url 'signup' %}" class="btn btn-primary btn-lg mt-4">Sign Up</a>
-                <a href="{% url 'login' %}" class="btn btn-secondary btn-lg mt-4 ml-2">Log In</a>
+            <h1 class="display-4 fw-bold mb-4 welcome-text">Welcome to 
+                <span class="gradient-text">AI-Powered</span> Career Advice Platform</h1>
+            <p class="lead text-light-50 mb-5">Discover personalized career advice, recommendations, and insights tailored just for you. Whether you are starting your career journey or looking to advance it, we are here to help you every step of the way.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="{% url 'signup' %}" class="custom-btn btn-primary-gradient btn-lg">
+                    <span>Sign Up</span>
+                    <i class="fas fa-user-plus ms-2"></i>
+                </a>
+                <a href="{% url 'login' %}" class="custom-btn btn-secondary-outline btn-lg">
+                    <span>Log In</span>
+                    <i class="fas fa-sign-in-alt ms-2"></i>
+                </a>
             </div>
         {% endif %}
-        <div class="mt-4">
-            <a href="{% url 'privacy_policy' %}" class="text-light">Privacy Policy</a>
+        <div class="mt-5">
+            <a href="{% url 'privacy_policy' %}" class="text-decoration-none link-light opacity-75 hover-effect">Privacy Policy</a>
         </div>
     </div>
 </div>
 
-<!-- Adding some interactive elements -->
+<style>
+    .glass-card {
+        background: rgba(255, 255, 255, 0.05);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    }
+
+    .gradient-text {
+        background: linear-gradient(45deg, #6e48aa, #9d50bb);
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        font-weight: bold;
+    }
+
+    .welcome-text {
+        color: #ffffff;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeInUp 1s ease forwards;
+    }
+
+    .custom-btn {
+        position: relative;
+        padding: 12px 30px;
+        border-radius: 10px;
+        transition: all 0.3s ease;
+        overflow: hidden;
+        border: none;
+        font-weight: 500;
+    }
+
+    .btn-primary-gradient {
+        background: linear-gradient(45deg, #6e48aa, #9d50bb);
+        color: white;
+    }
+
+    .btn-secondary-outline {
+        background: transparent;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+
+    .custom-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .hover-effect {
+        transition: all 0.3s ease;
+    }
+
+    .hover-effect:hover {
+        opacity: 1 !important;
+        text-decoration: underline !important;
+    }
+
+    @keyframes fadeInUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .username {
+        word-break: break-word;
+        display: inline-block;
+    }
+</style>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Welcome animation
-        const welcomeText = document.querySelector('.display-4');
-        if (welcomeText) {
-            welcomeText.style.opacity = 0;
-            setTimeout(() => {
-                welcomeText.style.transition = 'opacity 2s';
-                welcomeText.style.opacity = 1;
-            }, 500);
-        }
-
-        // Button hover effects
-        const buttons = document.querySelectorAll('.btn');
+        // Buttons hover effect
+        const buttons = document.querySelectorAll('.custom-btn');
         buttons.forEach(button => {
             button.addEventListener('mouseover', () => {
-                button.style.transform = 'scale(1.1)';
-                button.style.transition = 'transform 0.3s';
+                button.style.transform = 'translateY(-3px)';
             });
             button.addEventListener('mouseout', () => {
-                button.style.transform = 'scale(1)';
+                button.style.transform = 'translateY(0)';
+            });
+        });
+
+        // Add ripple effect to buttons
+        buttons.forEach(button => {
+            button.addEventListener('click', function(e) {
+                let x = e.clientX - e.target.offsetLeft;
+                let y = e.clientY - e.target.offsetTop;
+                
+                let ripple = document.createElement('span');
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                
+                this.appendChild(ripple);
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
             });
         });
     });
 </script>
-<style>
-    .username {
-        word-break: break-word;
-    }
-</style>
 {% endblock %}

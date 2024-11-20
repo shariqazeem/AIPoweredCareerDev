@@ -16,7 +16,7 @@
         height: 100vh;
         padding-top: 20px;
         position: fixed;
-        background-color: var(--sidebar-bg);
+        background: rgba(0, 0, 0, 0.7) !important;
         color: var(--sidebar-text);
     }
     .sidebar a {
@@ -34,7 +34,7 @@
         flex-grow: 1;
         padding: 2rem;
         margin-left: 250px;
-        background-color: var(--content-bg);
+        background: rgba(0, 0, 0, 0.7) !important;
         color: var(--content-text);
         width: calc(100% - 250px);
         transition: margin-left 0.3s ease;
@@ -44,7 +44,7 @@
         border: none;
         box-shadow: 0 4px 8px rgba(0,0,0,0.1);
         margin-bottom: 2rem;
-        background-color: var(--card-bg);
+        background: rgba(0, 0, 0, 0.7) !important;
         color: var(--card-text);
     }
     .card-body {
@@ -257,7 +257,7 @@
     }
 </style>
 
-<div class="dashboard-container">
+<div class="dashboard-container" >
     <div class="sidebar fade-in">
         <h2 class="text-center mode-dependent-text">VisionVenture</h2>
         <a href="#career-recommendations-section"><i class="fas fa-bullseye"></i> Career Recommendations</a>
@@ -366,7 +366,7 @@
 </div>
 
 <!-- Feedback Modal (only show if feedback hasn't been submitted) -->
-{% if not user.profile.has_submitted_feedback %}
+<!-- {% if not user.profile.has_submitted_feedback %}
 <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="feedbackModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -411,64 +411,64 @@
         </div>
     </div>
 </div>
-{% endif %}
+{% endif %} -->
 
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-$(document).ready(function() {
-    {% if not user.profile.has_submitted_feedback %}
-    let feedbackShown = false;
+// $(document).ready(function() {
+//     {% if not user.profile.has_submitted_feedback %}
+//     let feedbackShown = false;
 
-    // Show the feedback modal based on scroll position
-    $(window).on('scroll', function() {
-        if (!feedbackShown) {
-            const scrollPosition = $(window).scrollTop() + $(window).height();
-            const documentHeight = $(document).height();
+//     // Show the feedback modal based on scroll position
+//     $(window).on('scroll', function() {
+//         if (!feedbackShown) {
+//             const scrollPosition = $(window).scrollTop() + $(window).height();
+//             const documentHeight = $(document).height();
 
-            const feedbackScrollThreshold = localStorage.getItem('careerRecommendationClicked') ? 0.5 : 0.9;
+//             const feedbackScrollThreshold = localStorage.getItem('careerRecommendationClicked') ? 0.5 : 0.9;
 
-            if ((scrollPosition / documentHeight) > feedbackScrollThreshold) {
-                $('#feedbackModal').modal('show');
-                feedbackShown = true;
-            }
-        }
-    });
+//             if ((scrollPosition / documentHeight) > feedbackScrollThreshold) {
+//                 $('#feedbackModal').modal('show');
+//                 feedbackShown = true;
+//             }
+//         }
+//     });
 
-    $('#feedbackForm').on('submit', function(event) {
-        event.preventDefault();
+//     $('#feedbackForm').on('submit', function(event) {
+//         event.preventDefault();
 
-        $.ajax({
-            type: 'POST',
-            url: '{% url "submit_feedback" %}',
-            data: {
-                recommendation: $('#recommendation').val(),
-                job_listing: $('#jobListing').val(),
-                feedback_text: $('#feedbackText').val(),
-                rating: $('input[name="rating"]:checked').val(),
-                csrfmiddlewaretoken: '{{ csrf_token }}'
-            },
-            success: function(response) {
-                if (response.status === 'success') {
-                    alert(response.message);
-                    $('#feedbackModal').modal('hide');
-                    localStorage.setItem('feedbackSubmitted', 'true'); // Optional: Store in local storage too
-                } else {
-                    alert('Error: ' + response.message);
-                }
-            },
-            error: function(xhr, errmsg, err) {
-                console.log(xhr.status + ': ' + xhr.responseText);
-            }
-        });
-    });
+//         $.ajax({
+//             type: 'POST',
+//             url: '{% url "submit_feedback" %}',
+//             data: {
+//                 recommendation: $('#recommendation').val(),
+//                 job_listing: $('#jobListing').val(),
+//                 feedback_text: $('#feedbackText').val(),
+//                 rating: $('input[name="rating"]:checked').val(),
+//                 csrfmiddlewaretoken: '{{ csrf_token }}'
+//             },
+//             success: function(response) {
+//                 if (response.status === 'success') {
+//                     alert(response.message);
+//                     $('#feedbackModal').modal('hide');
+//                     localStorage.setItem('feedbackSubmitted', 'true'); // Optional: Store in local storage too
+//                 } else {
+//                     alert('Error: ' + response.message);
+//                 }
+//             },
+//             error: function(xhr, errmsg, err) {
+//                 console.log(xhr.status + ': ' + xhr.responseText);
+//             }
+//         });
+//     });
 
-    $('#feedbackModal').on('hidden.bs.modal', function() {
-        feedbackShown = true;
-    });
-    {% endif %}
-});
+//     $('#feedbackModal').on('hidden.bs.modal', function() {
+//         feedbackShown = true;
+//     });
+//     {% endif %}
+// });
 
 
 function setLoadingState(button, loading) {

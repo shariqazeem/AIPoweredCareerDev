@@ -53,6 +53,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
+        
         .loader {
             position: fixed;
             z-index: 9999;
@@ -243,15 +244,86 @@
                 width: 100%;
             }
         }
+        /* Glass effect navbar styles */
+.navbar {
+    background: rgba(0, 0, 0, 0.7) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Navbar links styling */
+.navbar .nav-link {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transition: color 0.3s ease;
+}
+
+.navbar .nav-link:hover {
+    color: white !important;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* Navbar brand (logo) styling */
+.navbar-brand img {
+    filter: brightness(1.2);
+}
+
+/* Navbar toggler icon color for mobile */
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba(255, 255, 255, 0.8)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
+}
+
+.navbar-toggler {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Badge styling */
+.badge.bg-danger {
+    background-color: #dc3545 !important;
+}
+.content-wrapper {
+    padding-top: 80px; /* Adjust this value based on your navbar height */
+    position: relative;
+    z-index: 1;
+}
+
+.navbar {
+    z-index: 1030; /* Ensure navbar stays on top */
+}
+
+.search-bar {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 1020;
+}
+
     </style>
 </head>
 
-<body>
+<body style="background-color: #000000;">
     <div id="loader" class="loader">
         <img src="{% static 'images/logo.png' %}" alt="Loading..." class="loader-logo">
     </div>
 
-    <nav class="navbar navbar-expand-lg">
+    <nav class="navbar navbar-expand-lg bg-black bg-opacity-50 backdrop-blur-md fixed-top ">
         <div class="container-fluid">
             <a class="navbar-brand" href="{% url 'home' %}">
                 <img src="{% static 'images/logo.png' %}" alt="VisionVenture" style="height: 40px;">
@@ -371,9 +443,7 @@
                 </ul>
             </div>
         </div>
-    </nav>
-
-
+        
     <!-- Search Bar (Initially Hidden) -->
     <div class="search-bar d-none" id="searchBar">
         <div class="container position-relative">
@@ -390,11 +460,16 @@
     </div>
 
 
+    </nav>
+
+
 
     <div aria-live="polite" aria-atomic="true" class="position-relative">
         <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastContainer"></div>
     </div>
 
+<!-- Wrap your content in the new content-wrapper class -->
+<div class="content-wrapper">
     <div class="container mt-4 fade-in">
         {% if messages %}
         <div class="mb-4">
@@ -410,6 +485,8 @@
         {% block content %}
         {% endblock %}
     </div>
+</div>
+
     <script>
         function applyMode(mode) {
             const body = document.body;
